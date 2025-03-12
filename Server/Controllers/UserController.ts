@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { UserModel } from "../Models/UserModel";
+import { validate } from "class-validator";
 
 export const getUser = async (req: Request, res: Response) => {
   try {
@@ -34,6 +35,12 @@ export const getUserById = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = new UserModel(email, password);
+
+  const errors = await validate(user);
+  if (errors.length > 0) {
+    res.status(400).json(errors);
+    return;
+  }
 
   try {
     const collection = await req.mongoDB!.getCollection("users");
@@ -71,6 +78,12 @@ export const updateUser = async (req: Request, res: Response) => {
       user!.setPassword(password);
     }
 
+    const errors = await validate(user);
+    if (errors.length > 0) {
+      res.status(400).json(errors);
+      return;
+    }
+
     if (
       await collection.updateOne(
         { _id: ObjectId.createFromHexString(id) },
@@ -92,15 +105,15 @@ export const deleteUser = async (req: Request, res: Response) => {
   try {
     const collection = await req.mongoDB!.getCollection("users");
 
-      const result = await collection.deleteOne({
-        _id: ObjectId.createFromHexString(id),
-      });
+    const result = await collection.deleteOne({
+      _id: ObjectId.createFromHexString(id),
+    });
 
-      if (result.deletedCount === 1) {
-        res.status(200).send("User deleted successfully");
-      } else {
-        res.status(404).send("User not found");
-      }
+    if (result.deletedCount === 1) {
+      res.status(200).send("User deleted successfully");
+    } else {
+      res.status(404).send("User not found");
+    }
   } catch (error: any) {
     res.status(500).send(error.message);
   }

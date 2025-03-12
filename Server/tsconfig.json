@@ -82,6 +82,9 @@
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
     // "allowImportingTsExtensions": true,
 
     /* Type Checking */
@@ -111,6 +114,6 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   // "typeRoots": ["./node_modules/@types", "./Types"],
-  "include": ["./**/*.ts","express.d.ts"],
-  "exclude": ["node_modules"],
+  "include": ["./**/*.ts", "express.d.ts"],
+  "exclude": ["node_modules"]
 }

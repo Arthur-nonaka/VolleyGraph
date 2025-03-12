@@ -1,6 +1,11 @@
+import { IsEmail, Length } from "class-validator";
+
 export class UserModel {
-  private email!: string;
-  private password!: string;
+  @IsEmail({}, { message: "Email inválido" })
+  private email: string;
+
+  @Length(6, 200, { message: "Senha deve ter mais de 6 caracteres" })
+  private password: string;
 
   constructor(email: string, password: string) {
     this.email = email;
