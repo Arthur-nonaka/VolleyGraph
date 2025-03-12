@@ -1,13 +1,24 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import { mongoMiddleware } from "./MongoMiddleware";
 import { getUser, createUser, updateUser, deleteUser } from "./UserController";
+import { MongoDB } from "../Models/MongoDB";	
+
+declare global {
+  namespace Express {
+    interface Request {
+      mongoDB?: MongoDB;
+    }
+  }
+}
 
 dotenv.config();
 const app = express();
 
 const PORT = 3000;
 
+app.use(mongoMiddleware);
 app.use(bodyParser.json());
 
 // Routes

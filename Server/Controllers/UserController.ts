@@ -1,17 +1,31 @@
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { UserModel } from "../Models/UserModel";
-import { MongoDB } from "../Models/MongoDB";
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-    const mongoDB = new MongoDB();
-    await mongoDB.connect();
-
-    const collection = await mongoDB.getCollection("users");
+    const collection = await req.mongoDB!.getCollection("users");
     const users = await collection.find().toArray();
 
     res.status(200).json(users);
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
+};
+
+export const getUserById = async (req: Request, res: Response) => {
+  const { id } = req.body;
+  try {
+    const collection = await req.mongoDB!.getCollection("users");
+    const user = await collection.find({
+      _id: ObjectId.createFromHexString(id),
+    });
+
+    if (user) {
+      res.status(201).json(user);
+    } else {
+      res.status(404).send("User Not Found");
+    }
   } catch (error: any) {
     res.status(500).send(error.message);
   }
@@ -22,10 +36,7 @@ export const createUser = async (req: Request, res: Response) => {
   const user = new UserModel(email, password);
 
   try {
-    const mongoDB = new MongoDB();
-    await mongoDB.connect();
-
-    const collection = await mongoDB.getCollection("users");
+    const collection = await req.mongoDB!.getCollection("users");
 
     if (await collection.insertOne(user)) {
       res.status(201).send("User created successfully");
@@ -41,10 +52,7 @@ export const updateUser = async (req: Request, res: Response) => {
   const { email, password, id } = req.body;
 
   try {
-    const mongoDB = new MongoDB();
-    await mongoDB.connect();
-
-    const collection = await mongoDB.getCollection("users");
+    const collection = await req.mongoDB!.getCollection("users");
 
     const result = await collection.findOne({
       _id: ObjectId.createFromHexString(id),
@@ -78,6 +86,22 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = (req: Request, res: Response) => {
-  res.status(200).send("Delete User");
+export const deleteUser = async (req: Request, res: Response) => {
+  const { id } = req.body;
+
+  try {
+    const collection = await req.mongoDB!.getCollection("users");
+
+      const result = await collection.deleteOne({
+        _id: ObjectId.createFromHexString(id),
+      });
+
+      if (result.deletedCount === 1) {
+        res.status(200).send("User deleted successfully");
+      } else {
+        res.status(404).send("User not found");
+      }
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
 };
