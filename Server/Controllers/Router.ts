@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
 import { getUser, createUser, updateUser, deleteUser } from "./UserController";
 
 dotenv.config();
@@ -7,6 +8,9 @@ const app = express();
 
 const PORT = 3000;
 
+app.use(bodyParser.json());
+
+// Routes
 app.get("/user", getUser);
 app.post("/user", createUser);
 app.put("/user", updateUser);

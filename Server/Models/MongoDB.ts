@@ -5,13 +5,18 @@ export class MongoDB {
   private url: string;
   private dbName: string;
 
-  constructor(url: string, dbName: string) {
-    this.url = url;
-    this.dbName = dbName;
+  constructor() {
+    this.url = "mongodb://127.0.0.1:27017/";
+    this.dbName = "VolleyGraph";
   }
 
   public async connect() {
-    this.client = await MongoClient.connect(this.url);
+    try {
+      this.client = await MongoClient.connect(this.url);
+    } catch (error) {
+      console.error("Failed to connect to MongoDB", error);
+      throw error;
+    }
   }
 
   public async disconnect() {
@@ -19,8 +24,9 @@ export class MongoDB {
   }
 
   public async getCollection(collectionName: string) {
+    if (!this.client) {
+      throw new Error("MongoClient is not connected");
+    }
     return this.client.db(this.dbName).collection(collectionName);
   }
-
-
 }

@@ -1,6 +1,6 @@
 {
-    "watch": ["Controllers"],
-    "ext": "ts",
-    "ignore": ["src/**/*.spec.ts"],
-    "exec": "ts-node ./Controllers/Express.ts"
-  }
+  "watch": ["Controllers", "Models"],
+  "ext": "ts",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "ts-node ./Controllers/Router.ts"
+}
