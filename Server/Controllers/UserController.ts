@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { UserModel } from "../Models/UserModel";
 import { validate } from "class-validator";
+import bcrypt from "bcrypt";
 
 export const getUser = async (req: Request, res: Response) => {
   try {
@@ -45,6 +46,15 @@ export const createUser = async (req: Request, res: Response) => {
   try {
     const collection = await req.mongoDB!.getCollection("users");
 
+    const existingUser = await collection.findOne({ email: user.getEmail() });
+    if (existingUser) {
+      res.status(400).send("User already exists");
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(user.getPassword(), 10);
+    user.setPassword(hashedPassword);
+
     if (await collection.insertOne(user)) {
       res.status(201).send("User created successfully");
     } else {
@@ -81,6 +91,15 @@ export const updateUser = async (req: Request, res: Response) => {
     const errors = await validate(user);
     if (errors.length > 0) {
       res.status(400).json(errors);
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(user.getPassword(), 10);
+    user.setPassword(hashedPassword);
+
+    const existingUser = await collection.findOne({ email: user.getEmail() });
+    if (existingUser) {
+      res.status(400).send("User already exists");
       return;
     }
 
