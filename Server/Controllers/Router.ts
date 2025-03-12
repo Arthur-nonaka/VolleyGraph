@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import { mongoMiddleware } from "./MongoMiddleware";
 import { getUser, createUser, updateUser, deleteUser } from "./UserController";
+import { getPlayer, createPlayer, updatePlayer, deletePlayer } from "./PlayerController";
 import { MongoDB } from "../Models/MongoDB";	
 
 declare global {
@@ -26,6 +27,11 @@ app.get("/user", getUser);
 app.post("/user", createUser);
 app.put("/user", updateUser);
 app.delete("/user", deleteUser);
+
+app.get("/player", getPlayer);
+app.post("/player", createPlayer);
+app.put("/player", updatePlayer);
+app.delete("/player", deletePlayer);
 
 app
   .listen(PORT, () => {
