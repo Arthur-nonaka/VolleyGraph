@@ -15,7 +15,7 @@ export enum Position {
 class PositionNotEqualConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     const object = args.object as PlayerModel;
-    return object.getMainPosition() !== object.getSubPosition(); // Verifica se mainPosition e subPosition são diferentes
+    return object.getMainPosition() !== object.getSubPosition();
   }
 
   defaultMessage(args: ValidationArguments): string {
@@ -42,9 +42,9 @@ export class PlayerModel {
     @IsEnum(Position, { message: 'mainPosition deve ser uma posição válida do enum Position.' })
     private mainPosition!: Position;
 
-    @ValidateIf((o) => o.mainPosition !== o.subPosition) // Apenas valida se não forem iguais
+    @ValidateIf((o) => o.mainPosition !== o.subPosition)
     @IsEnum(Position, { message: 'subPosition deve ser uma posição válida do enum Position.' })
-    @ValidateIf((o) => o.mainPosition !== o.subPosition) // Valida se mainPosition e subPosition não são iguais
+    @ValidateIf((o) => o.mainPosition !== o.subPosition)
     @Validate(PositionNotEqualConstraint, { message: 'mainPosition e subPosition não podem ser iguais.' })
     private subPosition!: Position;
 

@@ -15,7 +15,8 @@
 			"extensions": [
 				"mongodb.mongodb-vscode",
 				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode"
+				"esbenp.prettier-vscode",
+				"octref.vetur"
 			]
 		}
 	},

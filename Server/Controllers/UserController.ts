@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { UserModel } from "../Models/UserModel";
+import { ResponseMessages } from "../Constants/ResponseMessages";
 import { validate } from "class-validator";
 import bcrypt from "bcrypt";
 
@@ -26,7 +27,7 @@ export const getUserById = async (req: Request, res: Response) => {
     if (user) {
       res.status(201).json(user);
     } else {
-      res.status(404).send("User Not Found");
+      res.status(404).send(ResponseMessages.USER_NOT_FOUND);
     }
   } catch (error: any) {
     res.status(500).send(error.message);
@@ -48,7 +49,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     const existingUser = await collection.findOne({ email: user.getEmail() });
     if (existingUser) {
-      res.status(400).send("User already exists");
+      res.status(400).send(ResponseMessages.USER_ALREADY_EXISTS);
       return;
     }
 
@@ -56,12 +57,12 @@ export const createUser = async (req: Request, res: Response) => {
     user.setPassword(hashedPassword);
 
     if (await collection.insertOne(user)) {
-      res.status(201).send("User created successfully");
+      res.status(201).send(ResponseMessages.USER_CREATED_SUCCESSFULLY);
     } else {
-      res.status(500).send("Error creating user");
+      res.status(500).send(ResponseMessages.ERROR_CREATING_USER);
     }
   } catch (error: any) {
-    res.status(500).send(error.message);
+    res.status(500).send("Database error");
   }
 };
 
@@ -76,7 +77,7 @@ export const updateUser = async (req: Request, res: Response) => {
     });
 
     if (!result) {
-      res.status(404).send("User not found");
+      res.status(404).send(ResponseMessages.USER_NOT_FOUND);
     }
 
     const user = new UserModel(result!.email, result!.password);
@@ -99,7 +100,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     const existingUser = await collection.findOne({ email: user.getEmail() });
     if (existingUser) {
-      res.status(400).send("User already exists");
+      res.status(400).send(ResponseMessages.USER_ALREADY_EXISTS);
       return;
     }
 
@@ -109,9 +110,9 @@ export const updateUser = async (req: Request, res: Response) => {
         { $set: user }
       )
     ) {
-      res.status(201).send("User updated successfully");
+      res.status(201).send(ResponseMessages.USER_UPDATED_SUCCESSFULLY);
     } else {
-      res.status(500).send("Error updating user");
+      res.status(500).send(ResponseMessages.ERROR_UPDATING_USER);
     }
   } catch (error: any) {
     res.status(500).send(error.message);
@@ -129,9 +130,9 @@ export const deleteUser = async (req: Request, res: Response) => {
     });
 
     if (result.deletedCount === 1) {
-      res.status(200).send("User deleted successfully");
+      res.status(200).send(ResponseMessages.USER_DELETED_SUCCESSFULLY);
     } else {
-      res.status(404).send("User not found");
+      res.status(404).send(ResponseMessages.ERROR_DELETING_USER);
     }
   } catch (error: any) {
     res.status(500).send(error.message);
