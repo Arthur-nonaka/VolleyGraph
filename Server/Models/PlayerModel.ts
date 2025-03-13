@@ -1,5 +1,6 @@
 import { cp } from "fs";
-import { IsString, IsInt, IsBoolean, Min, Max, IsEnum, ValidateIf, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface, Validate, IsAlpha } from 'class-validator';
+import { IsString, IsInt, IsBoolean, Min, Max, IsEnum, IsAlpha } from 'class-validator';
+import { IsDifferentFrom } from '../validators/IsDifferentFrom';
 
 export enum Position {
     OH = "Outside Hitter",
@@ -9,18 +10,6 @@ export enum Position {
     L = "Libero",
     SS = "Server Specialist",
     DS = "Defense Specialist"
-}
-
-@ValidatorConstraint({ async: false })
-class PositionNotEqualConstraint implements ValidatorConstraintInterface {
-  validate(value: any, args: ValidationArguments) {
-    const object = args.object as PlayerModel;
-    return object.getMainPosition() !== object.getSubPosition();
-  }
-
-  defaultMessage(args: ValidationArguments): string {
-    return 'mainPosition e subPosition não podem ser iguais.';
-  }
 }
 
 export class PlayerModel {
@@ -42,12 +31,11 @@ export class PlayerModel {
     @IsEnum(Position, { message: 'mainPosition deve ser uma posição válida do enum Position.' })
     private mainPosition!: Position;
 
-    @ValidateIf((o) => o.mainPosition !== o.subPosition)
     @IsEnum(Position, { message: 'subPosition deve ser uma posição válida do enum Position.' })
-    @ValidateIf((o) => o.mainPosition !== o.subPosition)
-    @Validate(PositionNotEqualConstraint, { message: 'mainPosition e subPosition não podem ser iguais.' })
+    @IsDifferentFrom('mainPosition', {
+      message: 'The positions cannot be the same',
+    })
     private subPosition!: Position;
-
 
     @IsInt()
     @Min(0)
