@@ -21,7 +21,7 @@ export class PlayerModel {
     @IsInt()
     @Min(10)
     @Max(80)
-    private age!: number;
+    private age!: Date;
 
     @IsInt()
     @Min(100)
@@ -80,7 +80,7 @@ export class PlayerModel {
     @IsBoolean()
     private retired!: boolean;
   
-    constructor(name:string, age:number, height:number, mainPosition:Position, subPosition:Position, APass:number, BPass:number, CPass:number, ASet:number,
+    constructor(name:string, age:Date, height:number, mainPosition:Position, subPosition:Position, APass:number, BPass:number, CPass:number, ASet:number,
                 BSet:number, CSet:number, points:number, blockPoints:number, servePoints:number, spikePoints:number, retired:boolean)
     {
       this.name = name;
@@ -104,8 +104,8 @@ export class PlayerModel {
     public getName(): string { return this.name; }
     public setName(name: string): void { this.name = name; }
 
-    public getAge(): number { return this.age; }
-    public setAge(age: number): void { this.age = age; }
+    public getAge(): Date { return this.age; }
+    public setAge(age: Date): void { this.age = age; }
 
     public getHeight(): number { return this.height; }
     public setHeight(height: number): void { this.height = height; }
