@@ -8,6 +8,7 @@ import {
 } from "../Controllers/UserController";
 import { MongoDB } from "../Models/MongoDB";
 import { ResponseMessages } from "../Constants/ResponseMessages";
+import { ObjectId } from "mongodb";
 
 jest.mock("../Models/MongoDB");
 
@@ -142,19 +143,37 @@ describe("UserController", () => {
       );
     });
 
-    it("should return 400 if validation fails", async () => {
-      // Arrange
-      req.body = {
-        email: "invalid-email",
-        password: "short",
-      };
+    describe("validation", () => {
+      const validationTests = [
+        {
+          name: "email is invalid",
+          body: {
+            email: "invalid-email",
+            password: "password123",
+          },
+        },
+        {
+          name: "password is too short",
+          body: {
+            email: "test@gmail.com",
+            password: "short",
+          },
+        },
+      ];
 
-      // Act
-      await createUser(req as Request, res as Response);
+      validationTests.forEach(({ name, body }) => {
+        it(name, async () => {
+          // Arrange
+          req.body = body;
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.any(Array));
+          // Act
+          await createUser(req as Request, res as Response);
+
+          // Assert
+          expect(res.status).toHaveBeenCalledWith(400);
+          expect(res.json).toHaveBeenCalledWith(expect.any(Array));
+        });
+      });
     });
 
     it("should handle database errors gracefully", async () => {
@@ -182,7 +201,159 @@ describe("UserController", () => {
     });
   });
 
-  describe("updateUser", () => {});
+  describe("updateUser", () => {
+    it("should update a user successfully", async () => {
+      // Arrange
+      req.body = {
+        email: "updated@gmail.com",
+        password: "newpassword123",
+        id: "507f1f77bcf86cd799439011",
+      };
 
-  describe("deleteUser", () => {});
+      const existingUser = {
+        _id: ObjectId.createFromHexString(req.body.id),
+        email: "test@gmail.com",
+        password: "password123",
+      };
+
+      const collection = {
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(existingUser)
+          .mockResolvedValueOnce(null),
+        updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await updateUser(req as Request, res as Response);
+
+      // Assert
+      expect(collection.findOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.body.id),
+      });
+      expect(collection.updateOne).toHaveBeenCalledWith(
+        { _id: ObjectId.createFromHexString(req.body.id) },
+        { $set: expect.any(Object) }
+      );
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.send).toHaveBeenCalledWith("User updated successfully");
+    });
+
+    it("should return 404 if user not found", async () => {
+      // Arrange
+      req.body = {
+        email: "updated@gmail.com",
+        password: "newpassword123",
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        findOne: jest.fn().mockResolvedValue(null),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await updateUser(req as Request, res as Response);
+
+      // Assert
+      expect(collection.findOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.body.id),
+      });
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith("User not found");
+    });
+
+    it("should handle database errors gracefully", async () => {
+      // Arrange
+      req.body = {
+        email: "updated@gmail.com",
+        password: "newpassword123",
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        findOne: jest.fn().mockRejectedValue(new Error("Database error")),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await updateUser(req as Request, res as Response);
+
+      // Assert
+      expect(collection.findOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.body.id),
+      });
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith("Database error");
+    });
+  });
+
+  describe("deleteUser", () => {
+    it("should delete a user successfully", async () => {
+      // Arrange
+      req.body = {
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await deleteUser(req as Request, res as Response);
+
+      // Assert
+      expect(collection.deleteOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.body.id),
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith("User deleted successfully");
+    });
+
+    it("should return 404 if user not found", async () => {
+      // Arrange
+      req.body = {
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await deleteUser(req as Request, res as Response);
+
+      // Assert
+      expect(collection.deleteOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.body.id),
+      });
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith("Error deleting user");
+    });
+
+    it("should handle database errors gracefully", async () => {
+      // Arrange
+      req.body = {
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        deleteOne: jest.fn().mockRejectedValue(new Error("Database error")),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await deleteUser(req as Request, res as Response);
+
+      // Assert
+      expect(collection.deleteOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.body.id),
+      });
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith("Database error");
+    });
+  });
 });
