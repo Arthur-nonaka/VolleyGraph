@@ -143,19 +143,37 @@ describe("UserController", () => {
       );
     });
 
-    it("should return 400 if validation fails", async () => {
-      // Arrange
-      req.body = {
-        email: "invalid-email",
-        password: "short",
-      };
+    describe("validation", () => {
+      const validationTests = [
+        {
+          name: "email is invalid",
+          body: {
+            email: "invalid-email",
+            password: "password123",
+          },
+        },
+        {
+          name: "password is too short",
+          body: {
+            email: "test@gmail.com",
+            password: "short",
+          },
+        },
+      ];
 
-      // Act
-      await createUser(req as Request, res as Response);
+      validationTests.forEach(({ name, body }) => {
+        it(name, async () => {
+          // Arrange
+          req.body = body;
 
-      // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith(expect.any(Array));
+          // Act
+          await createUser(req as Request, res as Response);
+
+          // Assert
+          expect(res.status).toHaveBeenCalledWith(400);
+          expect(res.json).toHaveBeenCalledWith(expect.any(Array));
+        });
+      });
     });
 
     it("should handle database errors gracefully", async () => {
@@ -199,7 +217,10 @@ describe("UserController", () => {
       };
 
       const collection = {
-        findOne: jest.fn().mockResolvedValueOnce(existingUser).mockResolvedValueOnce(null),
+        findOne: jest
+          .fn()
+          .mockResolvedValueOnce(existingUser)
+          .mockResolvedValueOnce(null),
         updateOne: jest.fn().mockResolvedValue({ modifiedCount: 1 }),
       };
       mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
