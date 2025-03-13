@@ -78,6 +78,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     if (!result) {
       res.status(404).send(ResponseMessages.USER_NOT_FOUND);
+      return;
     }
 
     const user = new UserModel(result!.email, result!.password);
