@@ -7,4 +7,11 @@ export const ResponseMessages = {
   ERROR_UPDATING_USER: "Error updating user",
   USER_DELETED_SUCCESSFULLY: "User deleted successfully",
   ERROR_DELETING_USER: "Error deleting user",
+  PLAYER_CREATED_SUCCESSFULLY: "Player created successfully",
+  ERROR_CREATING_PLAYER: "Error creating player",
+  PLAYER_NOT_FOUND: "Player not found",
+  PLAYER_UPDATED_SUCCESSFULLY: "Player updated successfully",
+  ERROR_UPDATING_PLAYER: "Error updating player",
+  PLAYER_DELETED_SUCCESSFULLY: "Player deleted successfully",
+  ERROR_DELETING_PLAYER: "Error deleting player",
 };
