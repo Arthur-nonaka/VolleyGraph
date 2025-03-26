@@ -1,0 +1,5 @@
+<template>
+    <footer>
+        <p>&copy; 2025 My App</p>
+    </footer>
+</template>
