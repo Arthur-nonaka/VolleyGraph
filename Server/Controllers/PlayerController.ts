@@ -200,7 +200,7 @@ export const deletePlayer = async (req: Request, res: Response) => {
     if (result.deletedCount === 1) {
       res.status(200).send("Player deleted successfully");
     } else {
-      res.status(404).send("Player not found");
+      res.status(404).send("Error deleting player");
     }
   } catch (error: any) {
     res.status(500).send(error.message);
