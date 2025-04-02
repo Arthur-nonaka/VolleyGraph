@@ -47,6 +47,13 @@
   }
 }
 
+@font-face {
+  font-family: 'Britannic';
+  src: url('/src/assets/fonts/Britannic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 *,
 *::before,
 *::after {
@@ -80,4 +87,5 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--vt-c-dark-blue);
 }

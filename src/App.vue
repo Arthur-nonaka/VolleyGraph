@@ -18,3 +18,10 @@ import Carousel from "./components/Carousel.vue";
 import Banner from "./components/Banner.vue";
 import Footer from "./components/Footer.vue";
 </script>
+
+<style scoped>
+main {
+  width: 100%;
+  height: 90vh;
+}
+</style>
