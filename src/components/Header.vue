@@ -2,7 +2,7 @@
     <Menu />
   <header>
     <div class="title">VolleyGraph</div>
-    <div class="avatar"></div>
+    <router-link class="router" to="/login"><div class="avatar"></div></router-link>
   </header>
 </template>
 
@@ -30,7 +30,7 @@ header {
   font-family: "Britannic";
 }
 
-.avatar {
+.router{
   position: absolute;
   width: 50px;
   height: 50px;
