@@ -59,11 +59,12 @@ export default {
 .carousel {
   position: relative;
   width: 100%;
-  max-width: 70vw;
+  max-width: 100%;
   height: 400px;
   margin: 0 auto;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
 }
 
 .carousel-inner {
@@ -86,7 +87,7 @@ export default {
   position: absolute;
   top: 50%;
   height: 100%;
-  width: 100px;
+  width: 70px;
   transform: translateY(-50%);
   color: white;
   border: none;
@@ -100,8 +101,8 @@ export default {
   background: linear-gradient(
     90deg,
     rgb(12, 47, 104) 0%,
-    rgba(12, 47, 104, 0.295) 25%,
-    rgba(12, 47, 104, 0) 75%
+    rgb(12, 47, 104) 30%,
+    rgba(12, 47, 104, 0) 100%
   );
   left: 0px;
 }
@@ -110,8 +111,8 @@ export default {
   background: linear-gradient(
     -90deg,
     rgb(12, 47, 104) 0%,
-    rgba(12, 47, 104, 0.295) 25%,
-    rgba(12, 47, 104, 0) 75%
+    rgb(12, 47, 104) 30%,
+    rgba(12, 47, 104, 0) 100%
   );
   right: 0px;
 }

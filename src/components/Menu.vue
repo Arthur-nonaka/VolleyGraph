@@ -1,6 +1,8 @@
 <template>
   <div class="menu-container">
-    <div @click="toggleMenu" class="menu-button"></div>
+    <div @click="toggleMenu" class="menu-button">
+      <img src="/volleyball.png" />
+    </div>
     <transition name="menu-fade">
       <ul v-if="isMenuOpen" class="menu-options">
         <li @click="selectOption('Loja')">Loja</li>
@@ -48,6 +50,21 @@ export default {
   border-radius: 50%;
   background-color: white;
   z-index: 10;
+  transition: transform 0.3s ease;
+}
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-button:hover {
+  cursor: pointer;
+  transform: rotate(-45deg);
+}
+
+.menu-button:active {
+  transform: rotate(260deg);
 }
 
 .menu-options {
@@ -60,7 +77,8 @@ export default {
   font-size: 1.2rem;
   width: 250px;
   height: 400px;
-  z-index: 2;
+  z-index: 4;
+   user-select: none;
 }
 
 .menu-options li {
