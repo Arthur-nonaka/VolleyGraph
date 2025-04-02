@@ -9,14 +9,12 @@
       </section>
     </main>
   
-    <Footer />
   </template>
   
   <script setup lang="ts">
   import Header from "../components/Header.vue";
   import Carousel from "../components/Carousel.vue";
   import Banner from "../components/Banner.vue";
-  import Footer from "../components/Footer.vue";
   </script>
   
   <style scoped>

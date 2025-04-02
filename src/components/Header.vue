@@ -2,7 +2,7 @@
   <header>
     <div class="menu"></div>
     <div class="title">VolleyGraph</div>
-    <div class="avatar"></div>
+    <router-link class="router" to="/login"><div class="avatar"></div></router-link>
   </header>
 </template>
 
@@ -33,7 +33,21 @@ header {
   left: 10px;
 }
 
-.avatar {
+/* .avatar {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: white;
+  margin-left: auto;
+  right: 10px;
+  background-image: url("../assets/avatar.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+} */
+
+.router{
   position: absolute;
   width: 50px;
   height: 50px;
