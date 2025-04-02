@@ -13,9 +13,9 @@
       <div class="footer-links">
         <h3>Links Úteis</h3>
         <ul>
-          <li><a href="#home">Início</a></li>
-          <li><a href="#tabela">Tabela de Jogos</a></li>
-          <li><a href="#equipes">Times</a></li>
+          <li><router-link to="/">Home</router-link></li>
+          <li><router-link>Tabela de Jogos</router-link></li>
+          <li><router-link to="/teams">Times</router-link></li>
           <li><a href="#equipes">Jogadores</a></li>
           <li><a href="#contato">Contato</a></li>
         </ul>
