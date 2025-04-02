@@ -1,13 +1,18 @@
 <template>
+    <Menu />
   <header>
-    <div class="menu"></div>
     <div class="title">VolleyGraph</div>
     <div class="avatar"></div>
   </header>
 </template>
 
+<script setup lang="ts">
+import Menu from "./Menu.vue";
+</script>
+
 <style scoped>
 header {
+  position: relative;
   background-color: var(--vt-c-blue);
   color: white;
   padding: 10px;
@@ -17,20 +22,12 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 5;
 }
 
 .title {
   font-size: 2.8rem;
   font-family: "Britannic";
-}
-
-.menu {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: white;
-  left: 10px;
 }
 
 .avatar {
