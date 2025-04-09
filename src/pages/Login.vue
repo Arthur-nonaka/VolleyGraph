@@ -1,74 +1,89 @@
 <template>
   <div class="login-container">
-    <div class="background">
-      <canvas id="particles"></canvas>
-    </div>
     <div class="login-box">
-      <div>
-        <input type="text" placeholder="Usuário" />
-        <input type="password" placeholder="Senha" />
-        <button>Entrar</button>
+      <div
+        class="data-container"
+        :style="
+          isLoginActive
+            ? { transform: 'translateX(75%)', borderRadius: '0 15px 15px 0' }
+            : { transform: 'translateX(-75%)', borderRadius: '15px 0 0 15px' }
+        "
+      >
+        <div v-if="isLoginActive">
+          <h1>Logar</h1>
+          <form>
+            <input type="text" placeholder="Email" />
+            <input type="password" placeholder="Senha" />
+            <p>Esqueceu a Senha?</p>
+            <button>Entrar</button>
+            <p>
+              Novo Aqui?
+              <span @click="isLoginActive = false">Crie sua Conta</span>
+            </p>
+          </form>
+        </div>
+
+        <div v-if="!isLoginActive">
+          <h1>Cadastrar</h1>
+          <form>
+            <input type="text" placeholder="Email" />
+            <input type="password" placeholder="Senha" />
+            <input type="password" placeholder="Confirmar Senha" />
+            <button style="margin-top: 20px">Cadastrar</button>
+            <p>
+              Já tem uma Conta?
+              <span @click="isLoginActive = true">Entre Agora</span>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref } from "vue";
 
-onMounted(() => {
-  const canvas = document.getElementById("particles");
-  const ctx = canvas.getContext("2d");
+const isLoginActive = ref(true);
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+// import { loadSlim } from "tsparticles";
 
-  let particlesArray = [];
-
-  class Particle {
-    constructor() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height;
-      this.size = Math.random() * 3 + 1;
-      this.speedX = Math.random() * 1.5 - 0.75;
-      this.speedY = Math.random() * 1.5 - 0.75;
-    }
-
-    update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-
-      if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-      if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
-    }
-
-    draw() {
-      ctx.fillStyle = "rgba(255, 255, 255)";
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  function init() {
-    particlesArray = [];
-    for (let i = 0; i < 40; i++) {
-      particlesArray.push(new Particle());
-    }
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particlesArray.forEach((particle) => {
-      particle.update();
-      particle.draw();
-    });
-    requestAnimationFrame(animate);
-  }
-
-  init();
-  animate();
-});
+// onMounted(async () => {
+//   const tsParticles = await import("tsparticles");
+//   await loadSlim(tsParticles);
+//   tsParticles.tsParticles.load("tsparticles", {
+//     particles: {
+//       number: {
+//         value: 50,
+//       },
+//       color: {
+//         value: "#ffffff",
+//       },
+//       shape: {
+//         type: "circle",
+//       },
+//       opacity: {
+//         value: 0.5,
+//       },
+//       size: {
+//         value: { min: 1, max: 5 },
+//       },
+//       move: {
+//         enable: true,
+//         speed: 2,
+//         direction: "none",
+//         random: false,
+//         straight: false,
+//         outModes: {
+//           default: "bounce",
+//         },
+//       },
+//     },
+//     background: {
+//       color: "#000000",
+//     },
+//   });
+// });
 </script>
 
 <style scoped>
@@ -88,31 +103,16 @@ onMounted(() => {
   );
 }
 
-/* Fundo animado com partículas */
-.background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-/* Estilo do Box de Login */
 .login-box {
   position: relative;
   z-index: 10;
-  background-image: url('./loginBackground.jpg');
+  background-image: url("./loginBackground.jpg");
   background-size: 100%;
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(15px);
   text-align: center;
-  width: 60vw;
+  width: 70vw;
   height: 70vh;
   display: flex;
   flex-direction: row;
@@ -121,32 +121,70 @@ canvas {
 }
 
 .login-box input {
-  width: 100%;
-  padding: 10px;
+  width: 70%;
+  height: 6vh;
+  padding: 15px;
+  padding-left: 20px;
   margin: 8px 0;
-  border: none;
-  border-radius: 5px;
+  border: 2px solid rgb(204, 204, 204);
+  border-radius: 30px;
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: black;
+  font-size: 1.2em;
 }
 
 .login-box input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(204, 204, 204);
 }
 
 .login-box button {
-  width: 100%;
+  width: 70%;
+  height: 6vh;
   padding: 12px;
-  background: #ff7f50;
+  background-image: linear-gradient(
+    45deg,
+    var(--vt-c-blue),
+    var(--vt-c-dark-blue)
+  );
   border: none;
-  border-radius: 5px;
+  border-radius: 30px;
   color: white;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: background-position 0.4s ease, transform 0.4s ease;
+  background-size: 200%;
+  background-position: left;
+  position: relative;
+  z-index: 2;
 }
 
 .login-box button:hover {
-  background: #ff4500;
+  background-position: right;
+}
+
+.data-container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white;
+  width: 28vw;
+  justify-content: center;
+  transition: all 0.5s ease-in-out;
+
+  > div > h1,
+  p,
+  span {
+    color: rgb(87, 87, 87);
+  }
+
+  div > form > p > span {
+    color: var(--vt-c-blue);
+    cursor: pointer;
+  }
+
+  div > form > p > span:hover {
+    text-decoration: underline;
+  }
 }
 </style>
