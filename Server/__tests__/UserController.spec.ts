@@ -207,11 +207,13 @@ describe("UserController", () => {
       req.body = {
         email: "updated@gmail.com",
         password: "newpassword123",
+      };
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
       const existingUser = {
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
         email: "test@gmail.com",
         password: "password123",
       };
@@ -230,10 +232,10 @@ describe("UserController", () => {
 
       // Assert
       expect(collection.findOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(collection.updateOne).toHaveBeenCalledWith(
-        { _id: ObjectId.createFromHexString(req.body.id) },
+        { _id: ObjectId.createFromHexString(req.params.id) },
         { $set: expect.any(Object) }
       );
       expect(res.status).toHaveBeenCalledWith(201);
@@ -245,6 +247,9 @@ describe("UserController", () => {
       req.body = {
         email: "updated@gmail.com",
         password: "newpassword123",
+      };
+
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
@@ -258,7 +263,7 @@ describe("UserController", () => {
 
       // Assert
       expect(collection.findOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith("User not found");
@@ -269,6 +274,9 @@ describe("UserController", () => {
       req.body = {
         email: "updated@gmail.com",
         password: "newpassword123",
+      };
+
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
@@ -282,7 +290,7 @@ describe("UserController", () => {
 
       // Assert
       expect(collection.findOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith("Database error");
@@ -292,7 +300,7 @@ describe("UserController", () => {
   describe("deleteUser", () => {
     it("should delete a user successfully", async () => {
       // Arrange
-      req.body = {
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
@@ -306,7 +314,7 @@ describe("UserController", () => {
 
       // Assert
       expect(collection.deleteOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith("User deleted successfully");
@@ -314,7 +322,7 @@ describe("UserController", () => {
 
     it("should return 404 if user not found", async () => {
       // Arrange
-      req.body = {
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
@@ -328,7 +336,7 @@ describe("UserController", () => {
 
       // Assert
       expect(collection.deleteOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith("Error deleting user");
@@ -336,7 +344,7 @@ describe("UserController", () => {
 
     it("should handle database errors gracefully", async () => {
       // Arrange
-      req.body = {
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
@@ -350,7 +358,7 @@ describe("UserController", () => {
 
       // Assert
       expect(collection.deleteOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith("Database error");

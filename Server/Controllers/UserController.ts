@@ -17,11 +17,11 @@ export const getUser = async (req: Request, res: Response) => {
 };
 
 export const getUserById = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id } = req.params;
   try {
     const collection = await req.mongoDB!.getCollection("users");
-    const user = await collection.find({
-      _id: ObjectId.createFromHexString(id),
+    const user = await collection.findOne({
+      _id: new ObjectId(id),
     });
 
     if (user) {
@@ -67,13 +67,14 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const updateUser = async (req: Request, res: Response) => {
-  const { email, password, id } = req.body;
+  const { email, password } = req.body;
+  const {id} = req.params;
 
   try {
     const collection = await req.mongoDB!.getCollection("users");
 
     const result = await collection.findOne({
-      _id: ObjectId.createFromHexString(id),
+      _id: new ObjectId(id),
     });
 
     if (!result) {
@@ -107,7 +108,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     if (
       await collection.updateOne(
-        { _id: ObjectId.createFromHexString(id) },
+        { _id: new ObjectId(id) },
         { $set: user }
       )
     ) {
@@ -121,13 +122,13 @@ export const updateUser = async (req: Request, res: Response) => {
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id } = req.params;
 
   try {
     const collection = await req.mongoDB!.getCollection("users");
 
     const result = await collection.deleteOne({
-      _id: ObjectId.createFromHexString(id),
+      _id: new ObjectId(id),
     });
 
     if (result.deletedCount === 1) {

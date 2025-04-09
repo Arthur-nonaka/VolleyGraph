@@ -15,11 +15,16 @@ export const getPlayer = async (req: Request, res: Response) => {
 };
 
 export const getPlayerById = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id } = req.params;
   try {
     const collection = await req.mongoDB!.getCollection("players");
-    const player = await collection.find({
-      _id: ObjectId.createFromHexString(id),
+
+    if (!ObjectId.isValid(id)) {
+      res.status(400).json({ error: "Invalid ID format" });
+    }
+
+    const player = await collection.findOne({
+      _id: new ObjectId(id),
     });
 
     if (player) {
@@ -54,10 +59,10 @@ export const createPlayer = async (req: Request, res: Response) => {
   );
 
   const errors = await validate(player);
-    if (errors.length > 0) {
-      res.status(400).json(errors);
-      return;
-    }
+  if (errors.length > 0) {
+    res.status(400).json(errors);
+    return;
+  }
 
   try {
     const collection = await req.mongoDB!.getCollection("players");
@@ -90,14 +95,18 @@ export const updatePlayer = async (req: Request, res: Response) => {
     servePoints,
     spikePoints,
     retired,
-    id,
   } = req.body;
+
+  const { id } = req.params;
+  if (!ObjectId.isValid(id)) {
+    res.status(400).json({ error: "Invalid ID format" });
+  }
 
   try {
     const collection = await req.mongoDB!.getCollection("players");
 
     const result = await collection.findOne({
-      _id: ObjectId.createFromHexString(id),
+      _id: new ObjectId(id),
     });
 
     if (!result) {
@@ -136,8 +145,8 @@ export const updatePlayer = async (req: Request, res: Response) => {
       player.setMainPosition(mainPosition);
     }
     if (subPosition) {
-        player.setSubPosition(subPosition);
-      }
+      player.setSubPosition(subPosition);
+    }
     if (APass) {
       player.setAPass(APass);
     }
@@ -174,7 +183,7 @@ export const updatePlayer = async (req: Request, res: Response) => {
 
     if (
       await collection.updateOne(
-        { _id: ObjectId.createFromHexString(id) },
+        { _id: new ObjectId(id) },
         { $set: player }
       )
     ) {
@@ -188,13 +197,13 @@ export const updatePlayer = async (req: Request, res: Response) => {
 };
 
 export const deletePlayer = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id } = req.params;
 
   try {
     const collection = await req.mongoDB!.getCollection("players");
 
     const result = await collection.deleteOne({
-      _id: ObjectId.createFromHexString(id),
+      _id: new ObjectId(id),
     });
 
     if (result.deletedCount === 1) {

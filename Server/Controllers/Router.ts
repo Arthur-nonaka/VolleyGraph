@@ -1,10 +1,23 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import cors from "cors";
 import { mongoMiddleware } from "./MongoMiddleware";
-import { getUser, createUser, updateUser, deleteUser } from "./UserController";
-import { getPlayer, createPlayer, updatePlayer, deletePlayer } from "./PlayerController";
-import { MongoDB } from "../Models/MongoDB";	
+import {
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser,
+  getUserById,
+} from "./UserController";
+import {
+  getPlayer,
+  createPlayer,
+  updatePlayer,
+  deletePlayer,
+  getPlayerById,
+} from "./PlayerController";
+import { MongoDB } from "../Models/MongoDB";
 
 declare global {
   namespace Express {
@@ -21,19 +34,20 @@ const PORT = 3000;
 
 app.use(mongoMiddleware);
 app.use(bodyParser.json());
+app.use(cors());
 
 // Routes
 app.get("/user", getUser);
+app.get("/user/:id", getUserById);
 app.post("/user", createUser);
 app.put("/user", updateUser);
 app.delete("/user", deleteUser);
 
 app.get("/player", getPlayer);
+app.get("/player/:id", getPlayerById);
 app.post("/player", createPlayer);
 app.put("/player", updatePlayer);
 app.delete("/player", deletePlayer);
-
-
 
 app
   .listen(PORT, () => {

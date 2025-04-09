@@ -10,6 +10,7 @@ const routes = [
   { path: '/teams', component: Teams },
   { path: '/jogadores', component: Players },
   { path: '/jogadores/registrar', component: RegisterPlayer },
+  { path: '/jogadores/editar/:id', component: RegisterPlayer },
   { path: '/login', component: Login }
 ];
 
