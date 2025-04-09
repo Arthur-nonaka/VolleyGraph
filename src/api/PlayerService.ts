@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:3000/player",
+  baseURL: "https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/player",
   headers: {
     "Content-Type": "application/json",
   },

@@ -17,12 +17,13 @@
       </button>
 
       <div class="player-container w-100">
-        <PlayerCard
-          v-for="player in players"
-          :player="player"
-          class="g-col-4"
-          @player-deleted="fetchPlayers"
-        />
+          <PlayerCard
+            v-for="player in players"
+            :key="player._id"
+            :player="player"
+            class="g-col-4"
+            @player-deleted="fetchPlayers"
+          />
       </div>
     </section>
   </main>

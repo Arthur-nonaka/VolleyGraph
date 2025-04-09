@@ -1,24 +1,26 @@
 <template>
-  <div class="player-card">
-    <div class="img-container">
-      <img
-        :src="player.imageUrl"
-        alt="Player Image"
-        style="width: 100%; height: 200px"
-      />
-    </div>
-    <div class="player-info">
-      <h2>{{ player.name }} - {{ player.mainPosition }}</h2>
-      <p>Altura: {{ player.height }} cm</p>
-      <router-link :to="`/jogadores/editar/${player._id}`"
-        ><button>Editar</button></router-link
-      >
-      <button @click="handleDelete">Excluir</button>
-      <!-- <p v-if="player.subPosition">
+  <router-link :to="`/jogadores/${player._id}`">
+    <div class="player-card">
+      <div class="img-container">
+        <img
+          :src="player.imageUrl"
+          alt="Player Image"
+          style="width: 100%; height: 200px"
+        />
+      </div>
+      <div class="player-info">
+        <h2>{{ player.name }} - {{ player.mainPosition }}</h2>
+        <p>Altura: {{ player.height }} cm</p>
+        <router-link :to="`/jogadores/editar/${player._id}`"
+          ><button>Editar</button></router-link
+        >
+        <button @click="handleDelete">Excluir</button>
+        <!-- <p v-if="player.subPosition">
           Posição Secundária: {{ player.subPosition }}
         </p> -->
+      </div>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script setup lang="ts">
