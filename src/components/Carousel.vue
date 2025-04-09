@@ -1,7 +1,7 @@
 <template>
-  <div class="carousel">
+  <div class="my-carousel">
     <div
-      class="carousel-track"
+      class="my-carousel-track"
       ref="carouselTrack"
       @mousedown="startDrag"
       @mousemove="onDrag"
@@ -11,7 +11,7 @@
       @touchmove="onDrag"
       @touchend="stopDrag"
     >
-      <div class="carousel-item" v-for="(image, index) in images" :key="index">
+      <div class="my-carousel-item" v-for="(image, index) in images" :key="index">
         <img :src="image" :alt="'Image ' + (index + 1)" />
       </div>
     </div>
@@ -59,7 +59,7 @@ export default {
 </script>
 
 <style scoped>
-.carousel {
+.my-carousel {
   position: relative;
   display: flex;
   align-items: center;
@@ -70,7 +70,7 @@ export default {
    user-select: none;
 }
 
-.carousel-track {
+.my-carousel-track {
   display: flex;
   overflow-x: auto;
   scroll-behavior: smooth;
@@ -83,34 +83,34 @@ export default {
 }
 
 
-.carousel-track::-webkit-scrollbar {
+.my-carousel-track::-webkit-scrollbar {
   height: 8px; 
   border-radius: 10px;
 }
 
-.carousel-track::-webkit-scrollbar-track {
+.my-carousel-track::-webkit-scrollbar-track {
   background: #f1f1f1; 
   border-radius: 10px; 
 }
 
-.carousel-track::-webkit-scrollbar-thumb {
+.my-carousel-track::-webkit-scrollbar-thumb {
   background: var(--vt-c-blue); 
   border-radius: 10px;
 }
 
-.carousel-track::-webkit-scrollbar-thumb:hover {
+.my-carousel-track::-webkit-scrollbar-thumb:hover {
     background: var(--vt-c-dark-blue); 
 }
 
-.carousel-track::-webkit-scrollbar-button {
+.my-carousel-track::-webkit-scrollbar-button {
   display: none; 
 }
 
-.carousel-track {
+.my-carousel-track {
   scrollbar-gutter: stable both-edges; /* Remove as setas laterais no Firefox */
 }
 
-.carousel-item {
+.my-carousel-item {
   flex: 0 0 auto;
   width: 350px;
   height: 200px;
@@ -118,12 +118,14 @@ export default {
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: grab;
+  max-width: none;
+  vertical-align: unset;
 }
-.carousel-track:active .carousel-item {
+.my-carousel-track:active .my-carousel-item {
   cursor: grabbing; 
 }
 
-.carousel-item img {
+.my-carousel-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;

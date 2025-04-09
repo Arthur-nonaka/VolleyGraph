@@ -4,7 +4,7 @@
   <main>
     <section class="container">
       <Banner />
-      <p>Partidas Recentes</p>
+      <p style="color: black;">Partidas Recentes</p>
       <Carousel />
     </section>
   </main>
@@ -17,21 +17,9 @@ import Banner from "../components/Banner.vue";
 </script>
 
 <style scoped>
-main {
-  width: 100%;
-  height: 90vh;
-  display: flex;
-  justify-content: center;
-}
 
 .container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
   margin-top: 20px;
-  width: 80vw;
-  background-color: var(--vt-c-white);
 }
 
 p {

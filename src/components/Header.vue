@@ -1,8 +1,10 @@
 <template>
-    <Menu />
+  <Menu />
   <header>
-    <div class="title">VolleyGraph</div>
-    <router-link class="router" to="/login"><div class="avatar"></div></router-link>
+    <router-link to="/" style="text-decoration: none;"><div class="title">VolleyGraph</div></router-link>
+    <router-link class="router" to="/login"
+      ><div class="avatar"></div
+    ></router-link>
   </header>
 </template>
 
@@ -28,9 +30,11 @@ header {
 .title {
   font-size: 2.8rem;
   font-family: "Britannic";
+  color: white;
+  text-decoration: none;
 }
 
-.router{
+.router {
   position: absolute;
   width: 50px;
   height: 50px;

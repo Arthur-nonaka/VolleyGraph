@@ -6,7 +6,7 @@
     <transition name="menu-fade">
       <ul v-if="isMenuOpen" class="menu-options">
         <li @click="selectOption('Loja')">Loja</li>
-        <li @click="selectOption('Jogadores')">Jogadores</li>
+        <router-link :to="{ path: '/jogadores'}" style="text-decoration: none;"><li @click="selectOption('Jogadores')"> Jogadores</li></router-link>
         <li @click="selectOption('Times')">Times</li>
         <li @click="selectOption('Partidas')">Partidas</li>
       </ul>
@@ -82,6 +82,7 @@ img {
 }
 
 .menu-options li {
+  color: white;
   display: flex;
   justify-content: start;
   padding: 10px;

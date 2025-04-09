@@ -1,16 +1,16 @@
 <template>
-  <div class="carousel">
+  <div class="my-carousel">
     <div
-      class="carousel-inner"
+      class="my-carousel-inner"
       :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
     >
-      <div class="carousel-item" v-for="(slide, index) in slides" :key="index">
+      <div class="my-carousel-item" v-for="(slide, index) in slides" :key="index">
         <img :src="slide.image" :alt="slide.alt" />
       </div>
     </div>
-    <button class="carousel-control prev" @click="prevSlide">‹</button>
-    <button class="carousel-control next" @click="nextSlide">›</button>
-    <div class="carousel-indicators">
+    <button class="my-carousel-control prev" @click="prevSlide">‹</button>
+    <button class="my-carousel-control next" @click="nextSlide">›</button>
+    <div class="my-carousel-indicators">
       <span
         v-for="(slide, index) in slides"
         :key="index"
@@ -56,7 +56,7 @@ export default {
 </script>
 
 <style scoped>
-.carousel {
+.my-carousel {
   position: relative;
   width: 100%;
   max-width: 100%;
@@ -67,23 +67,23 @@ export default {
   /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
 }
 
-.carousel-inner {
+.my-carousel-inner {
   display: flex;
   transition: transform 0.5s ease-in-out;
 }
 
-.carousel-item {
+.my-carousel-item {
   min-width: 100%;
   height: 400px;
 }
 
-.carousel-item img {
+.my-carousel-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.carousel-control {
+.my-carousel-control {
   position: absolute;
   top: 50%;
   height: 100%;
@@ -97,7 +97,7 @@ export default {
   z-index: 10;
 }
 
-.carousel-control.prev {
+.my-carousel-control.prev {
   background: linear-gradient(
     90deg,
     rgb(12, 47, 104) 0%,
@@ -107,7 +107,7 @@ export default {
   left: 0px;
 }
 
-.carousel-control.next {
+.my-carousel-control.next {
   background: linear-gradient(
     -90deg,
     rgb(12, 47, 104) 0%,
@@ -117,7 +117,7 @@ export default {
   right: 0px;
 }
 
-.carousel-indicators {
+.my-carousel-indicators {
   position: absolute;
   bottom: 10px;
   left: 50%;
@@ -126,7 +126,7 @@ export default {
   gap: 5px;
 }
 
-.carousel-indicators span {
+.my-carousel-indicators span {
   width: 10px;
   height: 10px;
   background: rgba(255, 255, 255, 0.5);
@@ -134,7 +134,7 @@ export default {
   cursor: pointer;
 }
 
-.carousel-indicators span.active {
+.my-carousel-indicators span.active {
   background: white;
 }
 </style>

@@ -1,11 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../pages/Home.vue';
-import Teams from '../pages/Teams.vue';
-import Login from '../pages/Login.vue';
+import Home from '@/pages/Home.vue';
+import Players from '@/pages/players/Players.vue';
+import RegisterPlayer from '@/pages/players/RegisterPlayer.vue';
+import Teams from '@/pages/Teams.vue';
+import Login from '@/pages/Login.vue';
 
 const routes = [
   { path: '/', component: Home },
   { path: '/teams', component: Teams },
+  { path: '/jogadores', component: Players },
+  { path: '/jogadores/registrar', component: RegisterPlayer },
   { path: '/login', component: Login }
 ];
 
