@@ -12,8 +12,12 @@
         <div v-if="isLoginActive">
           <h1>Logar</h1>
           <form @submit.prevent="loginUser">
-            <input type="text" placeholder="Email" v-model="loginData.email"/>
-            <input type="password" placeholder="Senha" v-model="loginData.password"/>
+            <input type="text" placeholder="Email" v-model="loginData.email" />
+            <input
+              type="password"
+              placeholder="Senha"
+              v-model="loginData.password"
+            />
             <p>Esqueceu a Senha?</p>
             <button>Entrar</button>
             <p>
@@ -37,7 +41,7 @@
               placeholder="Confirmar Senha"
               v-model="formData.confirmPassword"
             />
-            <button type="submit" style="margin-top: 20px">Cadastrar</button>
+            <button type="submit" style="margin-top: 2rem">Cadastrar</button>
             <p>
               Já tem uma Conta?
               <span @click="isLoginActive = true">Entre Agora</span>
@@ -101,11 +105,12 @@ const validateForm = () => {
   return isValid;
 };
 
-const submitForm = () => {
+const submitForm = async () => {
   if (validateForm()) {
-    UserService.createUser(formData.value)
+    const response = await UserService.createUser(formData.value)
       .then((response) => {
         console.log("Usuário cadastrado com sucesso:", response.data);
+        router.push("/");
       })
       .catch((error) => {
         console.error("Erro ao cadastrar usuário:", error);
@@ -122,7 +127,7 @@ const loginUser = () => {
     .then((response) => {
       console.log("Login bem-sucedido:", response.data);
       localStorage.setItem("token", response.data.token);
-      router.push('/');
+      router.push("/");
     })
     .catch((error) => {
       if (error.response) {
@@ -227,7 +232,7 @@ const loginUser = () => {
 .login-box button {
   width: 70%;
   height: 6vh;
-  padding: 12px;
+  padding: 0.2rem;
   background-image: linear-gradient(
     45deg,
     var(--vt-c-blue),
@@ -242,7 +247,7 @@ const loginUser = () => {
   background-size: 200%;
   background-position: left;
   position: relative;
-  z-index: 2;
+  text-align: center;
 }
 
 .login-box button:hover {
