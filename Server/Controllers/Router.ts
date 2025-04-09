@@ -40,14 +40,14 @@ app.use(cors());
 app.get("/user", getUser);
 app.get("/user/:id", getUserById);
 app.post("/user", createUser);
-app.put("/user", updateUser);
-app.delete("/user", deleteUser);
+app.put("/user/:id", updateUser);
+app.delete("/user/:id", deleteUser);
 
 app.get("/player", getPlayer);
 app.get("/player/:id", getPlayerById);
 app.post("/player", createPlayer);
-app.put("/player", updatePlayer);
-app.delete("/player", deletePlayer);
+app.put("/player/:id", updatePlayer);
+app.delete("/player/:id", deletePlayer);
 
 app
   .listen(PORT, () => {

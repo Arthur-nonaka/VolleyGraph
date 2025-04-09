@@ -21,6 +21,7 @@
           v-for="player in players"
           :player="player"
           class="g-col-4"
+          @player-deleted="fetchPlayers"
         />
       </div>
     </section>
@@ -34,7 +35,7 @@ import PlayerService, { positionTranslations } from "@/api/PlayerService";
 import { ref, onMounted } from "vue";
 
 const players = ref([]);
-onMounted(async () => {
+const fetchPlayers = async () => {
   try {
     const response = await PlayerService.getPlayer();
     players.value = response.data.map((player: any) => ({
@@ -47,7 +48,9 @@ onMounted(async () => {
   } catch (error) {
     console.error("Error fetching players:", error);
   }
-});
+};
+
+onMounted(fetchPlayers);
 </script>
 
 <style scoped>

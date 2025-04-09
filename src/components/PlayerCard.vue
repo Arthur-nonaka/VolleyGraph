@@ -10,8 +10,10 @@
     <div class="player-info">
       <h2>{{ player.name }} - {{ player.mainPosition }}</h2>
       <p>Altura: {{ player.height }} cm</p>
-      <router-link :to="`/jogadores/editar/${player._id}`"><button>Editar</button></router-link>
-      <button>Ecluir</button>
+      <router-link :to="`/jogadores/editar/${player._id}`"
+        ><button>Editar</button></router-link
+      >
+      <button @click="handleDelete">Excluir</button>
       <!-- <p v-if="player.subPosition">
           Posição Secundária: {{ player.subPosition }}
         </p> -->
@@ -21,13 +23,29 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue";
+import PlayerService from "@/api/PlayerService";
 
-defineProps({
+const props = defineProps({
   player: {
     type: Object,
     required: true,
   },
 });
+
+const emit = defineEmits(["playerDeleted"]);
+
+const { player } = props;
+
+const handleDelete = async () => {
+  const id = player._id;
+  try {
+    await PlayerService.deletePlayer(id);
+
+    emit("playerDeleted");
+  } catch (error) {
+    console.error("Error deleting player:", error);
+  }
+};
 </script>
 
 <style scoped>
