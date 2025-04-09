@@ -37,7 +37,7 @@ export const getUserById = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = new UserModel(email, password);
-  console.log("User criando");
+
   const errors = await validate(user);
   if (errors.length > 0) {
     res.status(400).json(errors);
@@ -50,7 +50,6 @@ export const createUser = async (req: Request, res: Response) => {
     const existingUser = await collection.findOne({ email: user.getEmail() });
     if (existingUser) {
       res.status(400).send(ResponseMessages.USER_ALREADY_EXISTS);
-      console.log("User já existe");
       return;
     }
 
@@ -59,20 +58,17 @@ export const createUser = async (req: Request, res: Response) => {
 
     if (await collection.insertOne(user)) {
       res.status(201).send(ResponseMessages.USER_CREATED_SUCCESSFULLY);
-      console.log("User criado");
     } else {
       res.status(500).send(ResponseMessages.ERROR_CREATING_USER);
-      console.log("Erro ao criar user");
     }
   } catch (error: any) {
     res.status(500).send("Database error");
-    console.log("Erro Banco");
   }
 };
 
 export const updateUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const { id } = req.params;
+  const {id} = req.params;
 
   try {
     const collection = await req.mongoDB!.getCollection("users");
@@ -110,7 +106,12 @@ export const updateUser = async (req: Request, res: Response) => {
       return;
     }
 
-    if (await collection.updateOne({ _id: new ObjectId(id) }, { $set: user })) {
+    if (
+      await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: user }
+      )
+    ) {
       res.status(201).send(ResponseMessages.USER_UPDATED_SUCCESSFULLY);
     } else {
       res.status(500).send(ResponseMessages.ERROR_UPDATING_USER);
