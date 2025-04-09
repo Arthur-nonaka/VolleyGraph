@@ -25,6 +25,11 @@
               <span @click="isLoginActive = false">Crie sua Conta</span>
             </p>
           </form>
+          <small v-if="errorMessage">
+            <div class="text-danger">
+              {{ errorMessage.data }}
+            </div>
+          </small>
         </div>
 
         <div v-if="!isLoginActive">
@@ -47,6 +52,14 @@
               <span @click="isLoginActive = true">Entre Agora</span>
             </p>
           </form>
+          <small>
+            <div class="text-danger" v-if="errors.email">
+              {{ errors.email }}
+            </div>
+            <div class="text-danger" v-if="errors.password">
+              {{ errors.password }}
+            </div>
+          </small>
         </div>
       </div>
     </div>
@@ -60,6 +73,7 @@ import { useRouter } from "vue-router";
 
 const isLoginActive = ref(true);
 const router = useRouter();
+const errorMessage = ref<string | null>(null);
 
 const formData = ref({
   email: "",
@@ -113,7 +127,21 @@ const submitForm = async () => {
         router.push("/");
       })
       .catch((error) => {
-        console.error("Erro ao cadastrar usuário:", error);
+        if (error.status === 400) {
+          const validationErrors = error.response;
+          validationErrors.forEach(
+            (err: {
+              property: keyof typeof errors.value;
+              constraints: Record<string, string>;
+            }) => {
+              errors.value[err.property] = Object.values(err.constraints).join(
+                ", "
+              );
+            }
+          );
+        } else {
+          console.error("Erro ao cadastrar usuário:", error);
+        }
       });
   } else {
     console.log("Formulário inválido", errors.value);
@@ -121,6 +149,7 @@ const submitForm = async () => {
 };
 
 const loginUser = () => {
+  errorMessage.value = null;
   console.log("Tentando logar com:", loginData.value);
 
   UserService.loginUser(loginData.value)
@@ -130,10 +159,11 @@ const loginUser = () => {
       router.push("/");
     })
     .catch((error) => {
-      if (error.response) {
-        console.error("Erro no login:", error.response.data);
+      if (error.status === 400) {
+        errorMessage.value = error.response.data;
+
       } else {
-        console.error("Erro ao tentar logar:", error.message);
+        console.error("Erro ao logar usuário:", error);
       }
     });
 };

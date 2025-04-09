@@ -68,7 +68,7 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const {id} = req.params;
+  const { id } = req.params;
 
   try {
     const collection = await req.mongoDB!.getCollection("users");
@@ -106,12 +106,7 @@ export const updateUser = async (req: Request, res: Response) => {
       return;
     }
 
-    if (
-      await collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: user }
-      )
-    ) {
+    if (await collection.updateOne({ _id: new ObjectId(id) }, { $set: user })) {
       res.status(201).send(ResponseMessages.USER_UPDATED_SUCCESSFULLY);
     } else {
       res.status(500).send(ResponseMessages.ERROR_UPDATING_USER);
@@ -150,17 +145,18 @@ export const loginUser = async (req: Request, res: Response) => {
 
     if (!user) {
       res.status(400).send(ResponseMessages.USER_NOT_FOUND);
+      return;
     }
 
     const isMatch = await bcrypt.compare(password, user!.password);
     if (!isMatch) {
       res.status(400).send(ResponseMessages.INVALID_PASSWORD);
+      return;
     }
 
     res.status(200).send(ResponseMessages.LOGIN_SUCCESS);
-  }
-  catch(error) {
+  } catch (error) {
     console.error("Error during login:", error);
     res.status(500).send(ResponseMessages.LOGIN_FAILED);
   }
-}
+};

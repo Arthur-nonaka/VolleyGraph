@@ -7,7 +7,7 @@ const api = axios.create({
   },
 });
 
-export const createUser = async (userData: any): Promise<AxiosResponse> =>
+export const createUser = async (userData: any)=>
   api.post("", userData);
 export const getUser = async () => api.get("");
 export const loginUser = async (loginData: any) =>

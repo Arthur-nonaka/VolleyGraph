@@ -113,6 +113,9 @@
                   Especialista em defesa
                 </option>
               </select>
+              <small v-if="errors.subPosition" class="text-danger">{{
+                errors.subPosition
+              }}</small>
             </div>
           </div>
         </div>
@@ -150,6 +153,7 @@ const errors = ref({
   age: "",
   height: "",
   mainPosition: "",
+  subPosition: "",
 });
 
 onMounted(async () => {
@@ -174,6 +178,7 @@ const validateForm = () => {
     age: "",
     height: "",
     mainPosition: "",
+    subPosition: "",
   };
 
   if (!formData.value.name) {
@@ -213,8 +218,23 @@ const submitForm = async () => {
     } else {
       await PlayerService.createPlayer(formData.value);
     }
-  } catch (error) {
-    console.error("Error creating player:", error);
+  } catch (error: any) {
+    if (error.response.status === 400) {
+      const validationErrors = error.response.data;
+      validationErrors.forEach(
+        (err: {
+          property: keyof typeof errors.value;
+          constraints: Record<string, string>;
+        }) => {
+          errors.value[err.property] = Object.values(err.constraints).join(
+            ", "
+          );
+        }
+      );
+      console.log(errors.value);
+    } else {
+      console.error("Error creating player:", error);
+    }
   }
 };
 </script>
@@ -231,10 +251,5 @@ form {
 
 select:hover {
   cursor: pointer;
-}
-
-.text-danger {
-  color: red;
-  font-size: 0.875rem;
 }
 </style>

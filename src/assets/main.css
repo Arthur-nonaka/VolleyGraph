@@ -49,3 +49,9 @@ main {
   color: red;
   font-weight: bold;
 }
+
+
+.text-danger {
+  color: red;
+  font-size: 0.875rem;
+}
