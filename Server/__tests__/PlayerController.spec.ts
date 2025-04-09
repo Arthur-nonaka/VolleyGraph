@@ -282,11 +282,13 @@ describe("PlayerController", () => {
         servePoints: 0,
         spikePoints: 0,
         retired: false,
+      };
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
       const existingPlayer = {
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: new ObjectId(req.params.id),
         name: "Bruninho",
         age: 32,
         height: 177,
@@ -319,10 +321,10 @@ describe("PlayerController", () => {
 
       // Assert
       expect(collection.findOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(collection.updateOne).toHaveBeenCalledWith(
-        { _id: ObjectId.createFromHexString(req.body.id) },
+        { _id: ObjectId.createFromHexString(req.params.id) },
         { $set: expect.any(Object) }
       );
       expect(res.status).toHaveBeenCalledWith(201);
@@ -348,6 +350,9 @@ describe("PlayerController", () => {
         servePoints: 0,
         spikePoints: 0,
         retired: false,
+      };
+
+      req.params = {
         id: "507f1f77bcf86cd799439011",
       };
 
@@ -361,7 +366,7 @@ describe("PlayerController", () => {
 
       // Assert
       expect(collection.findOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith("Player not found");
@@ -386,8 +391,11 @@ describe("PlayerController", () => {
         servePoints: 0,
         spikePoints: 0,
         retired: false,
-        id: "507f1f77bcf86cd799439011",
       };
+      
+      req.params = {
+        id: "507f1f77bcf86cd799439011"
+      }
 
       const collection = {
         findOne: jest.fn().mockRejectedValue(new Error("Database error")),
@@ -399,78 +407,78 @@ describe("PlayerController", () => {
 
       // Assert
       expect(collection.findOne).toHaveBeenCalledWith({
-        _id: ObjectId.createFromHexString(req.body.id),
+        _id: ObjectId.createFromHexString(req.params.id),
       });
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith("Database error");
     });
   });
-  
+
   describe("deletePlayer", () => {
-      it("should delete a player successfully", async () => {
-        // Arrange
-        req.body = {
-          id: "507f1f77bcf86cd799439011",
-        };
-  
-        const collection = {
-          deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }),
-        };
-        mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
-  
-        // Act
-        await deletePlayer(req as Request, res as Response);
-  
-        // Assert
-        expect(collection.deleteOne).toHaveBeenCalledWith({
-          _id: ObjectId.createFromHexString(req.body.id),
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.send).toHaveBeenCalledWith("Player deleted successfully");
+    it("should delete a player successfully", async () => {
+      // Arrange
+      req.params = {
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        deleteOne: jest.fn().mockResolvedValue({ deletedCount: 1 }),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await deletePlayer(req as Request, res as Response);
+
+      // Assert
+      expect(collection.deleteOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.params.id),
       });
-  
-      it("should return 404 if player not found", async () => {
-        // Arrange
-        req.body = {
-          id: "507f1f77bcf86cd799439011",
-        };
-  
-        const collection = {
-          deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
-        };
-        mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
-  
-        // Act
-        await deletePlayer(req as Request, res as Response);
-  
-        // Assert
-        expect(collection.deleteOne).toHaveBeenCalledWith({
-          _id: ObjectId.createFromHexString(req.body.id),
-        });
-        expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.send).toHaveBeenCalledWith("Error deleting player");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith("Player deleted successfully");
+    });
+
+    it("should return 404 if player not found", async () => {
+      // Arrange
+      req.params = {
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await deletePlayer(req as Request, res as Response);
+
+      // Assert
+      expect(collection.deleteOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.params.id),
       });
-  
-      it("should handle database errors gracefully", async () => {
-        // Arrange
-        req.body = {
-          id: "507f1f77bcf86cd799439011",
-        };
-  
-        const collection = {
-          deleteOne: jest.fn().mockRejectedValue(new Error("Database error")),
-        };
-        mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
-  
-        // Act
-        await deletePlayer(req as Request, res as Response);
-  
-        // Assert
-        expect(collection.deleteOne).toHaveBeenCalledWith({
-          _id: ObjectId.createFromHexString(req.body.id),
-        });
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.send).toHaveBeenCalledWith("Database error");
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith("Error deleting player");
+    });
+
+    it("should handle database errors gracefully", async () => {
+      // Arrange
+      req.params = {
+        id: "507f1f77bcf86cd799439011",
+      };
+
+      const collection = {
+        deleteOne: jest.fn().mockRejectedValue(new Error("Database error")),
+      };
+      mongoDB.getCollection = jest.fn().mockResolvedValue(collection);
+
+      // Act
+      await deletePlayer(req as Request, res as Response);
+
+      // Assert
+      expect(collection.deleteOne).toHaveBeenCalledWith({
+        _id: ObjectId.createFromHexString(req.params.id),
       });
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith("Database error");
     });
   });
+});
