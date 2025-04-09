@@ -11,9 +11,9 @@
       >
         <div v-if="isLoginActive">
           <h1>Logar</h1>
-          <form>
-            <input type="text" placeholder="Email" />
-            <input type="password" placeholder="Senha" />
+          <form @submit.prevent="loginUser">
+            <input type="text" placeholder="Email" v-model="loginData.email"/>
+            <input type="password" placeholder="Senha" v-model="loginData.password"/>
             <p>Esqueceu a Senha?</p>
             <button>Entrar</button>
             <p>
@@ -26,9 +26,17 @@
         <div v-if="!isLoginActive">
           <h1>Cadastrar</h1>
           <form @submit.prevent="submitForm">
-            <input type="text" placeholder="Email" v-model="formData.email"/>
-            <input type="password" placeholder="Senha" v-model="formData.password"/>
-            <input type="password" placeholder="Confirmar Senha" v-model="formData.confirmPassword"/>
+            <input type="text" placeholder="Email" v-model="formData.email" />
+            <input
+              type="password"
+              placeholder="Senha"
+              v-model="formData.password"
+            />
+            <input
+              type="password"
+              placeholder="Confirmar Senha"
+              v-model="formData.confirmPassword"
+            />
             <button type="submit" style="margin-top: 20px">Cadastrar</button>
             <p>
               Já tem uma Conta?
@@ -44,14 +52,21 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import UserService from "@/api/UserService";
+import { useRouter } from "vue-router";
 
 const isLoginActive = ref(true);
+const router = useRouter();
 
 const formData = ref({
   email: "",
   password: "",
   confirmPassword: "",
-})
+});
+
+const loginData = ref({
+  email: "",
+  password: "",
+});
 
 const errors = ref({
   email: "",
@@ -61,7 +76,7 @@ const errors = ref({
 
 const validateForm = () => {
   let isValid = true;
-  console.log("Validando Form")
+
   errors.value = {
     email: "",
     password: "",
@@ -87,7 +102,6 @@ const validateForm = () => {
 };
 
 const submitForm = () => {
-  console.log("Submetendo Form")
   if (validateForm()) {
     UserService.createUser(formData.value)
       .then((response) => {
@@ -99,6 +113,24 @@ const submitForm = () => {
   } else {
     console.log("Formulário inválido", errors.value);
   }
+};
+
+const loginUser = () => {
+  console.log("Tentando logar com:", loginData.value);
+
+  UserService.loginUser(loginData.value)
+    .then((response) => {
+      console.log("Login bem-sucedido:", response.data);
+      localStorage.setItem("token", response.data.token);
+      router.push('/');
+    })
+    .catch((error) => {
+      if (error.response) {
+        console.error("Erro no login:", error.response.data);
+      } else {
+        console.error("Erro ao tentar logar:", error.message);
+      }
+    });
 };
 
 // import { loadSlim } from "tsparticles";
