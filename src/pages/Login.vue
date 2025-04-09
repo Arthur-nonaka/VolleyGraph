@@ -25,11 +25,11 @@
 
         <div v-if="!isLoginActive">
           <h1>Cadastrar</h1>
-          <form>
-            <input type="text" placeholder="Email" />
-            <input type="password" placeholder="Senha" />
-            <input type="password" placeholder="Confirmar Senha" />
-            <button style="margin-top: 20px">Cadastrar</button>
+          <form @submit.prevent="submitForm">
+            <input type="text" placeholder="Email" v-model="formData.email"/>
+            <input type="password" placeholder="Senha" v-model="formData.password"/>
+            <input type="password" placeholder="Confirmar Senha" v-model="formData.confirmPassword"/>
+            <button type="submit" style="margin-top: 20px">Cadastrar</button>
             <p>
               Já tem uma Conta?
               <span @click="isLoginActive = true">Entre Agora</span>
@@ -41,10 +41,65 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+import UserService from "@/api/UserService";
 
 const isLoginActive = ref(true);
+
+const formData = ref({
+  email: "",
+  password: "",
+  confirmPassword: "",
+})
+
+const errors = ref({
+  email: "",
+  password: "",
+  confirmPassword: "",
+});
+
+const validateForm = () => {
+  let isValid = true;
+  console.log("Validando Form")
+  errors.value = {
+    email: "",
+    password: "",
+    confirmPassword: "",
+  };
+
+  if (!formData.value.email) {
+    errors.value.email = "Email é obrigatório";
+    isValid = false;
+  }
+
+  if (!formData.value.password) {
+    errors.value.password = "Senha é obrigatória";
+    isValid = false;
+  }
+
+  if (formData.value.password !== formData.value.confirmPassword) {
+    errors.value.confirmPassword = "As senhas não coincidem";
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+const submitForm = () => {
+  console.log("Submetendo Form")
+  if (validateForm()) {
+    UserService.createUser(formData.value)
+      .then((response) => {
+        console.log("Usuário cadastrado com sucesso:", response.data);
+      })
+      .catch((error) => {
+        console.error("Erro ao cadastrar usuário:", error);
+      });
+  } else {
+    console.log("Formulário inválido", errors.value);
+  }
+};
 
 // import { loadSlim } from "tsparticles";
 
