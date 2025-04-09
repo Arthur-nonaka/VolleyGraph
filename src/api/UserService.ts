@@ -10,6 +10,7 @@ const api = axios.create({
 export const createUser = async (userData: any): Promise<AxiosResponse> =>
   api.post("", userData);
 export const getUser = async () => api.get("");
+export const loginUser = async () => api.get("/login");
 export const getUserById = async (id: string) => api.get(`/${id}`);
 export const updateUser = async (id: string, userData: any) =>
   api.put(`/${id}`, userData);
@@ -18,6 +19,7 @@ export const deletePlayer = async (id: string) => api.delete(`/${id}`);
 export const UserService = {
   createUser,
   getUser,
+  loginUser,
   getUserById,
   updateUser,
   deletePlayer,

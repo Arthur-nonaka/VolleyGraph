@@ -139,3 +139,26 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(500).send(error.message);
   }
 };
+
+export const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  try {
+    const collection = await req.mongoDB!.getCollection("users");
+    const user = await collection.findOne({ email });
+
+    if (!user) {
+      res.status(400).send(ResponseMessages.USER_NOT_FOUND);
+    }
+
+    const isMatch = await bcrypt.compare(password, user!.password);
+    if (!isMatch) {
+      res.status(400).send(ResponseMessages.INVALID_PASSWORD);
+    }
+
+    res.status(200).send(ResponseMessages.LOGIN_SUCCESS);
+  }
+  catch(error) {
+    console.error("Error during login:", error);
+    res.status(500).send(ResponseMessages.LOGIN_FAILED);
+  }
+}

@@ -6,6 +6,7 @@ import { mongoMiddleware } from "./MongoMiddleware";
 import {
   getUser,
   createUser,
+  loginUser,
   updateUser,
   deleteUser,
   getUserById,
@@ -40,6 +41,7 @@ app.use(cors());
 app.get("/user", getUser);
 app.get("/user/:id", getUserById);
 app.post("/user", createUser);
+app.post("/user/login", loginUser);
 app.put("/user/:id", updateUser);
 app.delete("/user/:id", deleteUser);
 

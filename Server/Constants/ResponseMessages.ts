@@ -14,4 +14,7 @@ export const ResponseMessages = {
   ERROR_UPDATING_PLAYER: "Error updating player",
   PLAYER_DELETED_SUCCESSFULLY: "Player deleted successfully",
   ERROR_DELETING_PLAYER: "Error deleting player",
+  LOGIN_SUCCESS: "Login successful",
+  LOGIN_FAILED: "Login failed",
+  INVALID_PASSWORD: "Invalid password",
 };
