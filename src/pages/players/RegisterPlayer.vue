@@ -118,7 +118,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary w-100">
-          {{ isEditMode ? "Atualizar" : "Registrar" }}Registrar
+          {{ isEditMode ? "Atualizar" : "Registrar" }}
         </button>
       </form>
     </section>
@@ -128,7 +128,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import { positionTranslations } from "@/api/PlayerService";
 import Header from "@/components/Header.vue";
 import PlayerService from "@/api/PlayerService";
 
