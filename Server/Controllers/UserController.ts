@@ -143,6 +143,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log("Login attempt with email:", email);
   try {
     const collection = await req.mongoDB!.getCollection("users");
     const user = await collection.findOne({ email });
