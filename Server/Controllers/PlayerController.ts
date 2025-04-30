@@ -2,11 +2,45 @@ import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { PlayerModel } from "../Models/PlayerModel";
 import { validate } from "class-validator";
+import multer from "multer";
+import path from "path";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../uploads"));
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({
+  storage,
+});
+
+export const uploadImage = upload.single("image");
 
 export const getPlayer = async (req: Request, res: Response) => {
   try {
+    const { name, mainPositions } = req.query;
     const collection = await req.mongoDB!.getCollection("players");
-    const players = await collection.find().toArray();
+
+    const filters: any = {};
+    if (name) {
+      filters.name = { $regex: new RegExp(name as string, "i") };
+    }
+    if (mainPositions) {
+      const positions = Array.isArray(mainPositions)
+        ? mainPositions
+        : [mainPositions];
+      filters.mainPosition = { $in: positions };
+    }
+
+    const players = await collection.find(filters).toArray();
+
+    players.forEach((player) => {
+      player.age = new Date(player.age).toISOString().split("T")[0];
+    });
 
     res.status(200).json(players);
   } catch (error: any) {
@@ -27,6 +61,8 @@ export const getPlayerById = async (req: Request, res: Response) => {
       _id: new ObjectId(id),
     });
 
+    player!.age = new Date(player!.age).toISOString().split("T")[0];
+
     if (player) {
       res.status(201).json(player);
     } else {
@@ -39,10 +75,14 @@ export const getPlayerById = async (req: Request, res: Response) => {
 
 export const createPlayer = async (req: Request, res: Response) => {
   const { name, age, height, mainPosition, subPosition } = req.body;
+  const imageUrl = req.file
+    ? `https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/uploads/${req.file.filename}`
+    : null;
+
   const player = new PlayerModel(
     name,
-    age,
-    height,
+    new Date(age),
+    parseFloat(height),
     mainPosition,
     subPosition,
     0,
@@ -55,7 +95,8 @@ export const createPlayer = async (req: Request, res: Response) => {
     0,
     0,
     0,
-    false
+    false,
+    imageUrl
   );
 
   const errors = await validate(player);
@@ -97,6 +138,10 @@ export const updatePlayer = async (req: Request, res: Response) => {
     retired,
   } = req.body;
 
+  const imageUrl = req.file
+    ? `https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/uploads/${req.file.filename}`
+    : null;
+
   const { id } = req.params;
   if (!ObjectId.isValid(id)) {
     res.status(400).json({ error: "Invalid ID format" });
@@ -129,7 +174,8 @@ export const updatePlayer = async (req: Request, res: Response) => {
       result!.blockPoints,
       result!.ServePoints,
       result!.spikePoints,
-      result!.retired
+      result!.retired,
+      result!.imageUrl
     );
 
     if (name) {
@@ -180,12 +226,12 @@ export const updatePlayer = async (req: Request, res: Response) => {
     if (retired !== undefined) {
       player.setRetired(retired);
     }
+    if (imageUrl) {
+      player.setImageUrl(imageUrl);
+    }
 
     if (
-      await collection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: player }
-      )
+      await collection.updateOne({ _id: new ObjectId(id) }, { $set: player })
     ) {
       res.status(201).send("Player updated successfully");
     } else {

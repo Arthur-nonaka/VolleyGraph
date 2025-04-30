@@ -7,9 +7,13 @@ export class UserModel {
   @Length(6, 200, { message: "Senha deve ter mais de 6 caracteres" })
   private password: string;
 
-  constructor(email: string, password: string) {
+  @Length(5, 200, { message: "Endereço deve ter entre 5 e 200 caracteres" })
+  private address: string;
+
+  constructor(email: string, password: string, address: string) {
     this.email = email;
     this.password = password;
+    this.address = address;
   }
 
   public getEmail() {
@@ -26,5 +30,13 @@ export class UserModel {
 
   public setPassword(password: string) {
     this.password = password;
+  }
+
+  public getAddress() {
+    return this.address;
+  }
+
+  public setAddress(address: string) {
+    this.address = address;
   }
 }

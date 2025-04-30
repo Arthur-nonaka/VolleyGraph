@@ -3,13 +3,13 @@ import axios, { AxiosResponse } from "axios";
 const api = axios.create({
   baseURL: "https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/player",
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data",
   },
 });
 
 export const createPlayer = async (playerData: any): Promise<AxiosResponse> =>
   api.post("", playerData);
-export const getPlayer = async () => api.get("");
+export const getPlayer = async (filters: any) => api.get("", {params: filters});
 export const getPlayerById = async (id: string) => api.get(`/${id}`);
 export const updatePlayer = async (id: string, playerData: any) =>
   api.put(`/${id}`, playerData);

@@ -34,10 +34,10 @@
           <div class="col">
             <div class="form-group mb-3">
               <label for="idade" class="form-label"
-                >Idade <span class="required">*</span></label
+                >Data de Nascimento <span class="required">*</span></label
               >
               <input
-                type="number"
+                type="date"
                 id="age"
                 class="form-control"
                 v-model="formData.age"
@@ -56,6 +56,7 @@
                 type="number"
                 id="height"
                 class="form-control"
+                step="0.01"
                 v-model="formData.height"
               />
               <small v-if="errors.height" class="text-danger">{{
@@ -119,8 +120,17 @@
             </div>
           </div>
         </div>
+        <div class="form-group mb-3">
+          <label for="image" class="form-label">Foto</label>
+          <input
+            type="file"
+            id="image"
+            class="form-control"
+            @change="handleImageUpload"
+          />
+        </div>
 
-        <button type="submit" class="btn btn-primary w-100">
+        <button type="submit" class="btn btn-primary w-100" style="margin-bottom: 20px;">
           {{ isEditMode ? "Atualizar" : "Registrar" }}
         </button>
       </form>
@@ -140,12 +150,20 @@ const playerId = Array.isArray(route.params.id)
   : route.params.id;
 const isEditMode = !!playerId;
 
-const formData = ref({
+const formData = ref<{
+  name: string;
+  age: string | null;
+  height: number | null;
+  mainPosition: string;
+  subPosition: string | null;
+  image: File | null;
+}>({
   name: "",
   age: null,
   height: null,
   mainPosition: "",
   subPosition: null,
+  image: null,
 });
 
 const errors = ref({
@@ -170,6 +188,13 @@ onMounted(async () => {
   }
 });
 
+const handleImageUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    formData.value.image = target.files[0];
+  }
+};
+
 const validateForm = () => {
   let isValid = true;
 
@@ -186,13 +211,23 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (!formData.value.age || formData.value.age <= 0) {
-    errors.value.age = "A idade deve ser maior que 0.";
+  if (!formData.value.age) {
+    errors.value.age = "A data de nascimento é obrigatória.";
     isValid = false;
+  } else {
+    const selectedDate = new Date(formData.value.age);
+    const minDate = new Date("1900-01-01");
+    const maxDate = new Date();
+
+    if (selectedDate < minDate || selectedDate > maxDate) {
+      errors.value.age =
+        "A data de nascimento deve estar entre 1º de janeiro de 1900 e hoje.";
+      isValid = false;
+    }
   }
 
-  if (!formData.value.height || formData.value.height <= 0) {
-    errors.value.height = "A altura deve ser maior que 0.";
+  if (!formData.value.height || formData.value.height < 0.50) {
+    errors.value.height = "A altura deve ser maior que 0.49";
     isValid = false;
   }
 
@@ -212,11 +247,32 @@ const submitForm = async () => {
   if (!validateForm()) {
     return;
   }
+
+  const data = new FormData();
+  data.append("name", formData.value.name);
+  if (formData.value.age) {
+    const ageDate = new Date(formData.value.age);
+    data.append("age", ageDate.toISOString());
+  } else {
+    data.append("age", "");
+  }
+  data.append(
+    "height",
+    formData.value.height !== null ? formData.value.height.toString() : ""
+  );
+  data.append("mainPosition", formData.value.mainPosition);
+  if (formData.value.subPosition) {
+    data.append("subPosition", formData.value.subPosition);
+  }
+  if (formData.value.image) {
+    data.append("image", formData.value.image);
+  }
+
   try {
     if (isEditMode) {
-      await PlayerService.updatePlayer(playerId, formData.value);
+      await PlayerService.updatePlayer(playerId, data);
     } else {
-      await PlayerService.createPlayer(formData.value);
+      await PlayerService.createPlayer(data);
     }
   } catch (error: any) {
     if (error.response.status === 400) {

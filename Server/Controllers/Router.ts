@@ -17,8 +17,10 @@ import {
   updatePlayer,
   deletePlayer,
   getPlayerById,
+  uploadImage
 } from "./PlayerController";
 import { MongoDB } from "../Models/MongoDB";
+import path from "path";
 
 declare global {
   namespace Express {
@@ -31,12 +33,14 @@ declare global {
 dotenv.config();
 const app = express();
 
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 const PORT = 3000;
 
 app.use(mongoMiddleware);
 app.use(bodyParser.json());
 app.use(cors({
-  origin: "*", 
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
@@ -51,8 +55,8 @@ app.delete("/user/:id", deleteUser);
 
 app.get("/player", getPlayer);
 app.get("/player/:id", getPlayerById);
-app.post("/player", createPlayer);
-app.put("/player/:id", updatePlayer);
+app.post("/player", uploadImage, createPlayer);
+app.put("/player/:id", uploadImage, updatePlayer);
 app.delete("/player/:id", deletePlayer);
 
 app

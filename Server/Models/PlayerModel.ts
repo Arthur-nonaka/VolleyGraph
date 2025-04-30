@@ -6,8 +6,13 @@ import {
   Min,
   Max,
   IsEnum,
-  IsAlpha,
   IsOptional,
+  IsDate,
+  MinDate,
+  MaxDate,
+  IsNumber,
+  Length,
+  Matches,
 } from "class-validator";
 import { IsDifferentFrom } from "../validators/IsDifferentFrom";
 
@@ -22,18 +27,31 @@ export enum Position {
 }
 
 export class PlayerModel {
-  @IsAlpha()
-  @IsString()
+  private id: string | null;
+
+  @IsString({
+    message: "O nome deve ser uma string.",
+  })
+  @Length(2, 100, {
+    message: "O nome deve ter entre 2 e 100 caracteres.",
+  })
+  @Matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/, {
+    message: "O nome deve conter apenas letras, espaços, apóstrofos ou hífens.",
+  })
   private name!: string;
 
-  @IsInt()
-  @Min(10)
-  @Max(80)
+  @IsDate()
+  @MinDate(new Date("1900-01-01"), {
+    message: "A data deve ser posterior a 1º de janeiro de 1900.",
+  })
+  @MaxDate(new Date(), {
+    message: "A data não pode ser no futuro.",
+  })
   private age!: Date;
 
-  @IsInt()
-  @Min(100)
-  @Max(250)
+  @IsNumber()
+  @Min(0.5)
+  @Max(3.0)
   private height!: number;
 
   @IsEnum(Position, {
@@ -46,7 +64,7 @@ export class PlayerModel {
   })
   @IsOptional()
   @IsDifferentFrom("mainPosition", {
-    message: "The positions cannot be the same",
+    message: "The positions nao pode ser a mesma",
   })
   private subPosition!: Position | null;
 
@@ -93,6 +111,10 @@ export class PlayerModel {
   @IsBoolean()
   private retired!: boolean;
 
+  @IsString()
+  @IsOptional()
+  private imageUrl: string | null;
+
   constructor(
     name: string,
     age: Date,
@@ -109,7 +131,9 @@ export class PlayerModel {
     blockPoints: number,
     servePoints: number,
     spikePoints: number,
-    retired: boolean
+    retired: boolean,
+    imageUrl: string | null = null,
+    id: string | null = null
   ) {
     this.name = name;
     this.age = age;
@@ -127,6 +151,8 @@ export class PlayerModel {
     this.servePoints = servePoints;
     this.spikePoints = spikePoints;
     this.retired = retired;
+    this.imageUrl = imageUrl;
+    this.id = id;
   }
 
   public getName(): string {
@@ -239,5 +265,20 @@ export class PlayerModel {
   }
   public setRetired(retired: boolean): void {
     this.retired = retired;
+  }
+
+  public getImageUrl(): string | null {
+    return this.imageUrl;
+  }
+  public setImageUrl(imageUrl: string): void {
+    this.imageUrl = imageUrl;
+  }
+
+  public getId(): string | null {
+    return this.id;
+  }
+
+  public setId(id: string | null): void {
+    this.id = id;
   }
 }

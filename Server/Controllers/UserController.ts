@@ -35,8 +35,8 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const user = new UserModel(email, password);
+  const { email, password, address } = req.body;
+  const user = new UserModel(email, password, address);
 
   const errors = await validate(user);
   if (errors.length > 0) {
@@ -82,7 +82,7 @@ export const updateUser = async (req: Request, res: Response) => {
       return;
     }
 
-    const user = new UserModel(result!.email, result!.password);
+    const user = new UserModel(result!.email, result!.password, result!.address);
 
     if (email) {
       user!.setEmail(email);

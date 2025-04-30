@@ -46,6 +46,11 @@
               placeholder="Confirmar Senha"
               v-model="formData.confirmPassword"
             />
+            <input
+              type="text"
+              placeholder="Endereço"
+              v-model="formData.address"
+            />
             <button type="submit" style="margin-top: 2rem">Cadastrar</button>
             <p>
               Já tem uma Conta?
@@ -58,6 +63,9 @@
             </div>
             <div class="text-danger" v-if="errors.password">
               {{ errors.password }}
+            </div>
+            <div class="text-danger" v-if="errors.address">
+              {{ errors.address }}
             </div>
           </small>
         </div>
@@ -79,6 +87,7 @@ const formData = ref({
   email: "",
   password: "",
   confirmPassword: "",
+  address: "",
 });
 
 const loginData = ref({
@@ -90,6 +99,7 @@ const errors = ref({
   email: "",
   password: "",
   confirmPassword: "",
+  address: "",
 });
 
 const validateForm = () => {
@@ -99,6 +109,7 @@ const validateForm = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    address: "",
   };
 
   if (!formData.value.email) {
@@ -161,7 +172,6 @@ const loginUser = () => {
     .catch((error) => {
       if (error.status === 400) {
         errorMessage.value = error.response.data;
-
       } else {
         console.error("Erro ao logar usuário:", error);
       }
