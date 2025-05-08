@@ -19,7 +19,7 @@ export class ClothesModel extends ItemModel {
   private category!: ClothesCategory;
 
   constructor(
-    image: string,
+    image: string | null,
     name: string,
     description: string | null,
     price: number,

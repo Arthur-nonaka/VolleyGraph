@@ -17,8 +17,15 @@ import {
   updatePlayer,
   deletePlayer,
   getPlayerById,
-  uploadImage
+  uploadImage,
 } from "./PlayerController";
+import {
+  getItem,
+  createItem,
+  updateItem,
+  deleteItem,
+  getItemById,
+} from "./ItemController";
 import { MongoDB } from "../Models/MongoDB";
 import path from "path";
 
@@ -39,11 +46,13 @@ const PORT = 3000;
 
 app.use(mongoMiddleware);
 app.use(bodyParser.json());
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Routes
 app.get("/user", getUser);
@@ -58,6 +67,12 @@ app.get("/player/:id", getPlayerById);
 app.post("/player", uploadImage, createPlayer);
 app.put("/player/:id", uploadImage, updatePlayer);
 app.delete("/player/:id", deletePlayer);
+
+app.get("/item", getItem);
+app.get("/item/:id", getItemById);
+app.post("/item", uploadImage, createItem);
+app.put("/item/:id", uploadImage, updateItem);
+app.delete("/item/:id", deleteItem);
 
 app
   .listen(PORT, () => {

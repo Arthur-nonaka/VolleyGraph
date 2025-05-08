@@ -7,7 +7,7 @@ export class ItemFactory {
   public static createItem(
     type: "clothes" | "tennis" | "ball",
     baseAttributes: {
-      image: string;
+      image: string | null;
       name: string;
       description: string | null;
       price: number;
@@ -16,6 +16,7 @@ export class ItemFactory {
     },
     specificAttributes?: any
   ): ItemModel {
+    // console.log(baseAttributes);
     switch (type) {
       case "clothes":
         if (

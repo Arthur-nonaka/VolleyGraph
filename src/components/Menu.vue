@@ -5,7 +5,7 @@
     </div>
     <transition name="menu-fade">
       <ul v-if="isMenuOpen" class="menu-options">
-        <li @click="selectOption('Loja')">Loja</li>
+        <router-link :to="{ path: '/loja'}" style="text-decoration: none;"><li @click="selectOption('loja')"> Loja</li></router-link>
         <router-link :to="{ path: '/jogadores'}" style="text-decoration: none;"><li @click="selectOption('Jogadores')"> Jogadores</li></router-link>
         <li @click="selectOption('Times')">Times</li>
         <li @click="selectOption('Partidas')">Partidas</li>

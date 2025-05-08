@@ -2,7 +2,8 @@ import { IsString, IsNumber, IsOptional, Min, IsUrl } from "class-validator";
 
 export class ItemModel {
   @IsUrl({}, { message: "A imagem deve ser uma URL válida." })
-  private image!: string;
+  @IsOptional()
+  private image!: string | null;
 
   @IsString({ message: "O nome deve ser uma string." })
   private name!: string;
@@ -23,7 +24,7 @@ export class ItemModel {
   private brand!: string;
 
   constructor(
-    image: string,
+    image: string | null,
     name: string,
     description: string | null,
     price: number,
@@ -38,8 +39,7 @@ export class ItemModel {
     this.brand = brand;
   }
 
-  // Getters and Setters
-  public getImage(): string {
+  public getImage(): string | null {
     return this.image;
   }
   public setImage(image: string): void {

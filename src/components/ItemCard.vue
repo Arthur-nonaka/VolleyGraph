@@ -1,59 +1,59 @@
 <template>
-  <div class="player-card">
-    <router-link :to="`/jogadores/${player._id}`">
+  <div class="item-card">
+    <router-link :to="`/loja/item/${item._id}`">
       <div class="img-container">
         <img
-          :src="player.imageUrl ? player.imageUrl : '/null.jpg'"
-          alt="Player Image"
+          :src="item.imageUrl ? item.imageUrl : '/null.jpg'"
+          alt="item Image"
           style="width: 100%; height: 200px"
         />
       </div>
-      <div class="player-info">
-        <h2>{{ player.name }} - {{ player.mainPosition }}</h2>
-        <p>Altura: {{ player.height }} m</p>
+      <div class="item-info">
+        <h2>{{ item.name }}</h2>
+        <p>{{ item.price }}</p>
       </div>
     </router-link>
-    <div class="player-edit">
-      <router-link :to="`/jogadores/editar/${player._id}`"
+    <div class="item-edit">
+      <router-link :to="`/loja/item/editar/${item._id}`"
         ><button>🖊</button></router-link
       >
       <button class="delete" @click="handleDelete">🗑</button>
     </div>
-    <!-- <p v-if="player.subPosition">
-          Posição Secundária: {{ player.subPosition }}
-        </p> -->
+    <!-- <p v-if="item.subPosition">
+            Posição Secundária: {{ item.subPosition }}
+          </p> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineProps } from "vue";
-import PlayerService from "@/api/PlayerService";
+import itemService from "@/api/ItemService";
 
 const props = defineProps({
-  player: {
+  item: {
     type: Object,
     required: true,
   },
 });
 
-const emit = defineEmits(["playerDeleted"]);
+const emit = defineEmits(["itemDeleted"]);
 
-const { player } = props;
+const { item } = props;
 
 const handleDelete = async () => {
-  const id = player._id;
+  const id = item._id;
   try {
-    await PlayerService.deletePlayer(id);
+    await itemService.deleteitem(id);
 
-    emit("playerDeleted");
+    emit("itemDeleted");
   } catch (error) {
-    console.error("Error deleting player:", error);
+    console.error("Error deleting item:", error);
   }
 };
 </script>
 
 <style scoped>
-.player-card {
+.item-card {
   position: relative;
   border-radius: 5px;
   background-color: #f9f9f9;
@@ -77,30 +77,30 @@ a {
   align-items: center;
   height: 200px;
 }
-.player-info {
+.item-info {
   padding: 0.4rem;
 }
 
-.player-card h2 {
+.item-card h2 {
   font-size: 1.2rem;
   margin: 0 0 8px;
 }
 
-.player-card p {
+.item-card p {
   margin: 4px 0;
 }
 
-.player-card p:last-child {
+.item-card p:last-child {
   margin-bottom: 0;
 }
 
-.player-edit {
+.item-edit {
   position: absolute;
   top: 5px;
   right: 5px;
 }
 
-.player-edit button {
+.item-edit button {
   margin-top: 5px;
   display: flex;
   align-items: center;
@@ -117,7 +117,7 @@ a {
     width 0.3s ease, height 0.3s ease;
 }
 
-.player-edit button:hover {
+.item-edit button:hover {
   background-color: var(--vt-c-orange-dark);
   color: var(--vt-c-orange);
   border: 2px solid black;
@@ -127,14 +127,14 @@ a {
     width 0.3s ease, height 0.3s ease;
 }
 
-.player-edit .delete {
+.item-edit .delete {
   background-color: var(--vt-c-red);
   color: #fff;
   transition: background-color 0.3s ease, border 0.3s ease, color 0.3s ease,
-    width 0.3s ease, height 0.3s ease; 
+    width 0.3s ease, height 0.3s ease;
 }
 
-.player-edit .delete:hover {
+.item-edit .delete:hover {
   background-color: var(--vt-c-red-dark);
   color: var(--vt-c-red);
 }
