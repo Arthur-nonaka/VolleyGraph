@@ -22,6 +22,7 @@
 
       <div class="player-container w-100">
         <div class="filters">
+          Filtros
           <div
             class="form-check"
             v-for="position in positions"
