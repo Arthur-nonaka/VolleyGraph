@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 const api = axios.create({
-  baseURL: "https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/user",
+  baseURL: "https://automatic-garbanzo-q779q4g97v43xjg-3000.app.github.dev/user",
   headers: {
     "Content-Type": "application/json",
   },

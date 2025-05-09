@@ -8,10 +8,17 @@ import Login from "@/pages/Login.vue";
 import Items from "@/pages/shop/items/Items.vue";
 import Item from "@/pages/shop/items/Item.vue";
 import RegisterItem from "@/pages/shop/items/RegisterItem.vue";
+import User from "@/pages/User.vue";
+import { isAuthenticated } from "./auth";
 
 const routes = [
-  { path: "/", component: Home },
+  {
+    path: "/",
+    component: Home,
+    meta: { requiresAuth: true },
+  },
   { path: "/teams", component: Teams },
+  { path: "/user", component: User },
   { path: "/jogadores", component: Players },
   { path: "/jogadores/:id", component: Player },
   { path: "/jogadores/registrar", component: RegisterPlayer },
@@ -20,7 +27,17 @@ const routes = [
   { path: "/loja/item/:id", component: Item },
   { path: "/loja/item/registrar", component: RegisterItem },
   { path: "/loja/item/editar/:id", component: RegisterItem },
-  { path: "/login", component: Login },
+  {
+    path: "/login",
+    component: Login,
+    beforeEnter: (to: any, from: any, next: any) => {
+      if (isAuthenticated()) {
+        next("/user"); // já está logado
+      } else {
+        next(); // deixa entrar
+      }
+    },
+  },
 ];
 
 const router = createRouter({
