@@ -4,6 +4,7 @@ import { UserModel } from "../Models/UserModel";
 import { ResponseMessages } from "../Constants/ResponseMessages";
 import { validate } from "class-validator";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const getUser = async (req: Request, res: Response) => {
   try {
@@ -82,7 +83,11 @@ export const updateUser = async (req: Request, res: Response) => {
       return;
     }
 
-    const user = new UserModel(result!.email, result!.password, result!.address);
+    const user = new UserModel(
+      result!.email,
+      result!.password,
+      result!.address
+    );
 
     if (email) {
       user!.setEmail(email);
@@ -154,7 +159,14 @@ export const loginUser = async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(200).send(ResponseMessages.LOGIN_SUCCESS);
+    // const payload = { userId: user._id, email: user.email }; // Payload pode conter qualquer informação que você queira no token
+    // const secret = process.env.JWT_SECRET || "ED934C16AA59B35D8D55114F7A6D3"; // Substitua 'yourSecretKey' com uma chave secreta real
+    // const token = jwt.sign(payload, secret, { expiresIn: "1w" }); // O token expira em 1 hora (você pode ajustar)
+
+    res.status(200).json({
+      message: ResponseMessages.LOGIN_SUCCESS,
+      // token: token, // Retornando o token
+    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).send(ResponseMessages.LOGIN_FAILED);

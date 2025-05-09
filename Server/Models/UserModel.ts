@@ -7,7 +7,6 @@ export class UserModel {
   @Length(6, 200, { message: "Senha deve ter mais de 6 caracteres" })
   private password: string;
 
-  @Length(5, 200, { message: "Endereço deve ter entre 5 e 200 caracteres" })
   private address: string;
 
   constructor(email: string, password: string, address: string) {
