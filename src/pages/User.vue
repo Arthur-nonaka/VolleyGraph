@@ -4,10 +4,10 @@
     <h1 style="margin-top: 30px">Minha Conta</h1>
 
     <div class="container">
-      <div class="card-container">
-        <Card img="/perfil.png" />
-        <h3>Meu Cadastro</h3>
-      </div>
+      <router-link to="/user/my-page" class="card-container">
+          <Card img="/perfil.png" />
+          <h3>Meu Cadastro</h3>
+      </router-link>
 
       <div class="card-container">
         <Card img="/carrinho.png" />
@@ -25,7 +25,7 @@
       </div>
 
       <div class="card-container">
-        <Card img="/perfilbranco.png" />
+        <Card img="/sair.png" />
         <h3>Sair</h3>
       </div>
     </div>
@@ -45,11 +45,11 @@ import Card from "../components/Card.vue";
   display: flex;
   align-content: center;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
   /* align-content:space-around; */
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 15px;
 }
 
 main {
@@ -65,10 +65,12 @@ main {
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  text-decoration: none;
 }
 
 h3 {
     font-size: 1.3rem;
     margin-top: 10px;
+    color: black;
 }
 </style>

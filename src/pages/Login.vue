@@ -123,16 +123,20 @@ const submitForm = async () => {
       .catch((error) => {
         if (error.status === 400) {
           const validationErrors = error.response.data;
-          validationErrors.forEach(
-            (err: {
-              property: keyof typeof errors.value;
-              constraints: Record<string, string>;
-            }) => {
-              errors.value[err.property] = Object.values(err.constraints).join(
-                ", "
-              );
-            }
-          );
+          if (Array.isArray(validationErrors)) {
+            validationErrors.forEach(
+              (err: {
+                property: keyof typeof errors.value;
+                constraints: Record<string, string>;
+              }) => {
+                errors.value[err.property] = Object.values(
+                  err.constraints
+                ).join(", ");
+              }
+            );
+          } else {
+            console.error("Erro de validação inesperado:", validationErrors);
+          }
           console.log(errors);
         } else {
           console.error("Erro ao cadastrar usuário:", error);
@@ -150,7 +154,7 @@ const loginUser = () => {
   UserService.loginUser(loginData.value)
     .then((response) => {
       console.log("Login bem-sucedido:", response);
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", "123");
       router.push("/");
     })
     .catch((error) => {

@@ -161,7 +161,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     // const payload = { userId: user._id, email: user.email }; // Payload pode conter qualquer informação que você queira no token
     // const secret = process.env.JWT_SECRET || "ED934C16AA59B35D8D55114F7A6D3"; // Substitua 'yourSecretKey' com uma chave secreta real
-    // const token = jwt.sign(payload, secret, { expiresIn: "1w" }); // O token expira em 1 hora (você pode ajustar)
+    // const token = jwt.sign(payload, secret, { expiresIn: "1w" });
 
     res.status(200).json({
       message: ResponseMessages.LOGIN_SUCCESS,
