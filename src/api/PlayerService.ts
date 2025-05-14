@@ -14,6 +14,8 @@ export const getPlayerById = async (id: string) => api.get(`/${id}`);
 export const updatePlayer = async (id: string, playerData: any) =>
   api.put(`/${id}`, playerData);
 export const deletePlayer = async (id: string) => api.delete(`/${id}`);
+export const getPlayersForTeam = async (teamId: string) =>
+  api.get(`/team/${teamId}`);
 
 export const PlayerService = {
   createPlayer,
@@ -21,6 +23,7 @@ export const PlayerService = {
   getPlayerById,
   updatePlayer,
   deletePlayer,
+  getPlayersForTeam,
 };
 export default PlayerService;
 

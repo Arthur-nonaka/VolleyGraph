@@ -111,7 +111,9 @@ import { useRoute } from "vue-router";
 import Header from "@/components/Header.vue";
 import TeamService from "@/api/TeamService";
 import axios from "axios";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const route = useRoute();
 const teamId = Array.isArray(route.params.id)
   ? route.params.id[0]
@@ -222,8 +224,10 @@ const submitForm = async () => {
   try {
     if (isEditMode) {
       await TeamService.updateTeam(teamId, data);
+      router.push("/times");
     } else {
       await TeamService.createTeam(data);
+      router.push("/times");
     }
   } catch (error: any) {
     if (error.response.status === 400) {

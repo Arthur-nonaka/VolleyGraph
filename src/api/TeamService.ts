@@ -14,6 +14,12 @@ export const getTeamById = async (id: string) => api.get(`/${id}`);
 export const updateTeam = async (id: string, TeamData: any) =>
   api.put(`/${id}`, TeamData);
 export const deleteTeam = async (id: string) => api.delete(`/${id}`);
+export const addPlayerToTeam = async (data: any) =>
+  api.post("/player", data);
+export const removePlayerFromTeam = async (data: any) =>
+  api.delete("/player", data);
+export const getTeamsForPlayer = async (playerId: string) =>
+  api.get(`/player/${playerId}`);
 
 export const teamService = {
   createTeam,
@@ -21,6 +27,9 @@ export const teamService = {
   getTeamById,
   updateTeam,
   deleteTeam,
+  addPlayerToTeam,
+  removePlayerFromTeam,
+  getTeamsForPlayer,
 };
 
 export default teamService;

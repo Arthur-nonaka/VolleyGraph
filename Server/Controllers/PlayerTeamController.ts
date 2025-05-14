@@ -4,8 +4,11 @@ import { ObjectId } from "mongodb";
 export const addPlayerToTeam = async (req: Request, res: Response) => {
   const { playerId, teamId } = req.body;
 
+  console.log("addPlayerToTeam", playerId, teamId);
+
   if (!ObjectId.isValid(playerId) || !ObjectId.isValid(teamId)) {
     res.status(400).send("Invalid playerId or teamId");
+    return;
   }
 
   try {
@@ -18,6 +21,7 @@ export const addPlayerToTeam = async (req: Request, res: Response) => {
 
     if (existingRelation) {
       res.status(400).send("Jogador já está no time");
+      return;
     }
 
     await playersTeamsCollection.insertOne({
@@ -37,6 +41,7 @@ export const removePlayerFromTeam = async (req: Request, res: Response) => {
 
   if (!ObjectId.isValid(playerId) || !ObjectId.isValid(teamId)) {
     res.status(400).send("Invalid playerId or teamId");
+    return;
   }
 
   try {
@@ -49,6 +54,7 @@ export const removePlayerFromTeam = async (req: Request, res: Response) => {
 
     if (deleteResult.deletedCount === 0) {
       res.status(404).send("Jogador não encontrado no time");
+      return;
     }
 
     res.status(200).send("Player removed from team successfully");
@@ -62,6 +68,7 @@ export const getTeamsForPlayer = async (req: Request, res: Response) => {
 
   if (!ObjectId.isValid(playerId)) {
     res.status(400).send("Invalid playerId");
+    return;
   }
 
   try {
@@ -80,6 +87,7 @@ export const getPlayersForTeam = async (req: Request, res: Response) => {
 
   if (!ObjectId.isValid(teamId)) {
     res.status(400).send("Invalid teamId");
+    return;
   }
 
   try {

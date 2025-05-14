@@ -56,7 +56,12 @@
               <td>{{ team.name }}</td>
               <td>{{ team.address }}</td>
               <td>
-                <button class="btn btn-primary btn-sm">Ver</button>
+                <button
+                  class="btn btn-primary btn-sm"
+                  @click="seeTeam(team._id)"
+                >
+                  Ver
+                </button>
                 <button
                   class="btn btn-danger btn-sm"
                   @click="deleteTeam(team._id)"
@@ -78,6 +83,9 @@ import PlayerCard from "@/components/PlayerCard.vue";
 import TeamService from "@/api/TeamService";
 import { ref, onMounted } from "vue";
 import { computed } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const filter = ref({
   city: "",
@@ -85,6 +93,20 @@ const filter = ref({
 });
 
 const teams = ref([]);
+
+const deleteTeam = async (id: string) => {
+  try {
+    await TeamService.deleteTeam(id);
+    teams.value = teams.value.filter((team) => team._id !== id);
+  } catch (error) {
+    console.error("Error deleting team:", error);
+  }
+};
+
+const seeTeam = (id: string) => {
+  router.push(`/times/${id}`);
+};
+
 const fetchTeams = async () => {
   try {
     const response = await TeamService.getTeam({
@@ -125,6 +147,12 @@ onMounted(fetchTeams);
   padding-right: 20px;
   padding-left: 20px;
   margin-bottom: 20px;
+}
+
+img {
+  width: 100px;
+  height: 100px;
+  /* border-radius: 50%; */
 }
 
 .filters {
