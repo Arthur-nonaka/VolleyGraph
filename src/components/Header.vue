@@ -2,9 +2,7 @@
   <Menu />
   <header>
     <router-link to="/" style="text-decoration: none;"><div class="title">VolleyGraph</div></router-link>
-    <router-link class="router" to="/login"
-      ><div class="avatar"></div
-    ></router-link>
+    <router-link class="router" to="/login"><div class="avatar"></div></router-link>
   </header>
 </template>
 

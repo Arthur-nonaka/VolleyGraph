@@ -6,9 +6,9 @@
     <transition name="menu-fade">
       <ul v-if="isMenuOpen" class="menu-options">
         <router-link :to="{ path: '/loja'}" style="text-decoration: none;"><li @click="selectOption('loja')"> Loja</li></router-link>
-        <router-link :to="{ path: '/jogadores'}" style="text-decoration: none;"><li @click="selectOption('Jogadores')"> Jogadores</li></router-link>
-        <li @click="selectOption('Times')">Times</li>
-        <li @click="selectOption('Partidas')">Partidas</li>
+        <router-link :to="{ path: '/jogadores'}" style="text-decoration: none;"><li @click="selectOption('jogadores')"> Jogadores</li></router-link>
+        <router-link :to="{ path: '/times'}" style="text-decoration: none;"><li @click="selectOption('times')"> Times</li></router-link>
+        <router-link :to="{ path: '/partidas'}" style="text-decoration: none;"><li @click="selectOption('partidas')"> Partidas</li></router-link>
       </ul>
     </transition>
   </div>

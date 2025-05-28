@@ -2,7 +2,6 @@ import {
   IsString,
   IsArray,
   IsOptional,
-  IsUrl,
   Length,
   ValidateNested,
 } from "class-validator";
@@ -11,27 +10,16 @@ import { PlayerModel } from "./PlayerModel";
 
 export class TeamModel {
   @IsString({
-    message: "O nome deve ser uma string.",
+    message: "O nome deve ser válido.",
   })
   @Length(2, 100, {
     message: "O nome deve ter entre 2 e 100 caracteres.",
   })
   private name!: string;
 
-  @IsUrl(
-    {},
-    {
-      message: "O logo deve ser uma URL válida.",
-    }
-  )
   @IsOptional()
   private logo!: string | null;
 
-  @IsArray({
-    message: "Os jogadores devem ser um array.",
-  })
-  @ValidateNested({ each: true })
-  @Type(() => PlayerModel)
   private players!: PlayerModel[];
 
   @IsString({
@@ -45,7 +33,7 @@ export class TeamModel {
   constructor(
     name: string,
     logo: string | null,
-    players: PlayerModel[],
+    players: [],
     address: string
   ) {
     this.name = name;
@@ -72,11 +60,11 @@ export class TeamModel {
     return this.players;
   }
 
-  public setPlayers(players: PlayerModel[]): void {
+  public setPlayers(players: []): void {
     this.players = players;
   }
 
-  public addPlayer(player: PlayerModel): void {
+  public addPlayer(player: any): void {
     this.players.push(player);
   }
 

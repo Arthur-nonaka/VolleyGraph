@@ -204,6 +204,9 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import Header from "@/components/Header.vue";
 import ItemService from "@/api/ItemService";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const route = useRoute();
 const itemId = Array.isArray(route.params.id)
@@ -381,8 +384,10 @@ const submitForm = async () => {
   try {
     if (isEditMode) {
       await ItemService.updateItem(itemId, formDataToSend);
+      router.push("/loja");
     } else {
       await ItemService.createItem(formDataToSend);
+      router.push("/loja");
     }
   } catch (error: any) {
     if (error.response.status === 400) {

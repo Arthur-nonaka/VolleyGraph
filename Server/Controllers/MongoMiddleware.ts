@@ -7,7 +7,7 @@ export const mongoMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const mongoDB = new MongoDB();
+    const mongoDB = MongoDB.getInstance();
     await mongoDB.connect();
     req.mongoDB = mongoDB;
     next();

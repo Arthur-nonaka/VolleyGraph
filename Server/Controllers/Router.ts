@@ -26,6 +26,19 @@ import {
   deleteItem,
   getItemById,
 } from "./ItemController";
+import {
+  getTeam,
+  createTeam,
+  updateTeam,
+  deleteTeam,
+  getTeamById,
+} from "./TeamController";
+import {
+  addPlayerToTeam,
+  removePlayerFromTeam,
+  getTeamsForPlayer,
+  getPlayersForTeam,
+} from "./PlayerTeamController";
 import { MongoDB } from "../Models/MongoDB";
 import path from "path";
 
@@ -73,6 +86,17 @@ app.get("/item/:id", getItemById);
 app.post("/item", uploadImage, createItem);
 app.put("/item/:id", uploadImage, updateItem);
 app.delete("/item/:id", deleteItem);
+
+app.get("/team", getTeam);
+app.get("/team/:id", getTeamById);
+app.post("/team", uploadImage, createTeam);
+app.put("/team/:id", uploadImage, updateTeam);
+app.delete("/team/:id", deleteTeam);
+
+app.get("/team/player/:playerId", getTeamsForPlayer);
+app.get("/player/team/:teamId", getPlayersForTeam);
+app.post("/team/player", addPlayerToTeam);
+app.delete("/team/player", removePlayerFromTeam);
 
 app
   .listen(PORT, () => {

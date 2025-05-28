@@ -143,6 +143,9 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import Header from "@/components/Header.vue";
 import PlayerService from "@/api/PlayerService";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const route = useRoute();
 const playerId = Array.isArray(route.params.id)
@@ -271,8 +274,10 @@ const submitForm = async () => {
   try {
     if (isEditMode) {
       await PlayerService.updatePlayer(playerId, data);
+      router.push("/jogadores");
     } else {
       await PlayerService.createPlayer(data);
+      router.push("/jogadores");
     }
   } catch (error: any) {
     if (error.response.status === 400) {

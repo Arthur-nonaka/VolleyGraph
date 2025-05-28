@@ -46,11 +46,6 @@
               placeholder="Confirmar Senha"
               v-model="formData.confirmPassword"
             />
-            <input
-              type="text"
-              placeholder="Endereço"
-              v-model="formData.address"
-            />
             <button type="submit" style="margin-top: 2rem">Cadastrar</button>
             <p>
               Já tem uma Conta?
@@ -64,8 +59,8 @@
             <div class="text-danger" v-if="errors.password">
               {{ errors.password }}
             </div>
-            <div class="text-danger" v-if="errors.address">
-              {{ errors.address }}
+            <div class="text-danger" v-if="errors.confirmPassword">
+              {{ errors.confirmPassword }}
             </div>
           </small>
         </div>
@@ -87,7 +82,6 @@ const formData = ref({
   email: "",
   password: "",
   confirmPassword: "",
-  address: "",
 });
 
 const loginData = ref({
@@ -99,7 +93,6 @@ const errors = ref({
   email: "",
   password: "",
   confirmPassword: "",
-  address: "",
 });
 
 const validateForm = () => {
@@ -109,18 +102,7 @@ const validateForm = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    address: "",
   };
-
-  if (!formData.value.email) {
-    errors.value.email = "Email é obrigatório";
-    isValid = false;
-  }
-
-  if (!formData.value.password) {
-    errors.value.password = "Senha é obrigatória";
-    isValid = false;
-  }
 
   if (formData.value.password !== formData.value.confirmPassword) {
     errors.value.confirmPassword = "As senhas não coincidem";
@@ -135,21 +117,27 @@ const submitForm = async () => {
     const response = await UserService.createUser(formData.value)
       .then((response) => {
         console.log("Usuário cadastrado com sucesso:", response.data);
+        localStorage.setItem("token", response.data.token);
         router.push("/");
       })
       .catch((error) => {
         if (error.status === 400) {
-          const validationErrors = error.response;
-          validationErrors.forEach(
-            (err: {
-              property: keyof typeof errors.value;
-              constraints: Record<string, string>;
-            }) => {
-              errors.value[err.property] = Object.values(err.constraints).join(
-                ", "
-              );
-            }
-          );
+          const validationErrors = error.response.data;
+          if (Array.isArray(validationErrors)) {
+            validationErrors.forEach(
+              (err: {
+                property: keyof typeof errors.value;
+                constraints: Record<string, string>;
+              }) => {
+                errors.value[err.property] = Object.values(
+                  err.constraints
+                ).join(", ");
+              }
+            );
+          } else {
+            console.error("Erro de validação inesperado:", validationErrors);
+          }
+          console.log(errors);
         } else {
           console.error("Erro ao cadastrar usuário:", error);
         }
@@ -165,8 +153,8 @@ const loginUser = () => {
 
   UserService.loginUser(loginData.value)
     .then((response) => {
-      console.log("Login bem-sucedido:", response.data);
-      localStorage.setItem("token", response.data.token);
+      console.log("Login bem-sucedido:", response);
+      localStorage.setItem("token", "123");
       router.push("/");
     })
     .catch((error) => {
@@ -177,45 +165,6 @@ const loginUser = () => {
       }
     });
 };
-
-// import { loadSlim } from "tsparticles";
-
-// onMounted(async () => {
-//   const tsParticles = await import("tsparticles");
-//   await loadSlim(tsParticles);
-//   tsParticles.tsParticles.load("tsparticles", {
-//     particles: {
-//       number: {
-//         value: 50,
-//       },
-//       color: {
-//         value: "#ffffff",
-//       },
-//       shape: {
-//         type: "circle",
-//       },
-//       opacity: {
-//         value: 0.5,
-//       },
-//       size: {
-//         value: { min: 1, max: 5 },
-//       },
-//       move: {
-//         enable: true,
-//         speed: 2,
-//         direction: "none",
-//         random: false,
-//         straight: false,
-//         outModes: {
-//           default: "bounce",
-//         },
-//       },
-//     },
-//     background: {
-//       color: "#000000",
-//     },
-//   });
-// });
 </script>
 
 <style scoped>
