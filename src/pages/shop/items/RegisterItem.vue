@@ -70,19 +70,13 @@
           </div>
           <div class="col-md-6">
             <div class="form-group mb-3">
-              <label for="amount" class="form-label"
-                >Quantidade <span class="required">*</span></label
-              >
-              <input
-                type="number"
-                id="amount"
+              <label for="description" class="form-label">Descrição</label>
+              <textarea
+                id="description"
                 class="form-control"
-                placeholder="Digite a quantidade do item"
-                v-model="formData.amount"
-              />
-              <small v-if="errors.amount" class="text-danger">{{
-                errors.amount
-              }}</small>
+                placeholder="Digite a descrição do item"
+                v-model="formData.description"
+              ></textarea>
             </div>
           </div>
         </div>
@@ -101,15 +95,6 @@
           }}</small>
         </div>
         <div class="form-group mb-3">
-          <label for="description" class="form-label">Descrição</label>
-          <textarea
-            id="description"
-            class="form-control"
-            placeholder="Digite a descrição do item"
-            v-model="formData.description"
-          ></textarea>
-        </div>
-        <div class="form-group mb-3">
           <label for="image" class="form-label">Imagem</label>
           <input
             type="file"
@@ -117,6 +102,90 @@
             class="form-control"
             @change="handleImageUpload"
           />
+        </div>
+        <div v-if="formData.type === 'clothes'" class="form-group mb-3">
+          <label for="color" class="form-label">Cores disponíveis</label>
+          <input
+            type="text"
+            id="color"
+            class="form-control"
+            placeholder="Digite a cor"
+            v-model="specificAttributes.color"
+          />
+          <small v-if="errors.colors" class="text-danger">{{
+            errors.colors
+          }}</small>
+          <label for="sizes" class="form-label">Tamanhos Disponíveis</label>
+          <div
+            id="sizes"
+            class="form-check"
+            v-for="size in availableSizes.clothes"
+            :key="size"
+          >
+            <input
+              type="checkbox"
+              class="form-check-input"
+              :id="`size-${size}`"
+              :value="size"
+              v-model="specificAttributes.sizes"
+            />
+            <label class="form-check-label" :for="`size-${size}`">{{
+              size
+            }}</label>
+            <small v-if="errors.sizes" class="text-danger">{{
+              errors.sizes
+            }}</small>
+          </div>
+          <label for="category" class="form-label">Categoria</label>
+          <select
+            id="category"
+            class="form-control"
+            v-model="specificAttributes.category"
+          >
+            <option value="" disabled>Selecione a categoria</option>
+            <option value="Shirt">Camisa</option>
+            <option value="Pants">Calça</option>
+            <option value="Socks">Meias</option>
+            <option value="Accessories">Acessórios</option>
+          </select>
+          <small v-if="errors.category" class="text-danger">{{
+            errors.category
+          }}</small>
+        </div>
+
+        <div v-if="formData.type === 'tennis'" class="form-group mb-3">
+          <label for="color" class="form-label">Cor</label>
+          <input
+            type="text"
+            id="color"
+            class="form-control"
+            placeholder="Digite a cor"
+            v-model="specificAttributes.color"
+          />
+          <small v-if="errors.colors" class="text-danger">{{
+            errors.colors
+          }}</small>
+          <label for="sizes" class="form-label">Tamanhos Disponíveis</label>
+          <div
+            id="sizes"
+            class="form-check"
+            v-for="size in availableSizes.tennis"
+            :key="size"
+          >
+            <input
+              type="checkbox"
+              class="form-check-input"
+              :id="`size-${size}`"
+              :value="size"
+              v-model="specificAttributes.sizes"
+            />
+            <label class="form-check-label" :for="`size-${size}`">{{
+              size
+            }}</label>
+            <small v-if="errors.sizes" class="text-danger">{{
+              errors.sizes
+            }}</small>
+          </div>
         </div>
         <button
           type="submit"
@@ -142,11 +211,21 @@ const itemId = Array.isArray(route.params.id)
   : route.params.id;
 const isEditMode = !!itemId;
 
+const availableSizes = {
+  clothes: ["PP", "P", "M", "G", "GG"],
+  tennis: [34, 35, 36, 37, 38, 39, 40, 41, 42, 43],
+};
+
+const specificAttributes = ref<{
+  color?: string;
+  sizes?: (string | number)[];
+  category?: string;
+}>({});
+
 const formData = ref<{
   name: string;
   description: string | null;
   price: number | null;
-  amount: number | null;
   brand: string;
   type: string;
   image: File | null;
@@ -154,7 +233,6 @@ const formData = ref<{
   name: "",
   description: null,
   price: null,
-  amount: null,
   brand: "",
   type: "",
   image: null,
@@ -164,9 +242,11 @@ const errors = ref({
   name: "",
   description: "",
   price: "",
-  amount: "",
   brand: "",
   type: "",
+  colors: "",
+  sizes: "",
+  category: "",
 });
 
 onMounted(async () => {
@@ -196,9 +276,11 @@ const validateForm = () => {
     name: "",
     description: "",
     price: "",
-    amount: "",
     brand: "",
     type: "",
+    colors: "",
+    sizes: "",
+    category: "",
   };
 
   if (!formData.value.name) {
@@ -216,14 +298,41 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (!formData.value.amount || formData.value.amount <= 0) {
-    errors.value.amount = "A quantidade deve ser maior que 0.";
-    isValid = false;
-  }
-
   if (!formData.value.type) {
     errors.value.type = "O tipo é obrigatório.";
     isValid = false;
+  }
+
+  if (formData.value.type === "clothes") {
+    if (!specificAttributes.value.color) {
+      errors.value.colors = "Selecione ao menos uma cor.";
+      isValid = false;
+    }
+    if (
+      !specificAttributes.value.sizes ||
+      specificAttributes.value.sizes.length === 0
+    ) {
+      errors.value.sizes = "Selecione ao menos um tamanho.";
+      isValid = false;
+    }
+    if (!specificAttributes.value.category) {
+      errors.value.category = "A categoria é obrigatória.";
+      isValid = false;
+    }
+  }
+
+  if (formData.value.type === "tennis") {
+    if (!specificAttributes.value.color) {
+      errors.value.colors = "Selecione ao menos uma cor.";
+      isValid = false;
+    }
+    if (
+      !specificAttributes.value.sizes ||
+      specificAttributes.value.sizes.length === 0
+    ) {
+      errors.value.sizes = "Selecione ao menos um tamanho.";
+      isValid = false;
+    }
   }
 
   return isValid;
@@ -234,18 +343,18 @@ const submitForm = async () => {
     return;
   }
 
-//   const data = new FormData();
-//   data.append("name", formData.value.name);
-//   data.append("brand", formData.value.brand);
-//   data.append("price", formData.value.price?.toString() || "");
-//   data.append("amount", formData.value.amount?.toString() || "");
-//   data.append("type", formData.value.type);
-//   if (formData.value.description) {
-//     data.append("description", formData.value.description);
-//   }
-//   if (formData.value.image) {
-//     data.append("image", formData.value.image);
-//   }
+  //   const data = new FormData();
+  //   data.append("name", formData.value.name);
+  //   data.append("brand", formData.value.brand);
+  //   data.append("price", formData.value.price?.toString() || "");
+  //   data.append("amount", formData.value.amount?.toString() || "");
+  //   data.append("type", formData.value.type);
+  //   if (formData.value.description) {
+  //     data.append("description", formData.value.description);
+  //   }
+  //   if (formData.value.image) {
+  //     data.append("image", formData.value.image);
+  //   }
 
   const data = {
     type: formData.value.type,
@@ -254,10 +363,8 @@ const submitForm = async () => {
       brand: formData.value.brand,
       description: formData.value.description,
       price: formData.value.price,
-      amount: formData.value.amount,
     },
-    specificAttributes: {
-    },
+    specificAttributes: specificAttributes.value,
   };
 
   const formDataToSend = new FormData();

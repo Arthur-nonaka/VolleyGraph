@@ -129,6 +129,7 @@ onMounted(fetchPlayers);
   width: 250px;
   padding-right: 20px;
   border-right: 1px solid #ccc;
+  color: black;
 }
 
 .players {

@@ -50,7 +50,7 @@
           <div class="col">
             <div class="form-group mb-3">
               <label for="altura" class="form-label"
-                >Altura <span class="required">*</span></label
+                >Altura (m)<span class="required">*</span></label
               >
               <input
                 type="number"

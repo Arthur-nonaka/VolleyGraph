@@ -1,8 +1,9 @@
-// filepath: /workspaces/VolleyGraph/tsconfig.json
+
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "commonjs",
+    "module": "ES2020",
+    "moduleResolution": "node",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,

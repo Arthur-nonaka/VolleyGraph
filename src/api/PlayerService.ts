@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from "axios";
+const SERVER_ADDRESS = import.meta.env.VITE_SERVER_ADDRESS;
 
 const api = axios.create({
-  baseURL: "https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/player",
+  baseURL: `${SERVER_ADDRESS}/player`,
   headers: {
     "Content-Type": "multipart/form-data",
   },

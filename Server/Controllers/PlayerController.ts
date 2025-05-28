@@ -4,6 +4,9 @@ import { PlayerModel } from "../Models/PlayerModel";
 import { validate } from "class-validator";
 import multer from "multer";
 import path from "path";
+import { config } from "dotenv";
+config({ path: path.resolve(__dirname, "../../.env") });
+const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -40,6 +43,9 @@ export const getPlayer = async (req: Request, res: Response) => {
 
     players.forEach((player) => {
       player.age = new Date(player.age).toISOString().split("T")[0];
+      player.imageUrl = player.imageUrl
+        ? `${SERVER_ADDRESS}${player.imageUrl}`
+        : null;
     });
 
     res.status(200).json(players);
@@ -62,6 +68,9 @@ export const getPlayerById = async (req: Request, res: Response) => {
     });
 
     player!.age = new Date(player!.age).toISOString().split("T")[0];
+    player!.imageUrl = player!.imageUrl
+      ? `${SERVER_ADDRESS}${player!.imageUrl}`
+      : null;
 
     if (player) {
       res.status(201).json(player);
@@ -75,9 +84,7 @@ export const getPlayerById = async (req: Request, res: Response) => {
 
 export const createPlayer = async (req: Request, res: Response) => {
   const { name, age, height, mainPosition, subPosition } = req.body;
-  const imageUrl = req.file
-    ? `https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/uploads/${req.file.filename}`
-    : null;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   const player = new PlayerModel(
     name,
@@ -138,9 +145,7 @@ export const updatePlayer = async (req: Request, res: Response) => {
     retired,
   } = req.body;
 
-  const imageUrl = req.file
-    ? `https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/uploads/${req.file.filename}`
-    : null;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   const { id } = req.params;
   if (!ObjectId.isValid(id)) {
