@@ -10,8 +10,11 @@ import Login from "@/pages/Login.vue";
 import Items from "@/pages/shop/items/Items.vue";
 import Item from "@/pages/shop/items/Item.vue";
 import RegisterItem from "@/pages/shop/items/RegisterItem.vue";
-import User from "@/pages/User.vue";
-import MyPage from "@/pages/MyPage.vue";
+import User from "@/pages/user/User.vue";
+import MyPage from "@/pages/user/MyPage.vue";
+import Orders from "@/pages/user/Orders.vue";
+import Address from "@/pages/user/Adress.vue";
+import ChangePasswod from "@/pages/user/ChangePassword.vue";
 import { isAuthenticated } from "./auth";
 import { Components } from "bootstrap-vue-3";
 
@@ -46,7 +49,10 @@ const routes = [
       }
     },
   },
-  { path: "/user/my-page", component: MyPage }
+  { path: "/user/my-page", component: MyPage },
+  { path: "/user/orders", component: Orders },
+  { path: "/user/address", component: Address },
+  { path: "/user/change-password", component: ChangePasswod },
 ];
 
 const router = createRouter({

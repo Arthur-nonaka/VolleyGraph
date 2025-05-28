@@ -30,7 +30,7 @@
 
   img {
     width: 40%;
-    height: 50%;
+    height: 60%;
     transition: 0.5s;
   }
 }
