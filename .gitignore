@@ -32,3 +32,4 @@ Server/uploads
 
 test-results/
 playwright-report/
+.env
