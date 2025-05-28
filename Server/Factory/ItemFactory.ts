@@ -1,75 +1,99 @@
-import { ItemModel } from "../Models/ItemModel";
-import { ClothesModel, ClothesCategory } from "../Models/ClothesModel";
-import { TennisModel } from "../Models/TennisModel";
 import { BallModel } from "../Models/BallModel";
+import { ClothesModel } from "../Models/ClothesModel";
+import {
+  ClothingCategory,
+  Gender,
+  ItemModel,
+  ItemType,
+  ItemVariation,
+} from "../Models/ItemModel";
+import { ShoesModel } from "../Models/ShoesModel";
 
 export class ItemFactory {
-  public static createItem(
-    type: "clothes" | "tennis" | "ball",
-    baseAttributes: {
-      image: string | null;
-      name: string;
-      description: string | null;
-      price: number;
-      amount: number;
-      brand: string;
-    },
-    specificAttributes?: any
-  ): ItemModel {
-    // console.log(baseAttributes);
+  static createBall(
+    name: string,
+    description: string | null,
+    price: number,
+    brand: string,
+    variations: ItemVariation[],
+    sport?: string,
+    weight?: number
+  ): BallModel {
+    return new BallModel(
+      name,
+      description,
+      price,
+      brand,
+      variations,
+      sport,
+      weight
+    );
+  }
+
+  static createShoes(
+    name: string,
+    description: string | null,
+    price: number,
+    brand: string,
+    variations: ItemVariation[]
+  ): ShoesModel {
+    return new ShoesModel(name, description, price, brand, variations);
+  }
+
+  static createClothes(
+    name: string,
+    description: string | null,
+    price: number,
+    brand: string,
+    variations: ItemVariation[],
+    gender: Gender,
+    category: ClothingCategory,
+    material?: string
+  ): ClothesModel {
+    return new ClothesModel(
+      name,
+      description,
+      price,
+      brand,
+      variations,
+      gender,
+      category,
+      material
+    );
+  }
+
+  static createItem(type: ItemType, data: any): ItemModel {
     switch (type) {
-      case "clothes":
-        if (
-          !specificAttributes?.color ||
-          !specificAttributes?.size ||
-          !specificAttributes?.category
-        ) {
-          throw new Error(
-            "Missing attributes for Clothes: color, size, or category."
-          );
-        }
-        return new ClothesModel(
-          baseAttributes.image,
-          baseAttributes.name,
-          baseAttributes.description,
-          baseAttributes.price,
-          baseAttributes.amount,
-          baseAttributes.brand,
-          specificAttributes.color,
-          specificAttributes.size,
-          specificAttributes.category
+      case ItemType.BALL:
+        return this.createBall(
+          data.name,
+          data.description,
+          data.price,
+          data.brand,
+          data.variations,
+          data.sport,
+          data.weight
         );
-
-      case "tennis":
-        if (
-          !specificAttributes?.color ||
-          specificAttributes?.size === undefined
-        ) {
-          throw new Error("Missing attributes for Tennis: color or size.");
-        }
-        return new TennisModel(
-          baseAttributes.image,
-          baseAttributes.name,
-          baseAttributes.description,
-          baseAttributes.price,
-          baseAttributes.amount,
-          baseAttributes.brand,
-          specificAttributes.color,
-          specificAttributes.size
+      case ItemType.SHOES:
+        return this.createShoes(
+          data.name,
+          data.description,
+          data.price,
+          data.brand,
+          data.variations
         );
-
-      case "ball":
-        return new BallModel(
-          baseAttributes.image,
-          baseAttributes.name,
-          baseAttributes.description,
-          baseAttributes.price,
-          baseAttributes.amount,
-          baseAttributes.brand
+      case ItemType.CLOTHES:
+        return this.createClothes(
+          data.name,
+          data.description,
+          data.price,
+          data.brand,
+          data.variations,
+          data.gender,
+          data.material
         );
-
       default:
-        throw new Error("Invalid item type.");
+        throw new Error(`Tipo de item não suportado: ${type}`);
     }
   }
 }

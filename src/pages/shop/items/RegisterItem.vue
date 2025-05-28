@@ -103,6 +103,33 @@
             @change="handleImageUpload"
           />
         </div>
+
+        <div v-if="formData.type === 'ball'" class="form-group mb-3">
+          <label for="sport" class="form-label">Esporte</label>
+          <input
+            type="text"
+            id="color"
+            class="form-control"
+            placeholder="Digite a cor"
+            v-model="specificAttributes.sport"
+          />
+          <small v-if="errors.sport" class="text-danger">{{
+            errors.sport
+          }}</small>
+          <label for="weight" class="form-label">Peso</label>
+          <input
+            type="number"
+            step="0.01"
+            id="weight"
+            class="form-control"
+            placeholder="Digite o peso (kg)"
+            v-model="specificAttributes.weight"
+          />
+          <small v-if="errors.weight" class="text-danger">{{
+            errors.weight
+          }}</small>
+        </div>
+
         <div v-if="formData.type === 'clothes'" class="form-group mb-3">
           <label for="color" class="form-label">Cores disponíveis</label>
           <input
@@ -187,6 +214,12 @@
             }}</small>
           </div>
         </div>
+        <div>
+          <Variations
+            :variations="variations"
+            @update:variations="updateVariations"
+          />
+        </div>
         <button
           type="submit"
           class="btn btn-primary w-100"
@@ -203,10 +236,18 @@
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import Header from "@/components/Header.vue";
+import Variations from "@/components/Variations.vue";
 import ItemService from "@/api/ItemService";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const variations = ref([
+  {
+    color: "#FFFFFF",
+    colorName: "Branco",
+    sizes: [],
+  },
+]);
 
 const route = useRoute();
 const itemId = Array.isArray(route.params.id)
@@ -220,6 +261,8 @@ const availableSizes = {
 };
 
 const specificAttributes = ref<{
+  sport?: string;
+  weight?: number | null;
   color?: string;
   sizes?: (string | number)[];
   category?: string;
@@ -250,6 +293,8 @@ const errors = ref({
   colors: "",
   sizes: "",
   category: "",
+  sport: "",
+  weight: "",
 });
 
 onMounted(async () => {
@@ -264,6 +309,10 @@ onMounted(async () => {
     }
   }
 });
+
+const updateVariations = (newVariations: any) => {
+  variations.value = newVariations;
+};
 
 const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -284,6 +333,8 @@ const validateForm = () => {
     colors: "",
     sizes: "",
     category: "",
+    sport: "",
+    weight: "",
   };
 
   if (!formData.value.name) {
@@ -338,6 +389,21 @@ const validateForm = () => {
     }
   }
 
+  if (formData.value.type === "ball") {
+    if (!specificAttributes.value.sport) {
+      errors.value.sport = "O esporte é obrigatório.";
+      isValid = false;
+    }
+    if (
+      specificAttributes.value.weight === undefined ||
+      specificAttributes.value.weight === null ||
+      specificAttributes.value.weight <= 0
+    ) {
+      errors.value.weight = "O peso deve ser maior que 0.";
+      isValid = false;
+    }
+  }
+
   return isValid;
 };
 
@@ -368,6 +434,7 @@ const submitForm = async () => {
       price: formData.value.price,
     },
     specificAttributes: specificAttributes.value,
+    variations: variations.value,
   };
 
   const formDataToSend = new FormData();
@@ -377,6 +444,7 @@ const submitForm = async () => {
     "specificAttributes",
     JSON.stringify(data.specificAttributes)
   );
+  formDataToSend.append("variations", JSON.stringify(data.variations));
   if (formData.value.image) {
     formDataToSend.append("image", formData.value.image);
   }
