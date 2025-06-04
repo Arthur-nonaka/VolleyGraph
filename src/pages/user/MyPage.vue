@@ -24,24 +24,22 @@
 
     <div class="container">
       <div class="options">
-        
         <div class="option option-selected">
           <img src="/perfil.png" alt="Perfil" />
           <h2 class="h2-selected">Meu Cadastro</h2>
         </div>
 
-        <router-link to="/orders" class="option">
+        <router-link to="./orders" class="option">
           <img src="/carrinho.png" alt="Perfil" />
           <h2>Meus Pedidos</h2>
         </router-link>
-        
 
-        <router-link to="/address" class="option">
+        <router-link to="./address" class="option">
           <img src="/endereco.png" alt="Perfil" />
           <h2>Meus Endereços</h2>
         </router-link>
 
-        <router-link to="/changepassword" class="option">
+        <router-link to="./change-password" class="option">
           <img src="/trocarsenha.png" alt="Perfil" />
           <h2>Trocar Senha</h2>
         </router-link>
@@ -53,6 +51,25 @@
       </div>
 
       <div class="user-container">
+        <div style="display: flex; justify-content: center; width: 100%">
+          <div style="width: 100%;">
+            <span style="color: black; font-size: 1.2em; margin-bottom: 10px"
+              >Foto de Perfil</span
+            >
+            <div class="photo-div">
+              <img
+                class="img-perfil"
+                src="/volleyball.png"
+                alt="Foto de Perfil"
+              />
+              <div class="img-options">
+                <button class="form-save">Mudar Imagem</button>
+                <button class="form-save">Remover Imagem</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <span style="color: black; font-size: 1.2em; margin-bottom: 10px"
           >Meus Dados</span
         >
@@ -129,7 +146,11 @@
           </div>
           <hr />
           <div class="btns">
-            <input class="btn-delete" type="submit" value="Excluir Minha Conta" />
+            <input
+              class="btn-delete"
+              type="submit"
+              value="Excluir Minha Conta"
+            />
             <input class="form-save" type="submit" value="Salvar" />
           </div>
         </form>
@@ -182,228 +203,6 @@ const confirmarAlteracao = () => {
 };
 </script>
 
-<style scoped>
-main {
-  width: 100%;
-  background-color: var(--vt-c-white);
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-.title {
-  width: 70%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 30px;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: var(--vt-c-blue);
-  transition: color 0.3s ease;
-  margin-bottom: 10px;
-  width: fit-content;
-}
-
-.back-button:hover {
-  color: var(--vt-c-orange);
-}
-
-.icon {
-  width: 30px;
-  height: 30px;
-}
-
-.container {
-  display: flex;
-  flex-direction: row;
-}
-
-.options {
-  margin: 30px;
-  width: 22vw;
-  height: auto;
-  background-color: var(--vt-c-blue);
-  border-radius: 10px;
-
-  .option {
-    width: 100%;
-    height: 10vh;
-    padding: 20px;
-    display: flex;
-    flex-direction: row;
-    /* justify-content: space-between; */
-    align-items: center;
-    text-decoration: none;
-
-    img {
-      width: 30%;
-      height: 100%;
-    }
-
-    h2 {
-      font-size: 1.2em;
-      color: white;
-      margin-left: 15px;
-      margin-top: 10px;
-    }
-
-    .h2-selected {
-      font-size: 1.2em;
-      color: var(--vt-c-orange);
-      margin-left: 15px;
-      margin-top: 10px;
-    }
-  }
-
-  .option-selected {
-    border-left: 5px solid var(--vt-c-orange);
-    background-color: rgba(255, 255, 255, 0.1); /* opcional para dar destaque */
-  }
-}
-
-.user-container {
-  width: 70vw;
-  min-height: 60vh;
-  /* border: 1px solid black; */
-  padding: 20px;
-  box-sizing: border-box;
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .form-input-full {
-    width: 100%;
-    height: 5vh;
-  }
-
-  .row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .col {
-    flex: 1;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-input {
-    height: 5vh;
-    padding: 5px;
-    font-size: 1em;
-    outline: none;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-
-  .form-input:focus {
-    border-color: black;
-  }
-
-  .form-input:disabled {
-    background-color: #bebebe;
-  }
-
-  .link-button {
-    background: none;
-    border: none;
-    color: var(--vt-c-blue);
-    cursor: pointer;
-    font-size: 0.9em;
-    padding: 0;
-    margin-top: 5px;
-    text-decoration: underline;
-    width: fit-content;
-  }
-
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-  }
-
-  .modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  }
-
-  .modal-content input {
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 1em;
-  }
-
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-
-  .modal-confirm {
-    background-color: var(--vt-c-blue);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-
-  .modal-cancel {
-    background-color: #ccc;
-    color: black;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-
-  .btns{
-    width: 100%;
-    display: flex;
-    justify-content: right;
-
-  }
-
-  .btn-delete{
-    background-color: var(--vt-c-orange);
-    border: none;
-    border-radius: 3px;
-    width: 12vw;
-    height: 4vh;
-    
-  }
-
-  .form-save{
-    background-color: var(--vt-c-blue);
-    height: 4vh;
-    width: 6vw;
-    border: none;
-    color: var(--vt-c-white);
-    margin-left: 10px;
-  }
-}
+<style>
+@import "../../assets/user.css";
 </style>
