@@ -1,11 +1,17 @@
 import { IsOptional, IsString } from "class-validator";
-import {
-  ClothingCategory,
-  Gender,
-  ItemModel,
-  ItemType,
-  ItemVariation,
-} from "./ItemModel";
+import { ClothingCategory, Gender, ItemModel, ItemType, ItemVariation } from "./ItemModel";
+
+export class ShoesModel extends ItemModel {
+  constructor(
+    name: string,
+    description: string | null,
+    price: number,
+    brand: string,
+    variations: ItemVariation[],
+  ) {
+    super(name, description, ItemType.SHOES, price, brand, variations);
+  }
+}
 
 export class ClothesModel extends ItemModel {
   @IsString({ message: "O material deve ser uma string." })
@@ -24,17 +30,9 @@ export class ClothesModel extends ItemModel {
     variations: ItemVariation[],
     gender: Gender,
     category: ClothingCategory,
-    material?: string
+    material?: string,
   ) {
-    super(
-      name,
-      description,
-      ItemType.CLOTHES,
-      price,
-      brand,
-      variations,
-      gender
-    );
+    super(name, description, ItemType.CLOTHES, price, brand, variations, gender);
     this.material = material;
     this.category = category;
   }
