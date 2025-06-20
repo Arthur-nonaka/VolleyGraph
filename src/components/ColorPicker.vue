@@ -22,15 +22,99 @@
         hide-inputs
       />
     </v-menu>
-    {{ colorName }}
+    <span @click="showModal = true" style="cursor: pointer">{{
+      colorName
+    }}</span>
+
+    <v-dialog v-model="showModal" max-width="500px">
+      <template #default>
+        <div
+          class="modal-content"
+          style="background-color: white; padding: 20px; border-radius: 8px"
+        >
+          <div class="modal-header">
+            <h5 class="modal-title">Gerenciar Tamanhos</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="showModal = false"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div
+              v-for="(size, sizeIndex) in variation.sizes"
+              :key="sizeIndex"
+              class="mb-3"
+            >
+              <div class="input-group">
+                <input
+                  type="text"
+                  v-model="variation.sizes[sizeIndex].size"
+                  class="form-control"
+                  placeholder="Tamanho"
+                />
+                <input
+                  type="number"
+                  v-model="variation.sizes[sizeIndex].quantity"
+                  class="form-control"
+                  placeholder="Quantidade"
+                />
+                <button class="btn btn-danger" @click="removeSize(sizeIndex)">
+                  Remover
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-success w-100"
+              @click="addSize()"
+            >
+              Adicionar Tamanho
+            </button>
+          </div>
+        </div>
+      </template>
+    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, reactive } from "vue";
+
+const props = defineProps<{
+  variation: {
+    color: string;
+    colorName: string;
+    sizes: Array<{
+      size: string;
+      quantity: number;
+    }>;
+  };
+}>();
 
 const selectedColor = ref("#000000");
 const colorName = ref("Desconhecido");
+const showModal = ref(false);
+
+const emit = defineEmits(["update:variation"]);
+
+const addSize = () => {
+  props.variation.sizes.push({ size: "", quantity: 0 });
+  emit("update:variation", props.variation);
+};
+
+const removeSize = (sizeIndex: number) => {
+  props.variation.sizes.splice(sizeIndex, 1);
+  emit("update:variation", props.variation);
+};
+
+const updateColor = (color: string) => {
+  emit("update:variation", { ...props.variation, colorName: color });
+};
+
+const updateSizes = () => {
+  emit("update:variation", { ...props.variation });
+};
 
 const hexToRgb = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -113,6 +197,7 @@ const translateColor = (color: string) => {
     }
 
     colorName.value = closestColor.name;
+    updateColor(colorName.value);
   }
 };
 

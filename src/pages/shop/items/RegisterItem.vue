@@ -105,7 +105,9 @@
         </div>
 
         <div v-if="formData.type === 'ball'" class="form-group mb-3">
-          <label for="sport" class="form-label">Esporte</label>
+          <label for="sport" class="form-label"
+            >Esporte <span class="required">*</span></label
+          >
           <input
             type="text"
             id="color"
@@ -116,7 +118,9 @@
           <small v-if="errors.sport" class="text-danger">{{
             errors.sport
           }}</small>
-          <label for="weight" class="form-label">Peso</label>
+          <label for="weight" class="form-label"
+            >Peso <span class="required">*</span></label
+          >
           <input
             type="number"
             step="0.01"
@@ -130,40 +134,32 @@
           }}</small>
         </div>
 
+        <div v-if="formData.type === 'tennis'" class="form-group mb-3">
+          <div>
+            <Variations
+              :variations="variations"
+              @update:variations="updateVariations"
+            />
+          </div>
+        </div>
+
         <div v-if="formData.type === 'clothes'" class="form-group mb-3">
-          <label for="color" class="form-label">Cores disponíveis</label>
+          <label for="material" class="form-label">
+            Material <span class="required">*</span></label
+          >
           <input
             type="text"
-            id="color"
+            id="material"
             class="form-control"
-            placeholder="Digite a cor"
-            v-model="specificAttributes.color"
+            placeholder="material"
+            v-model="specificAttributes.material"
           />
-          <small v-if="errors.colors" class="text-danger">{{
-            errors.colors
+          <small v-if="errors.material" class="text-danger">{{
+            errors.material
           }}</small>
-          <label for="sizes" class="form-label">Tamanhos Disponíveis</label>
-          <div
-            id="sizes"
-            class="form-check"
-            v-for="size in availableSizes.clothes"
-            :key="size"
+          <label for="category" class="form-label"
+            >Categoria <span class="required">*</span></label
           >
-            <input
-              type="checkbox"
-              class="form-check-input"
-              :id="`size-${size}`"
-              :value="size"
-              v-model="specificAttributes.sizes"
-            />
-            <label class="form-check-label" :for="`size-${size}`">{{
-              size
-            }}</label>
-            <small v-if="errors.sizes" class="text-danger">{{
-              errors.sizes
-            }}</small>
-          </div>
-          <label for="category" class="form-label">Categoria</label>
           <select
             id="category"
             class="form-control"
@@ -172,53 +168,19 @@
             <option value="" disabled>Selecione a categoria</option>
             <option value="Shirt">Camisa</option>
             <option value="Pants">Calça</option>
+            <option value="shorts">Shorts</option>
             <option value="Socks">Meias</option>
             <option value="Accessories">Acessórios</option>
           </select>
           <small v-if="errors.category" class="text-danger">{{
             errors.category
           }}</small>
-        </div>
-
-        <div v-if="formData.type === 'tennis'" class="form-group mb-3">
-          <label for="color" class="form-label">Cor</label>
-          <input
-            type="text"
-            id="color"
-            class="form-control"
-            placeholder="Digite a cor"
-            v-model="specificAttributes.color"
-          />
-          <small v-if="errors.colors" class="text-danger">{{
-            errors.colors
-          }}</small>
-          <label for="sizes" class="form-label">Tamanhos Disponíveis</label>
-          <div
-            id="sizes"
-            class="form-check"
-            v-for="size in availableSizes.tennis"
-            :key="size"
-          >
-            <input
-              type="checkbox"
-              class="form-check-input"
-              :id="`size-${size}`"
-              :value="size"
-              v-model="specificAttributes.sizes"
+          <div>
+            <Variations
+              :variations="variations"
+              @update:variations="updateVariations"
             />
-            <label class="form-check-label" :for="`size-${size}`">{{
-              size
-            }}</label>
-            <small v-if="errors.sizes" class="text-danger">{{
-              errors.sizes
-            }}</small>
           </div>
-        </div>
-        <div>
-          <Variations
-            :variations="variations"
-            @update:variations="updateVariations"
-          />
         </div>
         <button
           type="submit"
@@ -241,9 +203,15 @@ import ItemService from "@/api/ItemService";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const variations = ref([
+const variations = ref<
+  Array<{
+    color: string;
+    colorName: string;
+    sizes: Array<{ size: string; quantity: number }>;
+  }>
+>([
   {
-    color: "#FFFFFF",
+    color: "#000000",
     colorName: "Branco",
     sizes: [],
   },
@@ -255,16 +223,10 @@ const itemId = Array.isArray(route.params.id)
   : route.params.id;
 const isEditMode = !!itemId;
 
-const availableSizes = {
-  clothes: ["PP", "P", "M", "G", "GG"],
-  tennis: [34, 35, 36, 37, 38, 39, 40, 41, 42, 43],
-};
-
 const specificAttributes = ref<{
   sport?: string;
   weight?: number | null;
-  color?: string;
-  sizes?: (string | number)[];
+  material?: string;
   category?: string;
 }>({});
 
@@ -295,6 +257,7 @@ const errors = ref({
   category: "",
   sport: "",
   weight: "",
+  material: "",
 });
 
 onMounted(async () => {
@@ -335,6 +298,7 @@ const validateForm = () => {
     category: "",
     sport: "",
     weight: "",
+    material: "",
   };
 
   if (!formData.value.name) {
@@ -358,33 +322,12 @@ const validateForm = () => {
   }
 
   if (formData.value.type === "clothes") {
-    if (!specificAttributes.value.color) {
-      errors.value.colors = "Selecione ao menos uma cor.";
-      isValid = false;
-    }
-    if (
-      !specificAttributes.value.sizes ||
-      specificAttributes.value.sizes.length === 0
-    ) {
-      errors.value.sizes = "Selecione ao menos um tamanho.";
+    if (!specificAttributes.value.material) {
+      errors.value.colors = "Digite um material.";
       isValid = false;
     }
     if (!specificAttributes.value.category) {
       errors.value.category = "A categoria é obrigatória.";
-      isValid = false;
-    }
-  }
-
-  if (formData.value.type === "tennis") {
-    if (!specificAttributes.value.color) {
-      errors.value.colors = "Selecione ao menos uma cor.";
-      isValid = false;
-    }
-    if (
-      !specificAttributes.value.sizes ||
-      specificAttributes.value.sizes.length === 0
-    ) {
-      errors.value.sizes = "Selecione ao menos um tamanho.";
       isValid = false;
     }
   }
@@ -412,18 +355,13 @@ const submitForm = async () => {
     return;
   }
 
-  //   const data = new FormData();
-  //   data.append("name", formData.value.name);
-  //   data.append("brand", formData.value.brand);
-  //   data.append("price", formData.value.price?.toString() || "");
-  //   data.append("amount", formData.value.amount?.toString() || "");
-  //   data.append("type", formData.value.type);
-  //   if (formData.value.description) {
-  //     data.append("description", formData.value.description);
-  //   }
-  //   if (formData.value.image) {
-  //     data.append("image", formData.value.image);
-  //   }
+  const transformedVariations = variations.value.map((variation) =>
+    variation.sizes.map((size) => ({
+      color: variation.color,
+      size: size.size,
+      quantity: size.quantity,
+    }))
+  );
 
   const data = {
     type: formData.value.type,
@@ -434,7 +372,7 @@ const submitForm = async () => {
       price: formData.value.price,
     },
     specificAttributes: specificAttributes.value,
-    variations: variations.value,
+    variations: transformedVariations,
   };
 
   const formDataToSend = new FormData();

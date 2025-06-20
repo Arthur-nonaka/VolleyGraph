@@ -2,19 +2,12 @@
   <div style="margin-bottom: 20px">
     <div class="colors">
       <div v-for="(variation, index) in variations" :key="index">
-        <ColorPicker v-model="variation.color" class="color"/>
-
-        <!-- <div v-for="(size, sizeIndex) in variation.sizes" :key="sizeIndex">
-          <input type="text" v-model="size.size" placeholder="Tamanho" />
-          <input
-            type="number"
-            v-model="size.quantity"
-            placeholder="Quantidade"
-          />
-          <button @click="removeSize(index, sizeIndex)">Remover tamanho</button>
-        </div>
-
-        <button type="button" @click="addSize(index)">Adicionar tamanho</button> -->
+        <ColorPicker
+          v-model="variation.color"
+          :variation="variation"
+          @update:variation="updateVariation(index, $event)"
+          class="color"
+        />
       </div>
     </div>
     <button
@@ -47,7 +40,7 @@ const emit = defineEmits(["update:variations"]);
 
 const addVariation = () => {
   const newVariation = {
-    color: "#FFFFFF",
+    color: "#000000",
     colorName: "Branco",
     sizes: [],
   };
@@ -55,20 +48,9 @@ const addVariation = () => {
   emit("update:variations", [...props.variations, newVariation]);
 };
 
-const addSize = (variationIndex: number) => {
+const updateVariation = (index: number, updatedVariation: any) => {
   const updatedVariations = [...props.variations];
-  updatedVariations[variationIndex].sizes.push({
-    size: "",
-    quantity: 0,
-  });
-
-  emit("update:variations", updatedVariations);
-};
-
-const removeSize = (variationIndex: number, sizeIndex: number) => {
-  const updatedVariations = [...props.variations];
-  updatedVariations[variationIndex].sizes.splice(sizeIndex, 1);
-
+  updatedVariations[index] = updatedVariation;
   emit("update:variations", updatedVariations);
 };
 </script>
@@ -83,7 +65,7 @@ const removeSize = (variationIndex: number, sizeIndex: number) => {
 }
 
 .color {
-    width: 225px;
-    height: auto;
+  width: 225px;
+  height: auto;
 }
 </style>

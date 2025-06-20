@@ -122,7 +122,17 @@ export const updateItem = async (req: Request, res: Response) => {
 };
 
 export const createItem = async (req: Request, res: Response) => {
-  const { type, baseAttributes, specificAttributes, variations } = req.body;
+  console.log(req.body);
+  const { type, specificAttributes, variations } = req.body;
+  let baseAttributes = req.body.baseAttributes;
+
+  if (typeof baseAttributes === "string") {
+    try {
+      baseAttributes = JSON.parse(baseAttributes);
+    } catch (error) {
+      return res.status(400).json({ error: "Invalid baseAttributes format" });
+    }
+  }
 
   const imageUrl = req.file
     ? `${SERVER_ADDRESS}/uploads/${req.file.filename}`
@@ -135,6 +145,8 @@ export const createItem = async (req: Request, res: Response) => {
     ...specificAttributes,
     ...variations,
   };
+
+  console.log(data);
 
   const item = ItemFactory.createItem(type, data);
 
