@@ -17,6 +17,7 @@ export class ClothesModel extends ItemModel {
   private category?: ClothingCategory;
 
   constructor(
+    image: string | null,
     name: string,
     description: string | null,
     price: number,
@@ -27,6 +28,7 @@ export class ClothesModel extends ItemModel {
     material?: string
   ) {
     super(
+      image,
       name,
       description,
       ItemType.CLOTHES,

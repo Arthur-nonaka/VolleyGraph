@@ -11,6 +11,7 @@ import { ShoesModel } from "../Models/ShoesModel";
 
 export class ItemFactory {
   static createBall(
+    image: string | null,
     name: string,
     description: string | null,
     price: number,
@@ -20,6 +21,7 @@ export class ItemFactory {
     weight?: number
   ): BallModel {
     return new BallModel(
+      image,
       name,
       description,
       price,
@@ -31,16 +33,18 @@ export class ItemFactory {
   }
 
   static createShoes(
+    image: string | null,
     name: string,
     description: string | null,
     price: number,
     brand: string,
     variations: ItemVariation[]
   ): ShoesModel {
-    return new ShoesModel(name, description, price, brand, variations);
+    return new ShoesModel(image, name, description, price, brand, variations);
   }
 
   static createClothes(
+    image: string | null,
     name: string,
     description: string | null,
     price: number,
@@ -51,6 +55,7 @@ export class ItemFactory {
     material?: string
   ): ClothesModel {
     return new ClothesModel(
+      image,
       name,
       description,
       price,
@@ -66,6 +71,7 @@ export class ItemFactory {
     switch (type) {
       case ItemType.BALL:
         return this.createBall(
+          data.image,
           data.name,
           data.description,
           data.price,
@@ -76,6 +82,7 @@ export class ItemFactory {
         );
       case ItemType.SHOES:
         return this.createShoes(
+          data.image,
           data.name,
           data.description,
           data.price,
@@ -84,12 +91,14 @@ export class ItemFactory {
         );
       case ItemType.CLOTHES:
         return this.createClothes(
+          data.image,
           data.name,
           data.description,
           data.price,
           data.brand,
           data.variations,
           data.gender,
+          data.category,
           data.material
         );
       default:

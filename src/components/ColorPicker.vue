@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; align-items: center; gap: 8px">
+  <div style="display: flex; align-items: center; gap: 8px; color: black;">
     <v-menu>
       <template #activator="{ props }">
         <div
@@ -33,7 +33,7 @@
           style="background-color: white; padding: 20px; border-radius: 8px"
         >
           <div class="modal-header">
-            <h5 class="modal-title">Gerenciar Tamanhos</h5>
+            <h5 class="modal-title" style="color: black;" >Gerenciar Tamanhos</h5>
             <button
               type="button"
               class="btn-close"

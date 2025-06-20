@@ -12,6 +12,7 @@ export class BallModel extends ItemModel {
   private weight?: number;
 
   constructor(
+    image: string | null,
     name: string,
     description: string | null,
     price: number,
@@ -20,7 +21,7 @@ export class BallModel extends ItemModel {
     sport?: string,
     weight?: number
   ) {
-    super(name, description, ItemType.BALL, price, brand, variations);
+    super(image, name, description, ItemType.BALL, price, brand, variations);
     this.sport = sport;
     this.weight = weight;
   }

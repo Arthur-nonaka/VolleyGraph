@@ -33,6 +33,13 @@ export const getItem = async (req: Request, res: Response) => {
     }
 
     const items = await collection.find(filters).toArray();
+
+    items.forEach((item) => {
+      item.image = item.image
+        ? `${SERVER_ADDRESS}/uploads/${item.image}`
+        : null;
+    });
+
     res.status(200).json(items);
   } catch (error: any) {
     res
@@ -54,6 +61,9 @@ export const getItemById = async (req: Request, res: Response) => {
     const item = await collection.findOne({ _id: new ObjectId(id) });
 
     if (item) {
+      item.image = item.image
+        ? `${SERVER_ADDRESS}/uploads/${item.image}`
+        : null;
       res.status(200).json(item);
     } else {
       res.status(404).json({ error: "Item não encontrado" });
@@ -73,7 +83,10 @@ export const updateItem = async (req: Request, res: Response) => {
     return;
   }
 
-  const { type, baseAttributes, specificAttributes, variations } = req.body;
+  const { type } = req.body;
+  const specificAttributes = JSON.parse(req.body.specificAttributes);
+  const variations = JSON.parse(req.body.variations);
+  const baseAttributes = JSON.parse(req.body.baseAttributes);
 
   try {
     const collection = await req.mongoDB!.getCollection("items");
@@ -85,15 +98,15 @@ export const updateItem = async (req: Request, res: Response) => {
     }
 
     const imageUrl = req.file
-      ? `${SERVER_ADDRESS}/uploads/${req.file.filename}`
-      : existingItem.baseAttributes.image;
+      ? `${req.file.filename}`
+      : existingItem.specificAttributes.image;
 
-    baseAttributes.image = imageUrl;
+    specificAttributes.image = imageUrl;
 
     const updatedData = {
       ...baseAttributes,
       ...specificAttributes,
-      ...variations,
+      variations,
     };
 
     const updatedItem = ItemFactory.createItem(type, updatedData);
@@ -122,31 +135,20 @@ export const updateItem = async (req: Request, res: Response) => {
 };
 
 export const createItem = async (req: Request, res: Response) => {
-  console.log(req.body);
-  const { type, specificAttributes, variations } = req.body;
-  let baseAttributes = req.body.baseAttributes;
+  const { type } = req.body;
+  const specificAttributes = JSON.parse(req.body.specificAttributes);
+  const variations = JSON.parse(req.body.variations);
+  const baseAttributes = JSON.parse(req.body.baseAttributes);
 
-  if (typeof baseAttributes === "string") {
-    try {
-      baseAttributes = JSON.parse(baseAttributes);
-    } catch (error) {
-      return res.status(400).json({ error: "Invalid baseAttributes format" });
-    }
-  }
-
-  const imageUrl = req.file
-    ? `${SERVER_ADDRESS}/uploads/${req.file.filename}`
-    : null;
+  const imageUrl = req.file ? `${req.file.filename}` : null;
 
   baseAttributes.image = imageUrl;
 
   const data = {
     ...baseAttributes,
     ...specificAttributes,
-    ...variations,
+    variations,
   };
-
-  console.log(data);
 
   const item = ItemFactory.createItem(type, data);
 

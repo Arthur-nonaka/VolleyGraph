@@ -17,7 +17,12 @@
       </button>
 
       <div class="name-filter">
-        <input type="text" placeholder="Pesquise um nome" name="name" v-model="filter.name"/>
+        <input
+          type="text"
+          placeholder="Pesquise um nome"
+          name="name"
+          v-model="filter.name"
+        />
       </div>
 
       <div class="player-container w-100">
@@ -42,7 +47,7 @@
         </div>
         <div class="players">
           <PlayerCard
-            v-for="player in filteredPlayers"
+            v-for="player in players"
             :key="player._id"
             :player="player"
             class="g-col-4"
@@ -58,7 +63,7 @@
 import Header from "@/components/Header.vue";
 import PlayerCard from "@/components/PlayerCard.vue";
 import PlayerService, { positionTranslations } from "@/api/PlayerService";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { computed } from "vue";
 
 const positions = [
@@ -89,28 +94,13 @@ const fetchPlayers = async () => {
   }
 };
 
-const filteredPlayers = computed(() => {
-  const filtered = players.value.filter((player) => {
-    const matchesName =
-      !filter.value.name ||
-      player.name.toLowerCase().includes(filter.value.name.toLowerCase());
-
-    // console.log(filter.value.name);
-
-    const matchesPosition =
-      !filter.value.mainPositions.length ||
-      filter.value.mainPositions.includes(player.mainPosition);
-
-    return matchesName && matchesPosition;
-  });
-
-  return filtered.map((player) => ({
-    ...player,
-    mainPosition:
-      positionTranslations[player.mainPosition] || player.mainPosition,
-    subPosition: positionTranslations[player.subPosition] || player.subPosition,
-  }));
-});
+watch(
+  filter,
+  () => {
+    fetchPlayers();
+  },
+  { deep: true }
+);
 
 onMounted(fetchPlayers);
 </script>

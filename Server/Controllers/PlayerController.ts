@@ -44,7 +44,7 @@ export const getPlayer = async (req: Request, res: Response) => {
     players.forEach((player) => {
       player.age = new Date(player.age).toISOString().split("T")[0];
       player.imageUrl = player.imageUrl
-        ? `${SERVER_ADDRESS}${player.imageUrl}`
+        ? `${SERVER_ADDRESS}/uploads/${player.imageUrl}`
         : null;
     });
 
@@ -69,7 +69,7 @@ export const getPlayerById = async (req: Request, res: Response) => {
 
     player!.age = new Date(player!.age).toISOString().split("T")[0];
     player!.imageUrl = player!.imageUrl
-      ? `${SERVER_ADDRESS}${player!.imageUrl}`
+      ? `${SERVER_ADDRESS}/uploads/${player!.imageUrl}`
       : null;
 
     if (player) {
@@ -84,7 +84,7 @@ export const getPlayerById = async (req: Request, res: Response) => {
 
 export const createPlayer = async (req: Request, res: Response) => {
   const { name, age, height, mainPosition, subPosition } = req.body;
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const imageUrl = req.file ? `${req.file.filename}` : null;
 
   const player = new PlayerModel(
     name,
@@ -145,7 +145,7 @@ export const updatePlayer = async (req: Request, res: Response) => {
     retired,
   } = req.body;
 
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const imageUrl = req.file ? `${req.file.filename}` : null;
 
   const { id } = req.params;
   if (!ObjectId.isValid(id)) {

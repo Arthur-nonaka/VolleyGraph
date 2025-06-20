@@ -3,6 +3,8 @@ import { ObjectId } from "mongodb";
 import { TeamModel } from "../Models/TeamModel";
 import { validate } from "class-validator";
 
+const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
+
 export const getTeam = async (req: Request, res: Response) => {
   try {
     const { name, address } = req.query;
@@ -72,11 +74,8 @@ export const getTeamById = async (req: Request, res: Response) => {
 
 export const createTeam = async (req: Request, res: Response) => {
   const { name, address } = req.body;
-  const imageUrl = req.file
-    ? `https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/uploads/${req.file.filename}`
-    : null;
-    console.log(name, address, imageUrl);
-
+  const imageUrl = req.file ? `${req.file.filename}` : null;
+  console.log(name, address, imageUrl);
 
   const team = new TeamModel(name, imageUrl, [], address);
 
@@ -102,9 +101,7 @@ export const createTeam = async (req: Request, res: Response) => {
 export const updateTeam = async (req: Request, res: Response) => {
   const { name, address } = req.body;
 
-  const imageUrl = req.file
-    ? `https://solid-tribble-g6xr9gvpj76hr5g-3000.app.github.dev/uploads/${req.file.filename}`
-    : null;
+  const imageUrl = req.file ? `${req.file.filename}` : null;
 
   const { id } = req.params;
   if (!ObjectId.isValid(id)) {

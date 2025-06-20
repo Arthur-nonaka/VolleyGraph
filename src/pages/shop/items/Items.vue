@@ -27,26 +27,36 @@
 
       <div class="player-container w-100">
         <div class="filters">
-          <div
-            class="form-check"
-            v-for="position in positions"
-            :key="position.value"
-          >
-            <input
-              type="checkbox"
-              class="form-check-input"
-              :id="position.value"
-              :value="position.value"
-              v-model="filter.mainPositions"
-            />
-            <label class="form-check-label" :for="position.value">
-              {{ position.label }}
-            </label>
+          Filtros
+          <div class="form-group">
+            <v-range-slider
+              v-model="priceRange"
+              :min="0"
+              :max="1000"
+              :step="10"
+              thumb-label
+              class="mt-4"
+              color="primary"
+              label="Preço"
+            ></v-range-slider>
+            <div class="form-group">
+              <label for="priceMin"> Minino</label>
+              <input type="number" v-model="priceRange[0]" />
+              <label for="priceMin"> Maximo</label>
+              <input type="number" v-model="priceRange[1]" />
+            </div>
           </div>
+          <label for="type">Tipo</label>
+          <select id="type" class="form-select" v-model="filter.type">
+            <option value="">Todos</option>
+            <option value="clothes">Roupas</option>
+            <option value="shoes">Tenis</option>
+            <option value="ball">Bola</option>
+          </select>
         </div>
         <div class="players">
           <ItemCard
-            v-for="item in filteredItems"
+            v-for="item in items"
             :key="item._id"
             :item="item"
             class="g-col-4"
@@ -62,48 +72,44 @@
 import Header from "@/components/Header.vue";
 import ItemCard from "@/components/ItemCard.vue";
 import ItemService from "@/api/ItemService";
-import { ref, onMounted } from "vue";
-import { computed } from "vue";
-
-const positions = [
-  { value: "Opposite Hitter", label: "Oposto" },
-  { value: "Middle Blocker", label: "Central" },
-  { value: "Outside Hitter", label: "Ponta" },
-  { value: "Setter", label: "Levantador" },
-  { value: "Libero", label: "Líbero" },
-  { value: "Server Specialist", label: "Especialista em saque" },
-  { value: "Defense Specialist", label: "Especialista em defesa" },
-];
+import { ref, onMounted, watch } from "vue";
 
 const filter = ref({
-  mainPositions: [],
+  minPrice: 0,
+  maxPrice: 1000,
   name: "",
+  type: "",
 });
 
 const items = ref([]);
 const fetchItems = async () => {
   try {
-    const response = await ItemService.getItem({});
+    const response = await ItemService.getItem({
+      priceMin: filter.value.minPrice,
+      priceMax: filter.value.maxPrice,
+      name: filter.value.name,
+      type: filter.value.type,
+    });
     items.value = response.data;
   } catch (error) {
     console.error("Error fetching items:", error);
   }
 };
 
-const filteredItems = computed(() => {
-  const filtered = items.value.filter((item) => {
-    //   const matchesName =
-    //     !filter.value.name ||
-    //     item.name.toLowerCase().includes(filter.value.name.toLowerCase());
-    //   // console.log(filter.value.name);
-    //   const matchesPosition =
-    //     !filter.value.mainPositions.length ||
-    //     filter.value.mainPositions.includes(player.mainPosition);
-    //   return matchesName && matchesPosition;
-  });
+const priceRange = ref<[number, number]>([0, 1000]);
 
-  return filtered;
+watch(priceRange, (newVal) => {
+  filter.value.minPrice = newVal[0];
+  filter.value.maxPrice = newVal[1];
 });
+
+watch(
+  filter,
+  () => {
+    fetchItems();
+  },
+  { deep: true }
+);
 
 onMounted(fetchItems);
 </script>

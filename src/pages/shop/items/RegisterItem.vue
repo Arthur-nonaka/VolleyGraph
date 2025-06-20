@@ -87,7 +87,7 @@
           <select class="form-control" id="type" v-model="formData.type">
             <option value="" disabled selected>Selecione o tipo do item</option>
             <option value="clothes">Roupas</option>
-            <option value="tennis">Tênis</option>
+            <option value="shoes">Tênis</option>
             <option value="ball">Bola</option>
           </select>
           <small v-if="errors.type" class="text-danger">{{
@@ -96,6 +96,14 @@
         </div>
         <div class="form-group mb-3">
           <label for="image" class="form-label">Imagem</label>
+          <img
+            v-if="image || previewImage"
+            class="img-fluid mb-3 ml-3"
+            :key="'default'"
+            :src="formData.image ? previewImage : image"
+            alt="item Image"
+            style="width: 50px; height: 50px; border-radius: 5px"
+          />
           <input
             type="file"
             id="image"
@@ -126,7 +134,7 @@
             step="0.01"
             id="weight"
             class="form-control"
-            placeholder="Digite o peso (kg)"
+            placeholder="Digite o peso (g)"
             v-model="specificAttributes.weight"
           />
           <small v-if="errors.weight" class="text-danger">{{
@@ -134,7 +142,7 @@
           }}</small>
         </div>
 
-        <div v-if="formData.type === 'tennis'" class="form-group mb-3">
+        <div v-if="formData.type === 'shoes'" class="form-group mb-3">
           <div>
             <Variations
               :variations="variations"
@@ -175,7 +183,7 @@
           <small v-if="errors.category" class="text-danger">{{
             errors.category
           }}</small>
-          <div>
+          <div class="form-group mt-3">
             <Variations
               :variations="variations"
               @update:variations="updateVariations"
@@ -230,6 +238,9 @@ const specificAttributes = ref<{
   category?: string;
 }>({});
 
+const image = ref<string>("");
+const previewImage = ref<string>("");
+
 const formData = ref<{
   name: string;
   description: string | null;
@@ -267,6 +278,19 @@ onMounted(async () => {
       formData.value = {
         ...response.data,
       };
+      specificAttributes.value = {
+        ...response.data,
+      };
+      variations.value = response.data.variations.map((variation: any) => ({
+        color: variation.color,
+        colorName: variation.colorName,
+        sizes: variation.sizes.map((size: any) => ({
+          size: size.size,
+          quantity: size.quantity,
+        })),
+      }));
+      image.value = response.data.image ? response.data.image : "";
+      formData.value.image = null;
     } catch (error) {
       console.error("Erro ao buscar os dados do item:", error);
     }
@@ -281,6 +305,7 @@ const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     formData.value.image = target.files[0];
+    previewImage.value = URL.createObjectURL(target.files[0]);
   }
 };
 
@@ -354,14 +379,23 @@ const submitForm = async () => {
   if (!validateForm()) {
     return;
   }
+  const transformedVariations: Array<{
+    color: string;
+    colorName: string;
+    size: string;
+    quantity: number;
+  }> = [];
 
-  const transformedVariations = variations.value.map((variation) =>
-    variation.sizes.map((size) => ({
-      color: variation.color,
-      size: size.size,
-      quantity: size.quantity,
-    }))
-  );
+  variations.value.forEach((variation) => {
+    variation.sizes.forEach((size) => {
+      transformedVariations.push({
+        color: variation.color,
+        colorName: variation.colorName,
+        size: size.size,
+        quantity: size.quantity,
+      });
+    });
+  });
 
   const data = {
     type: formData.value.type,

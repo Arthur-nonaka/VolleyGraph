@@ -37,14 +37,23 @@ export class ItemVariation {
   private color!: string;
 
   @IsString({ message: "O tamanho deve ser uma string." })
+  private colorName!: string;
+
+  @IsString({ message: "O tamanho deve ser uma string." })
   private size!: string;
 
   @IsNumber({}, { message: "A quantidade deve ser um número." })
   @Min(0, { message: "A quantidade não pode ser negativa." })
   private quantity!: number;
 
-  constructor(color: string, size: string, quantity: number) {
+  constructor(
+    color: string,
+    colorName: string,
+    size: string,
+    quantity: number
+  ) {
     this.color = color;
+    this.colorName = colorName;
     this.size = size;
     this.quantity = quantity;
   }
@@ -62,6 +71,10 @@ export class ItemVariation {
     return this.quantity;
   }
 
+  public getColorName(): string {
+    return this.colorName;
+  }
+
   // Setters
   public setColor(color: string): void {
     this.color = color;
@@ -73,6 +86,10 @@ export class ItemVariation {
 
   public setQuantity(quantity: number): void {
     this.quantity = quantity;
+  }
+
+  public setColorName(colorName: string): void {
+    this.colorName = colorName;
   }
 }
 
@@ -103,7 +120,10 @@ export class ItemModel {
   @IsOptional()
   private gender?: Gender;
 
+  private image: string | null;
+
   constructor(
+    image: string | null,
     name: string,
     description: string | null,
     type: ItemType,
@@ -112,6 +132,7 @@ export class ItemModel {
     variations: ItemVariation[],
     gender?: Gender
   ) {
+    this.image = image;
     this.name = name;
     this.description = description;
     this.type = type;
@@ -122,6 +143,10 @@ export class ItemModel {
   }
 
   // Getters
+  public getImage(): string | null {
+    return this.image;
+  }
+
   public getName(): string {
     return this.name;
   }
@@ -151,6 +176,10 @@ export class ItemModel {
   }
 
   // Setters
+  public setImage(image: string | null): void {
+    this.image = image;
+  }
+
   public setName(name: string): void {
     this.name = name;
   }

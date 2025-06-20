@@ -3,14 +3,14 @@
     <router-link :to="`/loja/item/${item._id}`">
       <div class="img-container">
         <img
-          :src="item.imageUrl ? item.imageUrl : '/null.jpg'"
+          :src="item.image ? item.image : '/null.jpg'"
           alt="item Image"
           style="width: 100%; height: 200px"
         />
       </div>
       <div class="item-info">
         <h2>{{ item.name }}</h2>
-        <p>{{ item.price }}</p>
+        <p>R$ {{ item.price }}</p>
       </div>
     </router-link>
     <div class="item-edit">
@@ -19,9 +19,6 @@
       >
       <button class="delete" @click="handleDelete">🗑</button>
     </div>
-    <!-- <p v-if="item.subPosition">
-            Posição Secundária: {{ item.subPosition }}
-          </p> -->
   </div>
 </template>
 
@@ -43,7 +40,7 @@ const { item } = props;
 const handleDelete = async () => {
   const id = item._id;
   try {
-    await itemService.deleteitem(id);
+    await itemService.deleteItem(id);
 
     emit("itemDeleted");
   } catch (error) {
