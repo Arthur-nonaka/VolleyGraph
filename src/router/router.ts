@@ -36,6 +36,8 @@ const routes = [
   { path: "/loja/item/:id", component: Item },
   { path: "/loja/item/registrar", component: RegisterItem },
   { path: "/loja/item/editar/:id", component: RegisterItem },
+  { path: "/loja/cupom/editar/:id", component: RegisterCupom },
+  { path: "/loja/cupom", component: RegisterCupom },
   { path: "/loja/cupom/registrar", component: RegisterCupom },
   { path: "/loja/cupom/mostrar", component: Cupoms },
   { path: "/times", component: Teams },
