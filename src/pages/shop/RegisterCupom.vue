@@ -5,7 +5,7 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item" aria-current="page">
-            <router-link to="/loja">Cupons</router-link>
+            <router-link to="/loja/cupom/mostrar">Cupons</router-link>
           </li>
           <li class="breadcrumb-item active" aria-current="page">
             Registrar
@@ -65,17 +65,15 @@
               <label
                 for="expiry"
                 class="form-label"
-                >Data de Validade <span class="required">*</span
-              ></label>
+                >Data de Validade </label>
               <input
                 type="date"
                 id="expiry"
                 class="form-control"
-                v-model="formData.expiry"
-                required
+                v-model="formData.expirationDate"
               />
               <small
-                v-if="error && !formData.expiry"
+                v-if="error && !formData.expirationDate"
                 class="text-danger"
               >{{ error }}</small
               >
@@ -96,23 +94,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
-// import CupomService from "@/api/CupomService"; // Implemente depois
+import CupomService from "@/api/CupomService";
+
+const route = useRoute();
+const router = useRouter();
+const isEditMode = route.name === 'EditarCupom' || route.path.includes('/editar/');
 
 const formData = ref({
   name: "",
   discount: 10,
-  expiry: "",
+  expirationDate: "",
 });
 
 const error = ref("");
 const success = ref("");
 
+onMounted(async () => {
+  if (isEditMode && route.params.id) {
+    try {
+      const response = await CupomService.getCupomById(route.params.id as string);
+      const cupom = response.data;
+      formData.value = {
+        name: cupom.name || "",
+        discount: cupom.discount || 10,
+        expirationDate: cupom.expirationDate ? new Date(cupom.expirationDate).toISOString().slice(0, 10) : "",
+      };
+    } catch (e) {
+      error.value = "Erro ao carregar cupom para edição.";
+    }
+  }
+});
+
 const submitForm = async () => {
   error.value = "";
-  success.value = "";
-  if (!formData.value.name || !formData.value.discount || !formData.value.expiry) {
+  if (!formData.value.name || !formData.value.discount) {
     error.value = "Preencha todos os campos.";
     return;
   }
@@ -120,15 +138,35 @@ const submitForm = async () => {
     error.value = "O desconto deve ser entre 1% e 100%.";
     return;
   }
-  // await CupomService.createCupom(formData.value)
-  //   .then(() => {
-  //     success.value = "Cupom cadastrado com sucesso!";
-  //   })
-  //   .catch(() => {
-  //     error.value = "Erro ao cadastrar cupom.";
-  //   });
-  success.value = "Cupom cadastrado com sucesso! (simulado)";
-  formData.value = { name: "", discount: 10, expiry: "" };
+  if (isEditMode && route.params.id) {
+    // Corrige: envia a data no formato YYYY-MM-DD para o backend, mas converte para Date antes de enviar
+    const payload = {
+      ...formData.value,
+      expirationDate: formData.value.expirationDate
+        ? (() => {
+            const [year, month, day] = formData.value.expirationDate.split('-');
+            return new Date(Number(year), Number(month) - 1, Number(day));
+          })()
+        : null,
+    };
+    await CupomService.updateCupom(route.params.id as string, payload)
+      .then(() => {
+        success.value = "Cupom atualizado com sucesso!";
+        setTimeout(() => router.push('/loja/cupom/mostrar'), 1200);
+      })
+      .catch(() => {
+        error.value = "Erro ao atualizar cupom.";
+      });
+  } else {
+    await CupomService.createCupom(formData.value)
+      .then(() => {
+        success.value = "Cupom cadastrado com sucesso!";
+        formData.value = { name: "", discount: 10, expirationDate: "" };
+      })
+      .catch(() => {
+        error.value = "Erro ao cadastrar cupom.";
+      });
+  }
 };
 </script>
 

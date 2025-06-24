@@ -14,12 +14,12 @@ export class CupomModel {
 
   @IsDate({ message: "A data de expiração deve ser uma data válida." })
   @IsOptional()
-  private expirationDate?: Date;
+  private expirationDate?: Date | null;
 
-  constructor(name: string, discount: number, expirationDate?: Date) {
+  constructor(name: string, discount: number, expirationDate?: Date | null) {
     this.name = name;
     this.discount = discount;
-    this.expirationDate = expirationDate;
+    this.expirationDate = expirationDate ?? null;
   }
 
   public getName(): string {
@@ -34,10 +34,10 @@ export class CupomModel {
   public setDiscount(discount: number): void {
     this.discount = discount;
   }
-  public getExpirationDate(): Date | undefined {
+  public getExpirationDate(): Date | null | undefined {
     return this.expirationDate;
   }
-  public setExpirationDate(expirationDate: Date): void {
+  public setExpirationDate(expirationDate: Date | null): void {
     this.expirationDate = expirationDate;
   }
   public isValid(): boolean {

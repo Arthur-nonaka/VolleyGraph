@@ -5,7 +5,7 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item" aria-current="page">
-            <router-link to="/loja">Cupons</router-link>
+            <router-link to="/loja">Loja</router-link>
           </li>
           <li class="breadcrumb-item active" aria-current="page">
             Listar
@@ -20,6 +20,7 @@
               <th>Desconto (%)</th>
               <th>Validade</th>
               <th>Status</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -32,6 +33,10 @@
                   {{ isExpired(cupom.expiry) ? 'Expirado' : 'Válido' }}
                 </span>
               </td>
+              <td>
+                <router-link :to="`/loja/cupom/editar/${cupom.id}`" class="btn btn-sm btn-warning mr-2">Editar</router-link>
+                <button class="btn btn-sm btn-danger" @click="deleteCupom(cupom.id)">Excluir</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -41,25 +46,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Header from "@/components/Header.vue";
 import CupomService from "@/api/CupomService";
 
-const cupons = ref([
-  { id: 1, name: "PROMO10", discount: 10, expiry: "2025-07-01" },
-  { id: 2, name: "FIMDEANO", discount: 20, expiry: "2024-01-01" },
-  { id: 3, name: "VIP30", discount: 30, expiry: "2026-12-31" },
-]);
+const cupons = ref<any[]>([]);
 
-// onMounted(async () => {
-//   const response = await CupomService.getAll();
-//   cupons.value = response.data;
-// });
+onMounted(async () => {
+  try {
+    const response = await CupomService.getCupom();
+    cupons.value = response.data.map((cupom: any) => ({
+      id: cupom._id || cupom.id,
+      name: cupom.name,
+      discount: cupom.discount,
+      expiry: cupom.expirationDate ? new Date(cupom.expirationDate).toISOString().slice(0, 10) : null,
+    }));
+  } catch (e) {
+    // Pode exibir erro se quiser
+  }
+});
 
-function isExpired(dateStr: string) {
+const deleteCupom = async (id: string) => {
+  if (confirm('Tem certeza que deseja excluir este cupom?')) {
+    try {
+      await CupomService.deleteCupom(id);
+      cupons.value = cupons.value.filter((c) => c.id !== id);
+    } catch (e) {
+      alert('Erro ao excluir cupom.');
+    }
+  }
+};
+
+function isExpired(dateStr: string | null) {
+  if (!dateStr) return false;
   return new Date(dateStr) < new Date();
 }
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string | null) {
   if (!dateStr) return "-";
   const d = new Date(dateStr);
   return d.toLocaleDateString();

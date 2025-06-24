@@ -37,7 +37,18 @@ export const getCupomById = async (req: Request, res: Response) => {
 };
 
 export const createCupom = async (req: Request, res: Response) => {
-  const { name, discount, expirationDate } = req.body;
+  let { name, discount, expirationDate } = req.body;
+  // Converte expirationDate para Date se for string
+  if (typeof expirationDate === "string") {
+    if (expirationDate.length > 0) {
+      // Garante que só converte se não for string vazia
+      // Corrige para criar Date no fuso local (YYYY-MM-DD vira local date)
+      const [year, month, day] = expirationDate.split('-');
+      expirationDate = new Date(Number(year), Number(month) - 1, Number(day));
+    } else {
+      expirationDate = null;
+    }
+  }
   const cupom = new CupomModel(name, discount, expirationDate);
 
   const errors = await validate(cupom);
@@ -69,8 +80,23 @@ export const createCupom = async (req: Request, res: Response) => {
 };
 
 export const updateCupom = async (req: Request, res: Response) => {
-  const { name, discount, expirationDate } = req.body;
+  let { name, discount, expirationDate } = req.body;
   const { id } = req.params;
+
+  // Corrige: converte expirationDate para Date se vier string ou ISO
+  if (typeof expirationDate === "string") {
+    if (expirationDate.length > 0) {
+      // Aceita tanto YYYY-MM-DD quanto ISO
+      if (/^\d{4}-\d{2}-\d{2}$/.test(expirationDate)) {
+        const [year, month, day] = expirationDate.split('-');
+        expirationDate = new Date(Number(year), Number(month) - 1, Number(day));
+      } else {
+        expirationDate = new Date(expirationDate);
+      }
+    } else {
+      expirationDate = null;
+    }
+  }
 
   try {
     const collection = await req.mongoDB!.getCollection("cupoms");
@@ -96,7 +122,7 @@ export const updateCupom = async (req: Request, res: Response) => {
     if (discount) {
       cupom.setDiscount(discount);
     }
-    if (expirationDate) {
+    if (expirationDate !== undefined) {
       cupom.setExpirationDate(expirationDate);
     }
 
@@ -107,7 +133,7 @@ export const updateCupom = async (req: Request, res: Response) => {
     }
 
     const existingCupom = await collection.findOne({ name: cupom.getName() });
-    if (existingCupom) {
+    if (existingCupom && existingCupom._id.toString() !== id) {
       res.status(400).send(ResponseMessages.USER_ALREADY_EXISTS);
       return;
     }
@@ -126,7 +152,7 @@ export const updateCupom = async (req: Request, res: Response) => {
 
 export const deleteCupom = async (req: Request, res: Response) => {
   const { id } = req.params;
-
+  console.log(id);
   try {
     const collection = await req.mongoDB!.getCollection("cupoms");
 

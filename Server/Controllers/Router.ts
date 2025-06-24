@@ -108,8 +108,8 @@ app.delete("/team/player", removePlayerFromTeam);
 app.get("/cupom", getCupom);
 app.get("/cupom/:id", getCupomById);
 app.post("/cupom", createCupom);
-app.put("/cupom", updateCupom);
-app.delete("/cupom", deleteCupom);
+app.put("/cupom/:id", updateCupom);
+app.delete("/cupom/:id", deleteCupom);
 
 app
   .listen(PORT, () => {
