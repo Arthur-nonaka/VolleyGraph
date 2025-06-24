@@ -20,6 +20,12 @@
         >
           Novo Cupom
         </router-link>
+        <router-link
+          to="/loja/cupom/mostrar"
+          style="text-decoration: none; color: black; padding: 20px 10px"
+        >
+          Mostrar Cupons
+        </router-link>
       </button>
 
       <div class="name-filter">
