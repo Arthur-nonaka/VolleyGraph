@@ -15,6 +15,7 @@ import MyPage from "@/pages/user/MyPage.vue";
 import Orders from "@/pages/user/Orders.vue";
 import Address from "@/pages/user/Adress.vue";
 import ChangePasswod from "@/pages/user/ChangePassword.vue";
+import RegisterCupom from "@/pages/shop/RegisterCupom.vue";
 import { isAuthenticated } from "./auth";
 import { Components } from "bootstrap-vue-3";
 
@@ -34,6 +35,7 @@ const routes = [
   { path: "/loja/item/:id", component: Item },
   { path: "/loja/item/registrar", component: RegisterItem },
   { path: "/loja/item/editar/:id", component: RegisterItem },
+  { path: "/loja/cupom/registrar", component: RegisterCupom },
   { path: "/times", component: Teams },
   { path: "/times/:id", component: Team },
   { path: "/times/registrar", component: RegisterTeam },

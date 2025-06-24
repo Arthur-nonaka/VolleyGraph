@@ -14,6 +14,12 @@
         >
           Novo Item
         </router-link>
+        <router-link
+          to="/loja/cupom/registrar"
+          style="text-decoration: none; color: black; padding: 20px 10px"
+        >
+          Novo Cupom
+        </router-link>
       </button>
 
       <div class="name-filter">
