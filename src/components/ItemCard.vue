@@ -10,7 +10,13 @@
       </div>
       <div class="item-info">
         <h2>{{ item.name }}</h2>
-        <p>R$ {{ item.price }}</p>
+        <p style="color: var(--vt-c-orange); font-weight: 700; font-size: 22px">
+          R$ {{ item.price }}
+        </p>
+        <button class="button">
+          <img class="img" src="/carrinho.png" />
+          <span style="font-weight: 700">Comprar</span>
+        </button>
       </div>
     </router-link>
     <div class="item-edit">
@@ -54,13 +60,18 @@ const handleDelete = async () => {
   position: relative;
   border-radius: 5px;
   background-color: #f9f9f9;
-  height: 300px;
+  height: 325px;
   text-decoration: none;
-  /* width: 20vw; */
   color: black;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.item-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 a {
@@ -134,5 +145,27 @@ a {
 .item-edit .delete:hover {
   background-color: var(--vt-c-red-dark);
   color: var(--vt-c-red);
+}
+
+.button {
+  background-color: var(--vt-c-orange);
+  color: white;
+  border: none;
+  padding: 5px 20px;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button:hover {
+  background-color: var(--vt-c-orange-dark);
+}
+
+.img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
 }
 </style>
