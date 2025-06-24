@@ -46,6 +46,23 @@
               placeholder="Confirmar Senha"
               v-model="formData.confirmPassword"
             />
+            <div
+              style="
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+              "
+            >
+              <input
+                type="checkbox"
+                id="isAdmin"
+                v-model="formData.isAdmin"
+                style="width: 20px; height: 20px"
+              />
+              <label for="isAdmin" style="margin-left: 0.5rem"
+                >Cadastrar como admin</label
+              >
+            </div>
             <button type="submit" style="margin-top: 2rem">Cadastrar</button>
             <p>
               Já tem uma Conta?
@@ -82,6 +99,7 @@ const formData = ref({
   email: "",
   password: "",
   confirmPassword: "",
+  isAdmin: false,
 });
 
 const loginData = ref({
@@ -114,10 +132,19 @@ const validateForm = () => {
 
 const submitForm = async () => {
   if (validateForm()) {
-    const response = await UserService.createUser(formData.value)
+    const payload = {
+      ...formData.value,
+      isAdmin: formData.value.isAdmin === true
+    };
+    await UserService.createUser(payload)
       .then((response) => {
         console.log("Usuário cadastrado com sucesso:", response.data);
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.token); 
+        localStorage.setItem("userId", response.data.userId);
+        localStorage.setItem(
+          "isAdmin",
+          response.data.isAdmin === true ? "true" : "false"
+        );
         router.push("/");
       })
       .catch((error) => {
@@ -153,8 +180,13 @@ const loginUser = () => {
 
   UserService.loginUser(loginData.value)
     .then((response) => {
+      if (response.data.isAdmin) {
+        console.log("Admin");
+      }
       console.log("Login bem-sucedido:", response);
       localStorage.setItem("token", "123");
+      localStorage.setItem("userId", response.data.userId);
+      localStorage.setItem("isAdmin", response.data.isAdmin ? "true" : "false");
       router.push("/");
     })
     .catch((error) => {

@@ -19,7 +19,7 @@
         </button>
       </div>
     </router-link>
-    <div class="item-edit">
+    <div v-if="isAdmin" class="item-edit">
       <router-link :to="`/loja/item/editar/${item._id}`"
         ><button>🖊</button></router-link
       >
@@ -36,6 +36,10 @@ const props = defineProps({
   item: {
     type: Object,
     required: true,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
   },
 });
 

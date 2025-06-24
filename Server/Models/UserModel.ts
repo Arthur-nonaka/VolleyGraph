@@ -9,10 +9,13 @@ export class UserModel {
 
   private address: string;
 
-  constructor(email: string, password: string, address: string) {
+  private isAdmin: boolean;
+
+  constructor(email: string, password: string, address: string, isAdmin: boolean = false) {
     this.email = email;
     this.password = password;
     this.address = address;
+    this.isAdmin = isAdmin;
   }
 
   public getEmail() {
@@ -37,5 +40,13 @@ export class UserModel {
 
   public setAddress(address: string) {
     this.address = address;
+  }
+
+  public getIsAdmin() {
+    return this.isAdmin;
+  }
+
+  public setIsAdmin(isAdmin: boolean) {
+    this.isAdmin = isAdmin;
   }
 }

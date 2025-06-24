@@ -7,7 +7,7 @@
           <li class="breadcrumb-item active" aria-current="page">Itens</li>
         </ol>
       </nav>
-      <button>
+      <button v-if="isAdmin">
         <router-link
           to="/loja/item/registrar"
           style="text-decoration: none; color: black; padding: 20px 10px"
@@ -59,6 +59,7 @@
             v-for="item in items"
             :key="item._id"
             :item="item"
+            :isAdmin="isAdmin"
             class="g-col-4"
             @item-deleted="fetchItems"
           />
@@ -72,6 +73,7 @@
 import Header from "@/components/Header.vue";
 import ItemCard from "@/components/ItemCard.vue";
 import ItemService from "@/api/ItemService";
+import UserService from "@/api/UserService";
 import { ref, onMounted, watch } from "vue";
 
 const filter = ref({
@@ -111,7 +113,24 @@ watch(
   { deep: true }
 );
 
-onMounted(fetchItems);
+const isAdmin = ref(false);
+
+onMounted(async () => {
+  const userId = localStorage.getItem("userId");
+  if (userId) {
+    try {
+      const response = await UserService.getUserById(userId);
+      isAdmin.value = response.data.isAdmin === true;
+      // (Opcional) Atualize o localStorage para manter sincronizado:
+      localStorage.setItem("isAdmin", isAdmin.value ? "true" : "false");
+    } catch (e) {
+      isAdmin.value = false;
+    }
+  } else {
+    isAdmin.value = false;
+  }
+  fetchItems();
+});
 </script>
 
 <style scoped>

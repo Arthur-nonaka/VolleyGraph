@@ -7,7 +7,7 @@
           <li class="breadcrumb-item active" aria-current="page">Jogadores</li>
         </ol>
       </nav>
-      <button>
+      <button v-if="isAdmin">
         <router-link
           to="/jogadores/registrar"
           style="text-decoration: none; color: black; padding: 20px 10px"
@@ -50,6 +50,7 @@
             v-for="player in players"
             :key="player._id"
             :player="player"
+            :is-admin="isAdmin"
             class="g-col-4"
             @player-deleted="fetchPlayers"
           />
@@ -63,6 +64,7 @@
 import Header from "@/components/Header.vue";
 import PlayerCard from "@/components/PlayerCard.vue";
 import PlayerService, { positionTranslations } from "@/api/PlayerService";
+import UserService from "@/api/UserService";
 import { ref, onMounted, watch } from "vue";
 import { computed } from "vue";
 
@@ -102,7 +104,24 @@ watch(
   { deep: true }
 );
 
-onMounted(fetchPlayers);
+const isAdmin = ref(false);
+
+onMounted(async () => {
+  const userId = localStorage.getItem("userId");
+  if (userId) {
+    try {
+      const response = await UserService.getUserById(userId);
+      isAdmin.value = response.data.isAdmin === true;
+      // (Opcional) Atualize o localStorage para manter sincronizado:
+      localStorage.setItem("isAdmin", isAdmin.value ? "true" : "false");
+    } catch (e) {
+      isAdmin.value = false;
+    }
+  } else {
+    isAdmin.value = false;
+  }
+  fetchPlayers();
+});
 </script>
 
 <style scoped>

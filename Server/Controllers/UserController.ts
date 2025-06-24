@@ -36,8 +36,11 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  const { email, password, address } = req.body;
+  const { email, password, address, isAdmin } = req.body;
   const user = new UserModel(email, password, address);
+  if (typeof isAdmin !== 'undefined') {
+    user.setIsAdmin(isAdmin === true || isAdmin === 'true');
+  }
 
   const errors = await validate(user);
   if (errors.length > 0) {
@@ -57,8 +60,13 @@ export const createUser = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(user.getPassword(), 10);
     user.setPassword(hashedPassword);
 
-    if (await collection.insertOne(user)) {
-      res.status(201).send(ResponseMessages.USER_CREATED_SUCCESSFULLY);
+    const result = await collection.insertOne(user);
+    if (result) {
+      res.status(201).json({
+        message: ResponseMessages.USER_CREATED_SUCCESSFULLY,
+        userId: result.insertedId,
+        isAdmin: user.getIsAdmin(),
+      });
     } else {
       res.status(500).send(ResponseMessages.ERROR_CREATING_USER);
     }
@@ -165,6 +173,8 @@ export const loginUser = async (req: Request, res: Response) => {
 
     res.status(200).json({
       message: ResponseMessages.LOGIN_SUCCESS,
+      userId: user._id,
+      isAdmin: user.isAdmin,
       // token: token, // Retornando o token
     });
   } catch (error) {

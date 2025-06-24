@@ -13,7 +13,7 @@
         <p>Altura: {{ player.height }} m</p>
       </div>
     </router-link>
-    <div class="player-edit">
+    <div v-if="isAdmin" class="player-edit">
       <router-link :to="`/jogadores/editar/${player._id}`"
         ><button>🖊</button></router-link
       >
@@ -33,6 +33,10 @@ const props = defineProps({
   player: {
     type: Object,
     required: true,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
   },
 });
 
