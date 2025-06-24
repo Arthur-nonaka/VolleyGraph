@@ -34,6 +34,13 @@ import {
   getTeamById,
 } from "./TeamController";
 import {
+  getCupom,
+  createCupom,
+  updateCupom,
+  deleteCupom,
+  getCupomById,
+} from "./CupomController";
+import {
   addPlayerToTeam,
   removePlayerFromTeam,
   getTeamsForPlayer,
@@ -97,6 +104,12 @@ app.get("/team/player/:playerId", getTeamsForPlayer);
 app.get("/player/team/:teamId", getPlayersForTeam);
 app.post("/team/player", addPlayerToTeam);
 app.delete("/team/player", removePlayerFromTeam);
+
+app.get("/cupom", getCupom);
+app.get("/cupom/:id", getCupomById);
+app.post("/cupom", createCupom);
+app.put("/cupom", updateCupom);
+app.delete("/cupom", deleteCupom);
 
 app
   .listen(PORT, () => {

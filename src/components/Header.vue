@@ -1,13 +1,21 @@
 <template>
   <Menu />
   <header>
-    <router-link to="/" style="text-decoration: none;"><div class="title">VolleyGraph</div></router-link>
-    <router-link class="router" to="/login"><div class="avatar"></div></router-link>
+    <router-link to="/" style="text-decoration: none"
+      ><div class="title">VolleyGraph</div></router-link
+    >
+    <div class="cart-container">
+      <Cart />
+      <router-link to="/login" class="router"
+        ><div class="avatar"></div
+      ></router-link>
+    </div>
   </header>
 </template>
 
 <script setup lang="ts">
 import Menu from "./Menu.vue";
+import Cart from "./Cart.vue";
 </script>
 
 <style scoped>
@@ -32,8 +40,20 @@ header {
   text-decoration: none;
 }
 
+.cart-container {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  right: 10px;
+}
+
 .router {
   position: absolute;
+  display: flex;
+  align-items: center;
+
   width: 50px;
   height: 50px;
   border-radius: 50%;

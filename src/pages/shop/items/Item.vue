@@ -124,7 +124,7 @@
                 </div>
 
                 <div>
-                  <p>
+                  <p style="color: #777; font-size: 18px">
                     Quantidade disponível:
                     <span v-if="selectedColor && selectedSize">
                       {{
@@ -136,8 +136,31 @@
                     </span>
                   </p>
                 </div>
+                <div style="margin: 10px;">
+                  Quantidade:
+                  <span v-if="selectedColor && selectedSize">
+                    <input
+                      class="input"
+                      type="number"
+                      :min="1"
+                      :max="
+                        allVariations.find(
+                          (v) =>
+                            v.color === selectedColor && v.size === selectedSize
+                        )?.quantity ?? 0
+                      "
+                      v-model="quantity"
+                    />
+                  </span>
+                </div>
               </div>
-              <button class="button">
+              <button
+                class="button"
+                :disabled="!selectedColor || !selectedSize"
+                @click="
+                  addToCart({ item, selectedColor, selectedSize, quantity })
+                "
+              >
                 <img class="img" src="/carrinho.png" />
                 <span style="font-weight: 700">Comprar</span>
               </button>
@@ -151,9 +174,10 @@
 
 <script lang="ts">
 import Header from "@/components/Header.vue";
-import { defineComponent, ref, onMounted, computed } from "vue";
+import { defineComponent, ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import ItemService from "@/api/ItemService";
+import { addToCart } from "@/composable/useCart";
 
 export default defineComponent({
   name: "ItemInfo",
@@ -165,6 +189,7 @@ export default defineComponent({
     const item = ref<any>(null);
     const loading = ref(true);
     const error = ref<string | null>(null);
+    const quantity = ref(1);
 
     const lensVisible = ref(false);
     const lensStyle = ref({});
@@ -251,6 +276,20 @@ export default defineComponent({
 
     onMounted(fetchItem);
 
+    watch([quantity, selectedColor, selectedSize], () => {
+      const variation = allVariations.value.find(
+        (v) => v.color === selectedColor.value && v.size === selectedSize.value
+      );
+      if (variation) {
+        if (quantity.value > variation.quantity) {
+          quantity.value = variation.quantity;
+        }
+        if (quantity.value < 1) {
+          quantity.value = 1;
+        }
+      }
+    });
+
     return {
       item,
       loading,
@@ -267,6 +306,8 @@ export default defineComponent({
       selectedSize,
       lensSize,
       zoom,
+      addToCart,
+      quantity,
       fetchItem,
     };
   },
@@ -389,5 +430,15 @@ button:disabled {
   border: 2px solid var(--vt-c-orange-dark);
   color: white;
   box-sizing: border-box;
+}
+
+.input {
+  width: 60px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 20px;
+  margin-left: 10px;
 }
 </style>
