@@ -194,3 +194,26 @@ export const deleteItem = async (req: Request, res: Response) => {
       .json({ error: "Erro ao deletar item", details: error.message });
   }
 };
+
+export const getHighestPriceItem = async (req: Request, res: Response) => {
+  try {
+    const collection = await req.mongoDB!.getCollection("items");
+    const item = await collection.find().sort({ price: -1 }).limit(1).toArray();
+
+    item[0].price = item[0].price + 10;
+
+    if (item.length > 0) {
+      item[0].image = item[0].image
+        ? `${SERVER_ADDRESS}/uploads/${item[0].image}`
+        : null;
+      res.status(200).json(item[0]);
+    } else {
+      res.status(404).json({ error: "Nenhum item encontrado" });
+    }
+  } catch (error: any) {
+    res.status(500).json({
+      error: "Erro ao buscar item de maior preço",
+      details: error.message,
+    });
+  }
+};

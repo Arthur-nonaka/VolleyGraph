@@ -9,7 +9,7 @@
         />
       </div>
       <div class="item-info">
-        <h2>{{ item.name }}</h2>
+        <h2>{{ truncatedName }}</h2>
         <p style="color: var(--vt-c-orange); font-weight: 700; font-size: 22px">
           R$ {{ item.price }}
         </p>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
+import { defineProps, computed } from "vue";
 import itemService from "@/api/ItemService";
 
 const props = defineProps({
@@ -42,6 +42,12 @@ const props = defineProps({
     default: false,
   },
 });
+
+const truncatedName = computed(() =>
+  item.name && item.name.length > 20
+    ? item.name.slice(0, 20) + "..."
+    : item.name
+);
 
 const emit = defineEmits(["itemDeleted"]);
 
@@ -65,6 +71,7 @@ const handleDelete = async () => {
   border-radius: 5px;
   background-color: #f9f9f9;
   height: 325px;
+  min-width: 225px;
   text-decoration: none;
   color: black;
   display: flex;

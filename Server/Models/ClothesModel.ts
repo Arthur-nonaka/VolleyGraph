@@ -23,7 +23,6 @@ export class ClothesModel extends ItemModel {
     price: number,
     brand: string,
     variations: ItemVariation[],
-    gender: Gender,
     category: ClothingCategory,
     material?: string
   ) {
@@ -35,7 +34,6 @@ export class ClothesModel extends ItemModel {
       price,
       brand,
       variations,
-      gender
     );
     this.material = material;
     this.category = category;
@@ -55,8 +53,5 @@ export class ClothesModel extends ItemModel {
 
   public getCategory(): ClothingCategory | undefined {
     return this.category;
-  }
-  public getGender(): Gender {
-    return super.getGender()!;
   }
 }

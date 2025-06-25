@@ -1,8 +1,8 @@
+import { AccessoriesModel } from "../Models/AccessoriesModel";
 import { BallModel } from "../Models/BallModel";
 import { ClothesModel } from "../Models/ClothesModel";
 import {
   ClothingCategory,
-  Gender,
   ItemModel,
   ItemType,
   ItemVariation,
@@ -17,6 +17,7 @@ export class ItemFactory {
     price: number,
     brand: string,
     variations: ItemVariation[],
+    quantity: number,
     sport?: string,
     weight?: number
   ): BallModel {
@@ -27,6 +28,7 @@ export class ItemFactory {
       price,
       brand,
       variations,
+      quantity,
       sport,
       weight
     );
@@ -50,7 +52,6 @@ export class ItemFactory {
     price: number,
     brand: string,
     variations: ItemVariation[],
-    gender: Gender,
     category: ClothingCategory,
     material?: string
   ): ClothesModel {
@@ -61,9 +62,26 @@ export class ItemFactory {
       price,
       brand,
       variations,
-      gender,
       category,
       material
+    );
+  }
+
+  static createAccessories(
+    image: string | null,
+    name: string,
+    description: string | null,
+    price: number,
+    brand: string,
+    variations: ItemVariation[]
+  ): AccessoriesModel {
+    return new AccessoriesModel(
+      image,
+      name,
+      description,
+      price,
+      brand,
+      variations
     );
   }
 
@@ -77,6 +95,7 @@ export class ItemFactory {
           data.price,
           data.brand,
           data.variations,
+          data.quantity,
           data.sport,
           data.weight
         );
@@ -97,9 +116,17 @@ export class ItemFactory {
           data.price,
           data.brand,
           data.variations,
-          data.gender,
           data.category,
           data.material
+        );
+      case ItemType.ACCESSORIES:
+        return this.createAccessories(
+          data.image,
+          data.name,
+          data.description,
+          data.price,
+          data.brand,
+          data.variations
         );
       default:
         throw new Error(`Tipo de item não suportado: ${type}`);

@@ -62,7 +62,7 @@
       <div v-else>
         <div class="cart-total">
           <span>Desconto:</span>
-          <span
+          <span style="color: green"
             >R$
             {{ ((totalPrice.toFixed(2) / 100) * discount).toFixed(2) }}</span
           >

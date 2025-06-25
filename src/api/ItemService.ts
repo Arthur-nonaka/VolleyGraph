@@ -15,6 +15,7 @@ export const getItemById = async (id: string) => api.get(`/${id}`);
 export const updateItem = async (id: string, itemData: any) =>
   api.put(`/${id}`, itemData);
 export const deleteItem = async (id: string) => api.delete(`/${id}`);
+export const getHighstPriceItem = async () => api.post("highest");
 
 export const ItemService = {
   createItem,
@@ -22,5 +23,6 @@ export const ItemService = {
   getItemById,
   updateItem,
   deleteItem,
+  getHighstPriceItem,
 };
 export default ItemService;

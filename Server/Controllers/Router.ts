@@ -25,6 +25,7 @@ import {
   updateItem,
   deleteItem,
   getItemById,
+  getHighestPriceItem,
 } from "./ItemController";
 import {
   getTeam,
@@ -49,6 +50,7 @@ import {
 } from "./PlayerTeamController";
 import { MongoDB } from "../Models/MongoDB";
 import path from "path";
+import { get } from "http";
 
 declare global {
   namespace Express {
@@ -91,6 +93,7 @@ app.delete("/player/:id", deletePlayer);
 
 app.get("/item", getItem);
 app.get("/item/:id", getItemById);
+app.post("/item/highest", getHighestPriceItem);
 app.post("/item", uploadImage, createItem);
 app.put("/item/:id", uploadImage, updateItem);
 app.delete("/item/:id", deleteItem);

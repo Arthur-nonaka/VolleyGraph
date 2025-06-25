@@ -89,6 +89,7 @@
             <option value="clothes">Roupas</option>
             <option value="shoes">Tênis</option>
             <option value="ball">Bola</option>
+            <option value="accessories">Acessórios</option>
           </select>
           <small v-if="errors.type" class="text-danger">{{
             errors.type
@@ -140,9 +141,31 @@
           <small v-if="errors.weight" class="text-danger">{{
             errors.weight
           }}</small>
+
+          <label for="quantity" class="form-label"
+            >Quantidade <span class="required">*</span></label
+          >
+          <input
+            type="number"
+            step="1"
+            value="0"
+            id="weight"
+            class="form-control"
+            placeholder="Quantidade"
+            v-model="specificAttributes.quantity"
+          />
         </div>
 
         <div v-if="formData.type === 'shoes'" class="form-group mb-3">
+          <div>
+            <Variations
+              :variations="variations"
+              @update:variations="updateVariations"
+            />
+          </div>
+        </div>
+
+        <div v-if="formData.type === 'accessories'" class="form-group mb-3">
           <div>
             <Variations
               :variations="variations"
@@ -174,11 +197,10 @@
             v-model="specificAttributes.category"
           >
             <option value="" disabled>Selecione a categoria</option>
-            <option value="Shirt">Camisa</option>
-            <option value="Pants">Calça</option>
+            <option value="shirt">Camisa</option>
+            <option value="pants">Calça</option>
             <option value="shorts">Shorts</option>
-            <option value="Socks">Meias</option>
-            <option value="Accessories">Acessórios</option>
+            <option value="socks">Meias</option>
           </select>
           <small v-if="errors.category" class="text-danger">{{
             errors.category
@@ -236,6 +258,7 @@ const specificAttributes = ref<{
   weight?: number | null;
   material?: string;
   category?: string;
+  quantity?: number | null;
 }>({});
 
 const image = ref<string>("");

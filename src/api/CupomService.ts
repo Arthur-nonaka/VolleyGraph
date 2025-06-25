@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 export const createCupom = async (cupomData: any) => api.post("", cupomData);
-export const getCupom = async (filters: any) =>
+export const getCupom = async (filters?: any) =>
   api.get("", { params: filters });
 export const validateCupom = async (name: string) =>
   api.post("validate", { name });

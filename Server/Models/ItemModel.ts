@@ -6,7 +6,6 @@ import {
   IsEnum,
   IsArray,
   ValidateNested,
-  IsObject,
 } from "class-validator";
 import "reflect-metadata";
 import { Type } from "class-transformer";
@@ -15,6 +14,7 @@ export enum ItemType {
   BALL = "ball",
   SHOES = "shoes",
   CLOTHES = "clothes",
+  ACCESSORIES = "accessories",
 }
 
 export enum Gender {
@@ -29,7 +29,6 @@ export enum ClothingCategory {
   PANTS = "pants",
   SHORTS = "shorts",
   JACKET = "jacket",
-  ACCESSORIES = "accessories",
 }
 
 export class ItemVariation {
@@ -116,10 +115,6 @@ export class ItemModel {
   @Type(() => ItemVariation)
   private variations!: ItemVariation[];
 
-  @IsEnum(Gender, { message: "Gênero inválido." })
-  @IsOptional()
-  private gender?: Gender;
-
   private image: string | null;
 
   constructor(
@@ -129,8 +124,7 @@ export class ItemModel {
     type: ItemType,
     price: number,
     brand: string,
-    variations: ItemVariation[],
-    gender?: Gender
+    variations: ItemVariation[]
   ) {
     this.image = image;
     this.name = name;
@@ -139,7 +133,6 @@ export class ItemModel {
     this.price = price;
     this.brand = brand;
     this.variations = variations;
-    this.gender = gender;
   }
 
   // Getters
@@ -171,10 +164,6 @@ export class ItemModel {
     return this.variations;
   }
 
-  public getGender(): Gender | undefined {
-    return this.gender;
-  }
-
   // Setters
   public setImage(image: string | null): void {
     this.image = image;
@@ -204,11 +193,6 @@ export class ItemModel {
     this.variations = variations;
   }
 
-  public setGender(gender: Gender): void {
-    this.gender = gender;
-  }
-
-  // Helper methods
   public addVariation(variation: ItemVariation): void {
     this.variations.push(variation);
   }

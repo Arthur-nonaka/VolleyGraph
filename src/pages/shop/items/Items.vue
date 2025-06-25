@@ -44,7 +44,7 @@
             <v-range-slider
               v-model="priceRange"
               :min="0"
-              :max="1000"
+              :max="highest"
               :step="10"
               thumb-label
               class="mt-4"
@@ -64,6 +64,7 @@
             <option value="clothes">Roupas</option>
             <option value="shoes">Tenis</option>
             <option value="ball">Bola</option>
+            <option value="accessories">Acessórios</option>
           </select>
         </div>
         <div class="players">
@@ -95,6 +96,8 @@ const filter = ref({
   type: "",
 });
 
+const highest = ref(1000);
+
 const items = ref([]);
 const fetchItems = async () => {
   try {
@@ -110,12 +113,15 @@ const fetchItems = async () => {
   }
 };
 
-const priceRange = ref<[number, number]>([0, 1000]);
+const priceRange = ref<[number, number]>([0, highest.value]);
 
-watch(priceRange, (newVal) => {
-  filter.value.minPrice = newVal[0];
-  filter.value.maxPrice = newVal[1];
-});
+watch(
+  () => [priceRange.value[0], priceRange.value[1]],
+  (newVal) => {
+    filter.value.minPrice = newVal[0];
+    filter.value.maxPrice = newVal[1];
+  }
+);
 
 watch(
   filter,
@@ -142,6 +148,14 @@ onMounted(async () => {
     isAdmin.value = false;
   }
   fetchItems();
+
+  try {
+    const response = await ItemService.getHighstPriceItem();
+    highest.value = response.data.price || 1000;
+  } catch (error) {
+    console.error("Error fetching highest price item:", error);
+    highest.value = 1000;
+  }
 });
 </script>
 

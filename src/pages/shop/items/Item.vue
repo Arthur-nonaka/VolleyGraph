@@ -52,8 +52,11 @@
                     flex-direction: column;
                   "
                 >
-                  <span>Marca {{ item?.brand }}</span>
-                  <span>Tecido {{ item?.material }}</span>
+                  <span v-if="item?.brand">Marca {{ item?.brand }}</span>
+                  <span v-if="item?.weight">Peso {{ item?.weight }} g</span>
+                  <span v-if="item?.sport">Esporte {{ item?.sport }}</span>
+                  <span v-if="item?.category">Categoria {{ item?.category }}</span>
+                  <span v-if="item?.material">Tecido {{ item?.material }}</span>
                 </div>
                 <p style="color: black">{{ item?.description }}</p>
               </div>
@@ -67,7 +70,29 @@
                 padding-bottom: 2.5%;
               "
             >
-              <div>
+              <div v-if="item?.quantity">
+                <div>
+                  <p style="color: #777; font-size: 18px">
+                    Quantidade disponível:
+                    <span>
+                      {{ item?.quantity > 0 ? item?.quantity : "Indisponível" }}
+                    </span>
+                  </p>
+                </div>
+                <div style="margin: 10px">
+                  Quantidade:
+                  <span>
+                    <input
+                      class="input"
+                      type="number"
+                      :min="1"
+                      :max="item?.quantity"
+                      v-model="quantity"
+                    />
+                  </span>
+                </div>
+              </div>
+              <div v-else>
                 <div v-if="allVariations.length">
                   <label>Cores:</label>
                   <div style="display: flex; gap: 8px; flex-wrap: wrap">
@@ -122,41 +147,44 @@
                     </span>
                   </button>
                 </div>
-
                 <div>
-                  <p style="color: #777; font-size: 18px">
-                    Quantidade disponível:
+                  <div>
+                    <p style="color: #777; font-size: 18px">
+                      Quantidade disponível:
+                      <span v-if="selectedColor && selectedSize">
+                        {{
+                          allVariations.find(
+                            (v) =>
+                              v.color === selectedColor &&
+                              v.size === selectedSize
+                          )?.quantity ?? 0
+                        }}
+                      </span>
+                    </p>
+                  </div>
+                  <div style="margin: 10px">
+                    Quantidade:
                     <span v-if="selectedColor && selectedSize">
-                      {{
-                        allVariations.find(
-                          (v) =>
-                            v.color === selectedColor && v.size === selectedSize
-                        )?.quantity ?? 0
-                      }}
+                      <input
+                        class="input"
+                        type="number"
+                        :min="1"
+                        :max="
+                          allVariations.find(
+                            (v) =>
+                              v.color === selectedColor &&
+                              v.size === selectedSize
+                          )?.quantity ?? 0
+                        "
+                        v-model="quantity"
+                      />
                     </span>
-                  </p>
-                </div>
-                <div style="margin: 10px;">
-                  Quantidade:
-                  <span v-if="selectedColor && selectedSize">
-                    <input
-                      class="input"
-                      type="number"
-                      :min="1"
-                      :max="
-                        allVariations.find(
-                          (v) =>
-                            v.color === selectedColor && v.size === selectedSize
-                        )?.quantity ?? 0
-                      "
-                      v-model="quantity"
-                    />
-                  </span>
+                  </div>
                 </div>
               </div>
               <button
                 class="button"
-                :disabled="!selectedColor || !selectedSize"
+                :disabled="(!selectedColor || !selectedSize) && !item?.quantity"
                 @click="
                   addToCart({ item, selectedColor, selectedSize, quantity })
                 "
