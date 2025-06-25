@@ -9,9 +9,11 @@ const api = axios.create({
   },
 });
 
-export const createCupom = async (cupomData: any)=>
-  api.post("", cupomData);
-export const getCupom = async () => api.get("");
+export const createCupom = async (cupomData: any) => api.post("", cupomData);
+export const getCupom = async (filters: any) =>
+  api.get("", { params: filters });
+export const validateCupom = async (name: string) =>
+  api.post("validate", { name });
 export const getCupomById = async (id: string) => api.get(`/${id}`);
 export const updateCupom = async (id: string, cupomData: any) =>
   api.put(`/${id}`, cupomData);
@@ -22,6 +24,7 @@ export const CupomService = {
   getCupom,
   getCupomById,
   updateCupom,
+  validateCupom,
   deleteCupom,
 };
 export default CupomService;

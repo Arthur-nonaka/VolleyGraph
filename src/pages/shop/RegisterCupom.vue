@@ -5,22 +5,21 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item" aria-current="page">
+            <router-link to="/loja">Loja</router-link>
+          </li>
+          <li class="breadcrumb-item" aria-current="page">
             <router-link to="/loja/cupom/mostrar">Cupons</router-link>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">
-            Registrar
-          </li>
+          <li class="breadcrumb-item active" aria-current="page">Registrar</li>
         </ol>
       </nav>
       <form class="w-100 mx-auto mt-1" @submit.prevent="submitForm">
         <div class="row">
           <div class="col-md-4">
             <div class="form-group mb-3">
-              <label
-                for="name"
-                class="form-label"
-                >Nome do Cupom <span class="required">*</span
-              ></label>
+              <label for="name" class="form-label"
+                >Nome do Cupom <span class="required">*</span></label
+              >
               <input
                 type="text"
                 id="name"
@@ -29,20 +28,16 @@
                 v-model="formData.name"
                 required
               />
-              <small
-                v-if="error && !formData.name"
-                class="text-danger"
-              >{{ error }}</small
-              >
+              <small v-if="error && !formData.name" class="text-danger">{{
+                error
+              }}</small>
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-group mb-3">
-              <label
-                for="discount"
-                class="form-label"
-                >% de Desconto <span class="required">*</span
-              ></label>
+              <label for="discount" class="form-label"
+                >% de Desconto <span class="required">*</span></label
+              >
               <input
                 type="number"
                 id="discount"
@@ -54,18 +49,17 @@
                 required
               />
               <small
-                v-if="error && (formData.discount < 1 || formData.discount > 100)"
+                v-if="
+                  error && (formData.discount < 1 || formData.discount > 100)
+                "
                 class="text-danger"
-              >{{ error }}</small
+                >{{ error }}</small
               >
             </div>
           </div>
           <div class="col-md-4">
             <div class="form-group mb-3">
-              <label
-                for="expiry"
-                class="form-label"
-                >Data de Validade </label>
+              <label for="expiry" class="form-label">Data de Validade </label>
               <input
                 type="date"
                 id="expiry"
@@ -75,7 +69,7 @@
               <small
                 v-if="error && !formData.expirationDate"
                 class="text-danger"
-              >{{ error }}</small
+                >{{ error }}</small
               >
             </div>
           </div>
@@ -101,7 +95,8 @@ import CupomService from "@/api/CupomService";
 
 const route = useRoute();
 const router = useRouter();
-const isEditMode = route.name === 'EditarCupom' || route.path.includes('/editar/');
+const isEditMode =
+  route.name === "EditarCupom" || route.path.includes("/editar/");
 
 const formData = ref({
   name: "",
@@ -115,12 +110,16 @@ const success = ref("");
 onMounted(async () => {
   if (isEditMode && route.params.id) {
     try {
-      const response = await CupomService.getCupomById(route.params.id as string);
+      const response = await CupomService.getCupomById(
+        route.params.id as string
+      );
       const cupom = response.data;
       formData.value = {
         name: cupom.name || "",
         discount: cupom.discount || 10,
-        expirationDate: cupom.expirationDate ? new Date(cupom.expirationDate).toISOString().slice(0, 10) : "",
+        expirationDate: cupom.expirationDate
+          ? new Date(cupom.expirationDate).toISOString().slice(0, 10)
+          : "",
       };
     } catch (e) {
       error.value = "Erro ao carregar cupom para edição.";
@@ -144,7 +143,7 @@ const submitForm = async () => {
       ...formData.value,
       expirationDate: formData.value.expirationDate
         ? (() => {
-            const [year, month, day] = formData.value.expirationDate.split('-');
+            const [year, month, day] = formData.value.expirationDate.split("-");
             return new Date(Number(year), Number(month) - 1, Number(day));
           })()
         : null,
@@ -152,7 +151,7 @@ const submitForm = async () => {
     await CupomService.updateCupom(route.params.id as string, payload)
       .then(() => {
         success.value = "Cupom atualizado com sucesso!";
-        setTimeout(() => router.push('/loja/cupom/mostrar'), 1200);
+        setTimeout(() => router.push("/loja/cupom/mostrar"), 200);
       })
       .catch(() => {
         error.value = "Erro ao atualizar cupom.";
@@ -162,6 +161,7 @@ const submitForm = async () => {
       .then(() => {
         success.value = "Cupom cadastrado com sucesso!";
         formData.value = { name: "", discount: 10, expirationDate: "" };
+        setTimeout(() => router.push("/loja/cupom/mostrar"), 200);
       })
       .catch(() => {
         error.value = "Erro ao cadastrar cupom.";

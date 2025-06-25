@@ -39,6 +39,7 @@ import {
   updateCupom,
   deleteCupom,
   getCupomById,
+  validateCupom,
 } from "./CupomController";
 import {
   addPlayerToTeam,
@@ -108,6 +109,7 @@ app.delete("/team/player", removePlayerFromTeam);
 app.get("/cupom", getCupom);
 app.get("/cupom/:id", getCupomById);
 app.post("/cupom", createCupom);
+app.post("/cupom/validate", validateCupom);
 app.put("/cupom/:id", updateCupom);
 app.delete("/cupom/:id", deleteCupom);
 

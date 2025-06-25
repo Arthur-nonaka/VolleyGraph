@@ -1,15 +1,13 @@
 <template>
   <Header />
   <main>
-    <section class="cupom-section">
+    <section class="container">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item" aria-current="page">
             <router-link to="/loja">Loja</router-link>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">
-            Listar
-          </li>
+          <li class="breadcrumb-item active" aria-current="page">Listar</li>
         </ol>
       </nav>
       <div class="cupom-table-wrapper">
@@ -29,13 +27,26 @@
               <td>{{ cupom.discount }}</td>
               <td>{{ formatDate(cupom.expiry) }}</td>
               <td>
-                <span :class="isExpired(cupom.expiry) ? 'cupom-expired' : 'cupom-valid'">
-                  {{ isExpired(cupom.expiry) ? 'Expirado' : 'Válido' }}
+                <span
+                  :class="
+                    isExpired(cupom.expiry) ? 'cupom-expired' : 'cupom-valid'
+                  "
+                >
+                  {{ isExpired(cupom.expiry) ? "Expirado" : "Válido" }}
                 </span>
               </td>
               <td>
-                <router-link :to="`/loja/cupom/editar/${cupom.id}`" class="btn btn-sm btn-warning mr-2">Editar</router-link>
-                <button class="btn btn-sm btn-danger" @click="deleteCupom(cupom.id)">Excluir</button>
+                <router-link
+                  :to="`/loja/cupom/editar/${cupom.id}`"
+                  class="btn btn-sm btn-warning mr-2"
+                  >Editar</router-link
+                >
+                <button
+                  class="btn btn-sm btn-danger"
+                  @click="deleteCupom(cupom.id)"
+                >
+                  Excluir
+                </button>
               </td>
             </tr>
           </tbody>
@@ -59,7 +70,9 @@ onMounted(async () => {
       id: cupom._id || cupom.id,
       name: cupom.name,
       discount: cupom.discount,
-      expiry: cupom.expirationDate ? new Date(cupom.expirationDate).toISOString().slice(0, 10) : null,
+      expiry: cupom.expirationDate
+        ? new Date(cupom.expirationDate).toISOString().slice(0, 10)
+        : null,
     }));
   } catch (e) {
     // Pode exibir erro se quiser
@@ -67,12 +80,12 @@ onMounted(async () => {
 });
 
 const deleteCupom = async (id: string) => {
-  if (confirm('Tem certeza que deseja excluir este cupom?')) {
+  if (confirm("Tem certeza que deseja excluir este cupom?")) {
     try {
       await CupomService.deleteCupom(id);
       cupons.value = cupons.value.filter((c) => c.id !== id);
     } catch (e) {
-      alert('Erro ao excluir cupom.');
+      alert("Erro ao excluir cupom.");
     }
   }
 };
@@ -95,26 +108,13 @@ function formatDate(dateStr: string | null) {
   padding: 40px 0 60px 0;
 }
 
-.breadcrumb {
-  background: transparent;
-  margin-bottom: 2rem;
-}
-.breadcrumb-item.active {
-  color: var(--vt-c-blue);
-  font-weight: bold;
-}
-.breadcrumb-item a {
-  color: var(--vt-c-blue);
-  text-decoration: underline;
-}
-
 .cupom-table-wrapper {
   background: #fff;
+  width: 100%;
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   padding: 30px 20px 20px 20px;
-  max-width: 900px;
-  margin: 0 auto;
+  margin-bottom: 30px;
 }
 
 .cupom-table {
@@ -124,14 +124,17 @@ function formatDate(dateStr: string | null) {
   font-size: 1.1em;
   background: #fff;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 60vh;
 }
+
 .cupom-table th {
   background: var(--vt-c-blue);
   color: #fff;
   font-weight: bold;
   padding: 16px 8px;
   border: none;
+  text-align: center;
 }
 .cupom-table td {
   padding: 14px 8px;

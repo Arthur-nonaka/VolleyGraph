@@ -1,10 +1,7 @@
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { UserModel } from "../Models/UserModel";
 import { ResponseMessages } from "../Constants/ResponseMessages";
 import { validate } from "class-validator";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { CupomModel } from "../Models/CupomModel";
 
 export const getCupom = async (req: Request, res: Response) => {
@@ -15,6 +12,33 @@ export const getCupom = async (req: Request, res: Response) => {
     res.status(200).json(cupoms);
   } catch (error: any) {
     res.status(500).send(error.message);
+  }
+};
+
+export const validateCupom = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  if (!name || typeof name !== "string" || name.trim() === "") {
+    res.status(400).json({ error: "Cupom code is required" });
+    return;
+  }
+
+  try {
+    const collection = await req.mongoDB!.getCollection("cupoms");
+    const cupom = await collection.findOne({ name: name });
+
+    if (!cupom) {
+      res.status(200).json({ success: false, error: "Cupom invalido" });
+      return;
+    }
+
+    if (cupom.expirationDate && new Date(cupom.expirationDate) < new Date()) {
+      res.status(200).json({ success: false, error: "Cupom expirado" });
+      return;
+    }
+
+    res.status(200).json({ discount: cupom.discount, success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -38,12 +62,9 @@ export const getCupomById = async (req: Request, res: Response) => {
 
 export const createCupom = async (req: Request, res: Response) => {
   let { name, discount, expirationDate } = req.body;
-  // Converte expirationDate para Date se for string
   if (typeof expirationDate === "string") {
     if (expirationDate.length > 0) {
-      // Garante que só converte se não for string vazia
-      // Corrige para criar Date no fuso local (YYYY-MM-DD vira local date)
-      const [year, month, day] = expirationDate.split('-');
+      const [year, month, day] = expirationDate.split("-");
       expirationDate = new Date(Number(year), Number(month) - 1, Number(day));
     } else {
       expirationDate = null;
@@ -88,7 +109,7 @@ export const updateCupom = async (req: Request, res: Response) => {
     if (expirationDate.length > 0) {
       // Aceita tanto YYYY-MM-DD quanto ISO
       if (/^\d{4}-\d{2}-\d{2}$/.test(expirationDate)) {
-        const [year, month, day] = expirationDate.split('-');
+        const [year, month, day] = expirationDate.split("-");
         expirationDate = new Date(Number(year), Number(month) - 1, Number(day));
       } else {
         expirationDate = new Date(expirationDate);

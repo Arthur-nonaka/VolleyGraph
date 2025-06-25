@@ -52,9 +52,33 @@
         />
         <button class="apply-coupon-btn" @click="applyCupom">Aplicar</button>
       </div>
-      <div class="cart-total">
+      <span v-if="error !== ''">
+        {{ error }}
+      </span>
+      <div v-if="discount === 0" class="cart-total">
         <span>Total:</span>
         <span class="cart-total-price"> R$ {{ totalPrice.toFixed(2) }} </span>
+      </div>
+      <div v-else>
+        <div class="cart-total">
+          <span>Desconto:</span>
+          <span
+            >R$
+            {{ ((totalPrice.toFixed(2) / 100) * discount).toFixed(2) }}</span
+          >
+        </div>
+        <div class="cart-total">
+          <span>Total:</span>
+          <span class="cart-total-price">
+            R$
+            {{
+              (
+                Number(totalPrice.toFixed(2)) -
+                Number(((totalPrice.toFixed(2) / 100) * discount).toFixed(2))
+              ).toFixed(2)
+            }}
+          </span>
+        </div>
       </div>
       <button class="checkout-btn">Finalizar Compra</button>
     </div>
@@ -64,9 +88,28 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
 import { cart, removeFromCart } from "@/composable/useCart";
+import CupomService from "@/api/CupomService";
 const show = ref(false);
 const cupom = ref("");
-function applyCupom() {}
+const discount = ref(0);
+const error = ref("");
+async function applyCupom() {
+  if (!cupom.value) {
+    return;
+  }
+  try {
+    const response = await CupomService.validateCupom(cupom.value);
+    if (response.data.success) {
+      cupom.value = "";
+      discount.value = response.data.discount;
+    } else {
+      error.value = response.data.error;
+    }
+  } catch (error) {
+    console.error("Erro ao aplicar cupom:", error);
+    alert("Erro ao aplicar cupom. Tente novamente.");
+  }
+}
 
 function handleClick() {
   show.value = !show.value;
