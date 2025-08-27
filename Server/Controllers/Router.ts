@@ -48,6 +48,31 @@ import {
   getTeamsForPlayer,
   getPlayersForTeam,
 } from "./PlayerTeamController";
+import {
+  getCart,
+  getAllCarts,
+  createCart,
+  addItemToCart,
+  removeItemFromCart,
+  updateItemQuantity,
+  applyCouponToCart,
+  removeCouponFromCart,
+  clearCart,
+  deleteCart,
+  getCartSummary,
+} from "./CartController";
+import {
+  getSale,
+  getSaleById,
+  getSalesByUser,
+  createSale,
+  createSaleFromCart,
+  updateSaleStatus,
+  cancelSale,
+  updateSaleNotes,
+  getSalesStatistics,
+  deleteSale,
+} from "./SaleController";
 import { MongoDB } from "../Models/MongoDB";
 import path from "path";
 import { get } from "http";
@@ -115,6 +140,30 @@ app.post("/cupom", createCupom);
 app.post("/cupom/validate", validateCupom);
 app.put("/cupom/:id", updateCupom);
 app.delete("/cupom/:id", deleteCupom);
+
+app.get("/cart/all", getAllCarts);
+app.get("/cart/:userId", getCart);
+app.get("/cart/:userId/summary", getCartSummary);
+app.post("/cart", createCart);
+app.post("/cart/:userId/item", addItemToCart);
+app.put("/cart/:userId/item", updateItemQuantity);
+app.delete("/cart/:userId/item", removeItemFromCart);
+app.post("/cart/:userId/coupon", applyCouponToCart);
+app.delete("/cart/:userId/coupon", removeCouponFromCart);
+app.delete("/cart/:userId/clear", clearCart);
+app.delete("/cart/:userId", deleteCart);
+
+// Sale routes
+app.get("/sale", getSale);
+app.get("/sale/statistics", getSalesStatistics);
+app.get("/sale/:id", getSaleById);
+app.get("/sale/user/:userId", getSalesByUser);
+app.post("/sale", createSale);
+app.post("/sale/from-cart", createSaleFromCart);
+app.put("/sale/:id/status", updateSaleStatus);
+app.put("/sale/:id/notes", updateSaleNotes);
+app.put("/sale/:id/cancel", cancelSale);
+app.delete("/sale/:id", deleteSale);
 
 app
   .listen(PORT, () => {
