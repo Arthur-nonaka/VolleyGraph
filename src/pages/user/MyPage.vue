@@ -44,7 +44,7 @@
           <h2>Trocar Senha</h2>
         </router-link>
 
-        <router-link to="/" class="option">
+        <router-link to="/" class="option" @click="logout">
           <img src="/sair.png" alt="Perfil" />
           <h2>Sair</h2>
         </router-link>
@@ -160,11 +160,14 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import Header from "../../components/Header.vue";
 
 import { ref } from "vue";
 
 const modalAberto = ref(false);
+
+const router = useRouter();
 
 const form = ref({
   email: "",
@@ -201,6 +204,14 @@ const confirmarAlteracao = () => {
   fecharModal();
   alert("E-mail alterado com sucesso!");
 };
+
+
+const logout = () => {
+  localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("userId");
+    router.push("/login");
+}
 </script>
 
 <style>

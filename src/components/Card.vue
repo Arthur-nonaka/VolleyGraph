@@ -1,6 +1,9 @@
 <template>
   <div class="card-fixed">
-    <div class="card">
+    <div 
+      class="card" 
+      @click="handleClick"
+    >
       <img :src="img" alt="" />
     </div>
   </div>
@@ -43,9 +46,31 @@
 </style>
 
 <script setup lang="ts">
-defineProps({
+import { useRouter } from "vue-router";
+
+const props = defineProps({
   img: {
     type: String,
+    required: true,
+  },
+  isLogout: {
+    type: Boolean,
+    default: false,
   },
 });
+
+const router = useRouter();
+
+function handleClick() {
+  if (props.isLogout) {
+    // Se for logout, limpa e redireciona
+    localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("userId");
+    router.push("/login");
+  } else {
+    // Se não for logout, apenas loga no console (ou pode emitir evento)
+    console.log("Card clicado, mas não é logout");
+  }
+}
 </script>

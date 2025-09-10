@@ -44,7 +44,7 @@
           <h2>Trocar Senha</h2>
         </router-link>
 
-        <router-link to="/" class="option">
+        <router-link to="/" class="option" @click="logout">
           <img src="/sair.png" alt="Sair" />
           <h2>Sair</h2>
         </router-link>
@@ -97,7 +97,10 @@
 
 <script setup lang="ts">
 import Header from "../../components/Header.vue";
+import { useRouter } from "vue-router";
 import { ref } from "vue";
+
+const router = useRouter();
 
 interface OrderItem {
   id: number;
@@ -154,6 +157,13 @@ const orders = ref<Order[]>([
     ],
   },
 ]);
+
+const logout = () => {
+  localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("userId");
+    router.push("/login");
+}
 </script>
 
 <style scoped>

@@ -25,7 +25,7 @@
       </div>
 
       <div class="card-container">
-        <Card img="/sair.png" />
+        <Card img="/sair.png" :isLogout="true"/>
         <h3>Sair</h3>
       </div>
     </div>
