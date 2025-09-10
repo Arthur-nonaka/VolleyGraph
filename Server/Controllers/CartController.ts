@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { CartModel, CartItem } from "../Models/CartModel";
+import { CartModel } from "../Models/CartModel";
+import { CartItem } from "../Models/CartItemModel";
 import { ResponseMessages } from "../Constants/ResponseMessages";
 import { validate } from "class-validator";
 
@@ -31,9 +32,9 @@ export const getCart = async (req: Request, res: Response) => {
       res.status(200).json(newCart);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao buscar carrinho", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao buscar carrinho",
+      details: error.message,
     });
   }
 };
@@ -45,15 +46,15 @@ export const getAllCarts = async (req: Request, res: Response) => {
 
     res.status(200).json(carts);
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao buscar carrinhos", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao buscar carrinhos",
+      details: error.message,
     });
   }
 };
 
 export const createCart = async (req: Request, res: Response) => {
-  const { userId, items, couponCode, discount } = req.body;
+  const { userId, items } = req.body;
 
   if (!userId) {
     res.status(400).json({ error: "ID do usuário é obrigatório" });
@@ -62,7 +63,7 @@ export const createCart = async (req: Request, res: Response) => {
 
   try {
     const collection = await req.mongoDB!.getCollection("carts");
-    
+
     // Check if cart already exists for this user
     const existingCart = await collection.findOne({ userId });
     if (existingCart) {
@@ -70,19 +71,19 @@ export const createCart = async (req: Request, res: Response) => {
       return;
     }
 
-    const cartItems = items ? items.map((item: any) => 
-      new CartItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )
-    ) : [];
+    const cartItems = items
+      ? items.map(
+          (item: any) =>
+            new CartItem(
+              item.itemId,
+              item.quantity,
+              item.selectedColor,
+              item.selectedSize
+            )
+        )
+      : [];
 
-    const cart = new CartModel(userId, cartItems, couponCode, discount);
+    const cart = new CartModel(userId, cartItems);
 
     const errors = await validate(cart);
     if (errors.length > 0) {
@@ -100,24 +101,24 @@ export const createCart = async (req: Request, res: Response) => {
       res.status(500).send("Erro ao criar carrinho");
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao criar carrinho", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao criar carrinho",
+      details: error.message,
     });
   }
 };
 
 export const addItemToCart = async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const { itemId, itemName, price, quantity, selectedColor, selectedSize, image } = req.body;
+  const { itemId, quantity, selectedColor, selectedSize } = req.body;
 
   if (!ObjectId.isValid(userId)) {
     res.status(400).json({ error: "ID de usuário inválido" });
     return;
   }
 
-  if (!itemId || !itemName || price === undefined || !quantity) {
-    res.status(400).json({ error: "Dados do item são obrigatórios" });
+  if (!itemId || !quantity) {
+    res.status(400).json({ error: "ID do item e quantidade são obrigatórios" });
     return;
   }
 
@@ -134,29 +135,19 @@ export const addItemToCart = async (req: Request, res: Response) => {
       // Convert to CartModel instance
       cartModel = new CartModel(
         existingCart.userId,
-        existingCart.items?.map((item: any) => new CartItem(
-          item.itemId,
-          item.itemName,
-          item.price,
-          item.quantity,
-          item.selectedColor,
-          item.selectedSize,
-          item.image
-        )) || [],
-        existingCart.couponCode,
-        existingCart.discount
+        existingCart.items?.map(
+          (item: any) =>
+            new CartItem(
+              item.itemId,
+              item.quantity,
+              item.selectedColor,
+              item.selectedSize
+            )
+        ) || []
       );
     }
 
-    const newItem = new CartItem(
-      itemId,
-      itemName,
-      price,
-      quantity,
-      selectedColor,
-      selectedSize,
-      image
-    );
+    const newItem = new CartItem(itemId, quantity, selectedColor, selectedSize);
 
     const errors = await validate(newItem);
     if (errors.length > 0) {
@@ -172,11 +163,9 @@ export const addItemToCart = async (req: Request, res: Response) => {
       return;
     }
 
-    const result = await collection.replaceOne(
-      { userId },
-      cartModel,
-      { upsert: true }
-    );
+    const result = await collection.replaceOne({ userId }, cartModel, {
+      upsert: true,
+    });
 
     if (result) {
       res.status(200).json({
@@ -187,9 +176,9 @@ export const addItemToCart = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_ADDING_ITEM_TO_CART);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_ADDING_ITEM_TO_CART, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_ADDING_ITEM_TO_CART,
+      details: error.message,
     });
   }
 };
@@ -219,17 +208,15 @@ export const removeItemFromCart = async (req: Request, res: Response) => {
 
     const cartModel = new CartModel(
       cart.userId,
-      cart.items?.map((item: any) => new CartItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
-      cart.couponCode,
-      cart.discount
+      cart.items?.map(
+        (item: any) =>
+          new CartItem(
+            item.itemId,
+            item.quantity,
+            item.selectedColor,
+            item.selectedSize
+          )
+      ) || []
     );
 
     const removed = cartModel.removeItem(itemId, selectedColor, selectedSize);
@@ -250,9 +237,9 @@ export const removeItemFromCart = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_REMOVING_ITEM_FROM_CART);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_REMOVING_ITEM_FROM_CART, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_REMOVING_ITEM_FROM_CART,
+      details: error.message,
     });
   }
 };
@@ -267,7 +254,9 @@ export const updateItemQuantity = async (req: Request, res: Response) => {
   }
 
   if (!itemId || quantity === undefined || quantity < 1) {
-    res.status(400).json({ error: "ID do item e quantidade válida são obrigatórios" });
+    res
+      .status(400)
+      .json({ error: "ID do item e quantidade válida são obrigatórios" });
     return;
   }
 
@@ -282,20 +271,23 @@ export const updateItemQuantity = async (req: Request, res: Response) => {
 
     const cartModel = new CartModel(
       cart.userId,
-      cart.items?.map((item: any) => new CartItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
-      cart.couponCode,
-      cart.discount
+      cart.items?.map(
+        (item: any) =>
+          new CartItem(
+            item.itemId,
+            item.quantity,
+            item.selectedColor,
+            item.selectedSize
+          )
+      ) || []
     );
 
-    const updated = cartModel.updateItemQuantity(itemId, quantity, selectedColor, selectedSize);
+    const updated = cartModel.updateItemQuantity(
+      itemId,
+      quantity,
+      selectedColor,
+      selectedSize
+    );
 
     if (!updated) {
       res.status(404).send(ResponseMessages.ITEM_NOT_FOUND_IN_CART);
@@ -313,119 +305,9 @@ export const updateItemQuantity = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_UPDATING_CART);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_UPDATING_CART, 
-      details: error.message 
-    });
-  }
-};
-
-export const applyCouponToCart = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  const { couponCode, discount } = req.body;
-
-  if (!ObjectId.isValid(userId)) {
-    res.status(400).json({ error: "ID de usuário inválido" });
-    return;
-  }
-
-  if (!couponCode || discount === undefined || discount < 0 || discount > 100) {
-    res.status(400).json({ error: "Código do cupom e desconto válido são obrigatórios" });
-    return;
-  }
-
-  try {
-    const collection = await req.mongoDB!.getCollection("carts");
-    const cart = await collection.findOne({ userId });
-
-    if (!cart) {
-      res.status(404).send(ResponseMessages.CART_NOT_FOUND);
-      return;
-    }
-
-    const cartModel = new CartModel(
-      cart.userId,
-      cart.items?.map((item: any) => new CartItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
-      cart.couponCode,
-      cart.discount
-    );
-
-    cartModel.applyCoupon(couponCode, discount);
-
-    const result = await collection.replaceOne({ userId }, cartModel);
-
-    if (result.modifiedCount > 0) {
-      res.status(200).json({
-        message: ResponseMessages.COUPON_APPLIED_SUCCESSFULLY,
-        cart: cartModel,
-      });
-    } else {
-      res.status(500).send(ResponseMessages.ERROR_APPLYING_COUPON);
-    }
-  } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_APPLYING_COUPON, 
-      details: error.message 
-    });
-  }
-};
-
-export const removeCouponFromCart = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
-  if (!ObjectId.isValid(userId)) {
-    res.status(400).json({ error: "ID de usuário inválido" });
-    return;
-  }
-
-  try {
-    const collection = await req.mongoDB!.getCollection("carts");
-    const cart = await collection.findOne({ userId });
-
-    if (!cart) {
-      res.status(404).send(ResponseMessages.CART_NOT_FOUND);
-      return;
-    }
-
-    const cartModel = new CartModel(
-      cart.userId,
-      cart.items?.map((item: any) => new CartItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
-      cart.couponCode,
-      cart.discount
-    );
-
-    cartModel.removeCoupon();
-
-    const result = await collection.replaceOne({ userId }, cartModel);
-
-    if (result.modifiedCount > 0) {
-      res.status(200).json({
-        message: "Cupom removido com sucesso",
-        cart: cartModel,
-      });
-    } else {
-      res.status(500).send("Erro ao remover cupom");
-    }
-  } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao remover cupom", 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_UPDATING_CART,
+      details: error.message,
     });
   }
 };
@@ -447,12 +329,7 @@ export const clearCart = async (req: Request, res: Response) => {
       return;
     }
 
-    const cartModel = new CartModel(
-      cart.userId,
-      [],
-      undefined,
-      0
-    );
+    const cartModel = new CartModel(cart.userId, []);
 
     const result = await collection.replaceOne({ userId }, cartModel);
 
@@ -465,9 +342,9 @@ export const clearCart = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_CLEARING_CART);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_CLEARING_CART, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_CLEARING_CART,
+      details: error.message,
     });
   }
 };
@@ -491,9 +368,9 @@ export const deleteCart = async (req: Request, res: Response) => {
       res.status(404).send(ResponseMessages.CART_NOT_FOUND);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao deletar carrinho", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao deletar carrinho",
+      details: error.message,
     });
   }
 };
@@ -517,34 +394,28 @@ export const getCartSummary = async (req: Request, res: Response) => {
 
     const cartModel = new CartModel(
       cart.userId,
-      cart.items?.map((item: any) => new CartItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
-      cart.couponCode,
-      cart.discount
+      cart.items?.map(
+        (item: any) =>
+          new CartItem(
+            item.itemId,
+            item.quantity,
+            item.selectedColor,
+            item.selectedSize
+          )
+      ) || []
     );
 
     const summary = {
       itemCount: cartModel.getItemCount(),
-      subtotal: cartModel.getSubtotal(),
-      discountAmount: cartModel.getDiscountAmount(),
-      total: cartModel.getTotal(),
-      couponCode: cartModel.getCouponCode(),
-      discount: cartModel.getDiscount(),
       isEmpty: cartModel.isEmpty(),
+      items: cartModel.getItems(),
     };
 
     res.status(200).json(summary);
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao obter resumo do carrinho", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao obter resumo do carrinho",
+      details: error.message,
     });
   }
 };

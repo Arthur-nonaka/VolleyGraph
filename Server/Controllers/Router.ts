@@ -55,8 +55,6 @@ import {
   addItemToCart,
   removeItemFromCart,
   updateItemQuantity,
-  applyCouponToCart,
-  removeCouponFromCart,
   clearCart,
   deleteCart,
   getCartSummary,
@@ -148,8 +146,6 @@ app.post("/cart", createCart);
 app.post("/cart/:userId/item", addItemToCart);
 app.put("/cart/:userId/item", updateItemQuantity);
 app.delete("/cart/:userId/item", removeItemFromCart);
-app.post("/cart/:userId/coupon", applyCouponToCart);
-app.delete("/cart/:userId/coupon", removeCouponFromCart);
 app.delete("/cart/:userId/clear", clearCart);
 app.delete("/cart/:userId", deleteCart);
 
