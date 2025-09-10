@@ -2,7 +2,9 @@
   <div>
     <button @click="handleClick" class="cart-button">
       <img src="/carrinho.png" />
-      <span v-if="cart.length" class="cart-badge">{{ cart.length }}</span>
+      <span v-if="cart && cart.items && cart.items.length" class="cart-badge">
+        {{ totalItems }}
+      </span>
     </button>
   </div>
   <transition name="fade">
@@ -11,38 +13,62 @@
         <h2>Seu Carrinho</h2>
         <button class="close-btn" @click="show = false">&times;</button>
       </div>
-      <div v-if="cart.length === 0" class="cart-empty">
+
+      <div v-if="loading" class="cart-loading">
+        <p>Carregando...</p>
+      </div>
+
+      <div v-else-if="error" class="cart-error">
+        <p>{{ error }}</p>
+        <button @click="fetchCart" class="retry-btn">Tentar novamente</button>
+      </div>
+
+      <div
+        v-else-if="!cart || !cart.items || cart.items.length === 0"
+        class="cart-empty"
+      >
         <p>Seu carrinho está vazio.</p>
       </div>
+
       <div v-else class="cart-items-container">
-        <div v-for="(item, index) in cart" :key="index" class="cart-item">
-          <img :src="item.item.image || '/null.jpg'" class="cart-item-img" />
+        <div
+          v-for="item in cartItemsWithDetails"
+          :key="`${item.itemId}-${item.selectedColor}-${item.selectedSize}`"
+          class="cart-item"
+        >
+          <img
+            :src="item.productDetails?.image || '/null.jpg'"
+            class="cart-item-img"
+          />
           <div class="cart-item-info">
-            <div class="cart-item-title">{{ item.item.name }}</div>
+            <div class="cart-item-title">
+              {{ item.productDetails?.name || "Produto" }}
+            </div>
             <div class="cart-item-details">
-              <span v-if="item.selectedColor"
-                >Cor: <b>{{ item.selectedColor }}</b></span
-              >
-              <span v-if="item.selectedSize"
-                >Tamanho: <b>{{ item.selectedSize }}</b></span
-              >
+              <span v-if="item.selectedColor">
+                Cor: <b>{{ item.selectedColor }}</b>
+              </span>
+              <span v-if="item.selectedSize">
+                Tamanho: <b>{{ item.selectedSize }}</b>
+              </span>
             </div>
             <div class="cart-item-qty">
-              Quantidade: <b>{{ item.quantity }}</b>
+              <button @click="decreaseQuantity(item)" class="qty-btn">-</button>
+              <span
+                >Quantidade: <b>{{ item.quantity }}</b></span
+              >
+              <button @click="increaseQuantity(item)" class="qty-btn">+</button>
             </div>
-            <div class="cart-item-price">
-              R$ {{ (item.item.price * item.quantity).toFixed(2) }}
+            <div class="cart-item-price" v-if="item.productDetails?.price">
+              R$ {{ (item.productDetails.price * item.quantity).toFixed(2) }}
             </div>
           </div>
-          <button
-            class="remove-btn"
-            @click="removeFromCart(index)"
-            title="Remover"
-          >
+          <button class="remove-btn" @click="removeItem(item)" title="Remover">
             &times;
           </button>
         </div>
       </div>
+
       <div class="cart-coupon">
         <input
           v-model="cupom"
@@ -52,75 +78,216 @@
         />
         <button class="apply-coupon-btn" @click="applyCupom">Aplicar</button>
       </div>
-      <span v-if="error !== ''">
-        {{ error }}
+
+      <span v-if="cupomError !== ''" class="error-message">
+        {{ cupomError }}
       </span>
-      <div v-if="discount === 0" class="cart-total">
-        <span>Total:</span>
-        <span class="cart-total-price"> R$ {{ totalPrice.toFixed(2) }} </span>
-      </div>
-      <div v-else>
-        <div class="cart-total">
-          <span>Desconto:</span>
-          <span style="color: green"
-            >R$
-            {{ ((totalPrice.toFixed(2) / 100) * discount).toFixed(2) }}</span
-          >
-        </div>
-        <div class="cart-total">
+
+      <div v-if="cartItemsWithDetails.length > 0">
+        <div v-if="discount === 0" class="cart-total">
           <span>Total:</span>
-          <span class="cart-total-price">
-            R$
-            {{
-              (
-                Number(totalPrice.toFixed(2)) -
-                Number(((totalPrice.toFixed(2) / 100) * discount).toFixed(2))
-              ).toFixed(2)
-            }}
-          </span>
+          <span class="cart-total-price"> R$ {{ totalPrice.toFixed(2) }} </span>
         </div>
+        <div v-else>
+          <div class="cart-total">
+            <span>Desconto:</span>
+            <span style="color: green">
+              R$ {{ ((totalPrice * discount) / 100).toFixed(2) }}
+            </span>
+          </div>
+          <div class="cart-total">
+            <span>Total:</span>
+            <span class="cart-total-price">
+              R$ {{ (totalPrice - (totalPrice * discount) / 100).toFixed(2) }}
+            </span>
+          </div>
+        </div>
+        <button class="checkout-btn" @click="checkout">Finalizar Compra</button>
       </div>
-      <button class="checkout-btn">Finalizar Compra</button>
     </div>
   </transition>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
-import { cart, removeFromCart } from "@/composable/useCart";
+import { ref, computed, onMounted, watch } from "vue";
+import { useCart } from "@/composables/useCart";
 import CupomService from "@/api/CupomService";
+import ItemService from "@/api/ItemService";
+
+const userId = ref(localStorage.getItem("userId") || "");
+
 const show = ref(false);
 const cupom = ref("");
 const discount = ref(0);
-const error = ref("");
+const cupomError = ref("");
+const productDetails = ref<Record<string, any>>({});
+
+const {
+  cart,
+  loading,
+  error,
+  fetchCart,
+  addItem,
+  removeItem: removeItemFromCart,
+  updateQuantity,
+  clearCart,
+} = useCart(userId.value);
+
+interface CartItem {
+  itemId: string;
+  quantity: number;
+  selectedColor?: string;
+  selectedSize?: string;
+  productDetails?: any;
+}
+
+// Interface para o carrinho
+interface Cart {
+  items: CartItem[];
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Buscar detalhes dos produtos quando o carrinho mudar
+const cartItemsWithDetails = computed(() => {
+  if (!cart.value || !(cart.value as Cart).items) return [];
+
+  return (cart.value as Cart).items.map((item: CartItem) => ({
+    ...item,
+    productDetails: productDetails.value[item.itemId],
+  }));
+});
+
+// Calcular total de itens
+const totalItems = computed(() => {
+  if (!cart.value || !(cart.value as Cart).items) return 0;
+  return (cart.value as Cart).items.reduce(
+    (total: number, item: CartItem) => total + item.quantity,
+    0
+  );
+});
+
+// Calcular preço total
+const totalPrice = computed(() => {
+  return cartItemsWithDetails.value.reduce((sum: number, item: any) => {
+    const price = item.productDetails?.price || 0;
+    return sum + price * item.quantity;
+  }, 0);
+});
+
+// Buscar detalhes dos produtos
+const fetchProductDetails = async () => {
+  if (!cart.value || !(cart.value as Cart).items) return;
+
+  for (const item of (cart.value as Cart).items) {
+    if (!productDetails.value[item.itemId]) {
+      try {
+        const response = await ItemService.getItemById(item.itemId);
+        productDetails.value[item.itemId] = response.data;
+      } catch (error) {
+        console.error(`Erro ao buscar produto ${item.itemId}:`, error);
+        productDetails.value[item.itemId] = {
+          name: "Produto não encontrado",
+          price: 0,
+          image: null,
+        };
+      }
+    }
+  }
+};
+
+// Aplicar cupom
 async function applyCupom() {
   if (!cupom.value) {
     return;
   }
+
+  cupomError.value = "";
+
   try {
     const response = await CupomService.validateCupom(cupom.value);
     if (response.data.success) {
       cupom.value = "";
       discount.value = response.data.discount;
     } else {
-      error.value = response.data.error;
+      cupomError.value = response.data.error;
     }
   } catch (error) {
     console.error("Erro ao aplicar cupom:", error);
-    alert("Erro ao aplicar cupom. Tente novamente.");
+    cupomError.value = "Erro ao aplicar cupom. Tente novamente.";
   }
+}
+
+// Remover item do carrinho
+async function removeItem(item: CartItem) {
+  try {
+    await removeItemFromCart({
+      itemId: item.itemId,
+      selectedColor: item.selectedColor,
+      selectedSize: item.selectedSize,
+    });
+  } catch (error) {
+    console.error("Erro ao remover item:", error);
+  }
+}
+
+// Aumentar quantidade
+async function increaseQuantity(item: CartItem) {
+  try {
+    await updateQuantity({
+      itemId: item.itemId,
+      quantity: item.quantity + 1,
+      selectedColor: item.selectedColor,
+      selectedSize: item.selectedSize,
+    });
+  } catch (error) {
+    console.error("Erro ao aumentar quantidade:", error);
+  }
+}
+
+// Diminuir quantidade
+async function decreaseQuantity(item: CartItem) {
+  if (item.quantity <= 1) {
+    await removeItem(item);
+  } else {
+    try {
+      await updateQuantity({
+        itemId: item.itemId,
+        quantity: item.quantity - 1,
+        selectedColor: item.selectedColor,
+        selectedSize: item.selectedSize,
+      });
+    } catch (error) {
+      console.error("Erro ao diminuir quantidade:", error);
+    }
+  }
+}
+
+// Finalizar compra
+function checkout() {
+  // Implementar lógica de checkout
+  console.log("Finalizar compra");
+  // Redirecionar para página de checkout ou abrir modal
 }
 
 function handleClick() {
   show.value = !show.value;
 }
 
-const totalPrice = computed(() =>
-  cart.value.reduce(
-    (sum, item) => sum + (item.item.price || 0) * (item.quantity || 1),
-    0
-  )
-);
+// Buscar detalhes dos produtos quando o carrinho mudar
+watch(cart, fetchProductDetails, { deep: true });
+
+// Inicializar userId (substituir pela sua lógica de autenticação)
+onMounted(() => {
+  // Exemplo: pegar userId do localStorage ou store
+  const storedUserId = localStorage.getItem("userId");
+  if (storedUserId) {
+    userId.value = storedUserId;
+  }
+
+  fetchProductDetails();
+});
 </script>
 
 <style scoped>
@@ -185,6 +352,7 @@ const totalPrice = computed(() =>
     opacity: 1;
   }
 }
+
 .cart-items-container {
   max-height: 50vh;
   overflow-y: auto;
@@ -218,11 +386,33 @@ const totalPrice = computed(() =>
   color: #e53935;
 }
 
+.cart-loading,
+.cart-error,
 .cart-empty {
   text-align: center;
   padding: 32px 0 24px 0;
   color: #aaa;
 }
+
+.cart-error {
+  color: #e53935;
+}
+
+.retry-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: var(--vt-c-orange, #ff9800);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: #e65100;
+}
+
 .empty-img {
   width: 80px;
   margin-bottom: 10px;
@@ -266,7 +456,30 @@ const totalPrice = computed(() =>
 .cart-item-qty {
   font-size: 0.95rem;
   color: #444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.qty-btn {
+  background: var(--vt-c-orange, #ff9800);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.qty-btn:hover {
+  background: #e65100;
+}
+
 .cart-item-price {
   font-weight: 700;
   color: var(--vt-c-orange, #ff9800);
@@ -353,5 +566,13 @@ const totalPrice = computed(() =>
 .apply-coupon-btn:hover {
   background: #e65100;
   transform: translateY(-2px) scale(1.03);
+}
+
+.error-message {
+  color: #e53935;
+  font-size: 0.9rem;
+  padding: 0 22px;
+  display: block;
+  margin-top: -10px;
 }
 </style>

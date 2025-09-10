@@ -55,7 +55,9 @@
                   <span v-if="item?.brand">Marca {{ item?.brand }}</span>
                   <span v-if="item?.weight">Peso {{ item?.weight }} g</span>
                   <span v-if="item?.sport">Esporte {{ item?.sport }}</span>
-                  <span v-if="item?.category">Categoria {{ item?.category }}</span>
+                  <span v-if="item?.category"
+                    >Categoria {{ item?.category }}</span
+                  >
                   <span v-if="item?.material">Tecido {{ item?.material }}</span>
                 </div>
                 <p style="color: black">{{ item?.description }}</p>
@@ -125,9 +127,9 @@
                           .map((v) => v.size)
                       ),
                     ]"
-                    :key="size as string"
+                    :key="String(size)"
                     :class="{ selected: size === selectedSize }"
-                    @click="selectedSize = size as string"
+                    @click="selectedSize = String(size)"
                     :disabled="
                       allVariations.find(
                         (v) => v.color === selectedColor && v.size === size
@@ -184,14 +186,22 @@
               </div>
               <button
                 class="button"
-                :disabled="(!selectedColor || !selectedSize) && !item?.quantity"
-                @click="
-                  addToCart({ item, selectedColor, selectedSize, quantity })
-                "
+                :disabled="(!selectedColor || !selectedSize) && !item?.quantity || cartLoading"
+                @click="handleAddToCart"
               >
                 <img class="img" src="/carrinho.png" />
-                <span style="font-weight: 700">Comprar</span>
+                <span style="font-weight: 700">
+                  {{ cartLoading ? 'Adicionando...' : 'Comprar' }}
+                </span>
               </button>
+              
+              <div v-if="cartError" class="error-message">
+                {{ cartError }}
+              </div>
+              
+              <div v-if="successMessage" class="success-message">
+                {{ successMessage }}
+              </div>
             </div>
           </div>
         </div>
@@ -200,145 +210,154 @@
   </main>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import Header from "@/components/Header.vue";
-import { defineComponent, ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import ItemService from "@/api/ItemService";
-import { addToCart } from "@/composable/useCart";
+import { useCart } from "@/composables/useCart";
 
-export default defineComponent({
-  name: "ItemInfo",
-  components: {
-    Header,
-  },
-  setup() {
-    const route = useRoute();
-    const item = ref<any>(null);
-    const loading = ref(true);
-    const error = ref<string | null>(null);
-    const quantity = ref(1);
+const route = useRoute();
+const item = ref<any>(null);
+const loading = ref(true);
+const error = ref<string | null>(null);
+const quantity = ref(1);
+const successMessage = ref("");
 
-    const lensVisible = ref(false);
-    const lensStyle = ref({});
-    const imageContainer = ref<HTMLElement | null>(null);
-    const mainImage = ref<HTMLImageElement | null>(null);
-    const selectedColor = ref<string | null>(null);
-    const selectedSize = ref<string | null>(null);
+// Assumindo que você tem uma forma de obter o userId do usuário logado
+const userId = ref(localStorage.getItem('userId') || 'user123');
 
-    const allVariations = computed(() => {
-      if (!item.value?.variations) return [];
-      const colors = [
-        ...new Set(item.value.variations.map((v: any) => v.colorName)),
-      ];
-      const sizes = [...new Set(item.value.variations.map((v: any) => v.size))];
-      return colors
-        .map((color: any) =>
-          sizes.map((size) => {
-            const found = item.value.variations.find(
-              (v: any) => v.colorName === color && v.size === size
-            );
-            return {
-              color,
-              size,
-              quantity: found ? found.quantity : 0,
-            };
-          })
-        )
-        .reduce((acc, val) => acc.concat(val), []);
+// Usar o composable do carrinho
+const {
+  cart,
+  loading: cartLoading,
+  error: cartError,
+  addItem,
+} = useCart(userId.value);
+
+const lensVisible = ref(false);
+const lensStyle = ref({});
+const imageContainer = ref<HTMLElement | null>(null);
+const mainImage = ref<HTMLImageElement | null>(null);
+const selectedColor = ref<string | null>(null);
+const selectedSize = ref<string | null>(null);
+
+const allVariations = computed(() => {
+  if (!item.value?.variations) return [];
+  const colors = [
+    ...new Set(item.value.variations.map((v: any) => v.colorName)),
+  ];
+  const sizes = [...new Set(item.value.variations.map((v: any) => v.size))];
+  return colors
+    .map((color: any) =>
+      sizes.map((size) => {
+        const found = item.value.variations.find(
+          (v: any) => v.colorName === color && v.size === size
+        );
+        return {
+          color,
+          size,
+          quantity: found ? found.quantity : 0,
+        };
+      })
+    )
+    .reduce((acc, val) => acc.concat(val), []);
+});
+
+// Função para adicionar ao carrinho
+const handleAddToCart = async () => {
+  if (!item.value) return;
+  
+  try {
+    successMessage.value = "";
+    
+    await addItem({
+      itemId: item.value._id,
+      quantity: quantity.value,
+      selectedColor: selectedColor.value || undefined,
+      selectedSize: selectedSize.value || undefined,
     });
+    
+    successMessage.value = "Produto adicionado ao carrinho com sucesso!";
+    
+    // Limpar mensagem após 3 segundos
+    setTimeout(() => {
+      successMessage.value = "";
+    }, 3000);
+    
+  } catch (err) {
+    console.error("Erro ao adicionar ao carrinho:", err);
+  }
+};
 
-    const lensSize = 200;
-    const zoom = 2;
+const lensSize = 200;
+const zoom = 2;
 
-    const moveLens = (e: MouseEvent) => {
-      if (!imageContainer.value || !mainImage.value) return;
-      const rect = imageContainer.value.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+const moveLens = (e: MouseEvent) => {
+  if (!imageContainer.value || !mainImage.value) return;
+  const rect = imageContainer.value.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
-      const minX = lensSize / 2;
-      const minY = lensSize / 2;
-      const maxX = rect.width - lensSize / 2;
-      const maxY = rect.height - lensSize / 2;
+  const minX = lensSize / 2;
+  const minY = lensSize / 2;
+  const maxX = rect.width - lensSize / 2;
+  const maxY = rect.height - lensSize / 2;
 
-      const lensX = Math.max(minX, Math.min(x, maxX));
-      const lensY = Math.max(minY, Math.min(y, maxY));
+  const lensX = Math.max(minX, Math.min(x, maxX));
+  const lensY = Math.max(minY, Math.min(y, maxY));
 
-      lensStyle.value = {
-        left: `${lensX - lensSize / 2}px`,
-        top: `${lensY - lensSize / 2}px`,
-        width: `${lensSize}px`,
-        height: `${lensSize}px`,
-        backgroundImage: `url('${mainImage.value.src}')`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: `${rect.width * zoom}px ${rect.height * zoom}px`,
-        backgroundPosition: `-${lensX * zoom - lensSize / 2}px -${
-          lensY * zoom - lensSize / 2
-        }px`,
-        display: "block",
-      };
-    };
+  lensStyle.value = {
+    left: `${lensX - lensSize / 2}px`,
+    top: `${lensY - lensSize / 2}px`,
+    width: `${lensSize}px`,
+    height: `${lensSize}px`,
+    backgroundImage: `url('${mainImage.value.src}')`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: `${rect.width * zoom}px ${rect.height * zoom}px`,
+    backgroundPosition: `-${lensX * zoom - lensSize / 2}px -${
+      lensY * zoom - lensSize / 2
+    }px`,
+    display: "block",
+  };
+};
 
-    const showLens = () => {
-      lensVisible.value = true;
-    };
+const showLens = () => {
+  lensVisible.value = true;
+};
 
-    const hideLens = () => {
-      lensVisible.value = false;
-    };
+const hideLens = () => {
+  lensVisible.value = false;
+};
 
-    const fetchItem = async () => {
-      try {
-        const id = route.params.id as string;
-        const response = await ItemService.getItemById(id);
-        item.value = response.data;
-      } catch (err) {
-        error.value = "Erro ao carregar informações do jogador.";
-      } finally {
-        loading.value = false;
-      }
+const fetchItem = async () => {
+  try {
+    const id = route.params.id as string;
+    const response = await ItemService.getItemById(id);
+    item.value = response.data;
+  } catch (err) {
+    error.value = "Erro ao carregar informações do jogador.";
+  } finally {
+    loading.value = false;
+  }
 
-      console.log(item.value);
-    };
+  console.log(item.value);
+};
 
-    onMounted(fetchItem);
+onMounted(fetchItem);
 
-    watch([quantity, selectedColor, selectedSize], () => {
-      const variation = allVariations.value.find(
-        (v) => v.color === selectedColor.value && v.size === selectedSize.value
-      );
-      if (variation) {
-        if (quantity.value > variation.quantity) {
-          quantity.value = variation.quantity;
-        }
-        if (quantity.value < 1) {
-          quantity.value = 1;
-        }
-      }
-    });
-
-    return {
-      item,
-      loading,
-      error,
-      lensVisible,
-      lensStyle,
-      moveLens,
-      showLens,
-      hideLens,
-      imageContainer,
-      mainImage,
-      allVariations,
-      selectedColor,
-      selectedSize,
-      lensSize,
-      zoom,
-      addToCart,
-      quantity,
-      fetchItem,
-    };
-  },
+watch([quantity, selectedColor, selectedSize], () => {
+  const variation = allVariations.value.find(
+    (v) => v.color === selectedColor.value && v.size === selectedSize.value
+  );
+  if (variation) {
+    if (quantity.value > variation.quantity) {
+      quantity.value = variation.quantity;
+    }
+    if (quantity.value < 1) {
+      quantity.value = 1;
+    }
+  }
 });
 </script>
 
@@ -366,13 +385,13 @@ export default defineComponent({
   align-items: center;
   overflow: hidden;
   position: relative;
+}
 
-  img {
-    width: 90%;
-    height: 90%;
-    object-fit: contain;
-    display: block;
-  }
+.image-container img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  display: block;
 }
 
 .lens {
@@ -468,5 +487,25 @@ button:disabled {
   padding: 5px;
   font-size: 20px;
   margin-left: 10px;
+}
+
+.error-message {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.success-message {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  font-size: 14px;
 }
 </style>
