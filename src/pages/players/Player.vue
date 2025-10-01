@@ -43,7 +43,7 @@
                 {{ translatePosition(player.mainPosition) }}
               </span>
 
-              <span class="player-position">
+              <span v-if="player.subPosition" class="player-position">
                 {{ translatePosition(player.subPosition) }}
               </span>
             </div>
@@ -70,39 +70,233 @@
             </div>
           </div>
 
-          <!-- Stats Section -->
+          <!-- Reception Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas de Recepção</h3>
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.APass || 0 }}</div>
+                  <div class="stat-label">Passes A (Perfeitos)</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.BPass || 0 }}</div>
+                  <div class="stat-label">Passes B (Bons)</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.CPass || 0 }}</div>
+                  <div class="stat-label">Passes C (Regulares)</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.passErrors || 0 }}</div>
+                  <div class="stat-label">Erros de Recepção</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attack Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas de Ataque</h3>
+            <div class="stats-cards">
+              <div class="stat-card total">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.kills || 0 }}</div>
+                  <div class="stat-label">Ataques Certeiros</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.attackAttempts || 0 }}</div>
+                  <div class="stat-label">Tentativas de Ataque</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.attackErrors || 0 }}</div>
+                  <div class="stat-label">Erros de Ataque</div>
+                </div>
+              </div>
+              <div class="stat-card efficiency" v-if="player.attackAttempts > 0">
+                <div class="stat-content">
+                  <div class="stat-value">{{ getAttackEfficiency() }}%</div>
+                  <div class="stat-label">Eficiência de Ataque</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Serve Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas de Saque</h3>
+            <div class="stats-cards">
+              <div class="stat-card total">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.aces || 0 }}</div>
+                  <div class="stat-label">Aces</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.serveAttempts || 0 }}</div>
+                  <div class="stat-label">Tentativas de Saque</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.serveErrors || 0 }}</div>
+                  <div class="stat-label">Erros de Saque</div>
+                </div>
+              </div>
+              <div class="stat-card efficiency" v-if="player.serveAttempts > 0">
+                <div class="stat-content">
+                  <div class="stat-value">{{ getServeEfficiency() }}%</div>
+                  <div class="stat-label">Eficiência de Saque</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Block Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas de Bloqueio</h3>
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.soloBlocks || 0 }}</div>
+                  <div class="stat-label">Bloqueios Solo</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.assistBlocks || 0 }}</div>
+                  <div class="stat-label">Bloqueios Assistidos</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.blockErrors || 0 }}</div>
+                  <div class="stat-label">Erros de Bloqueio</div>
+                </div>
+              </div>
+              <div class="stat-card total">
+                <div class="stat-content">
+                  <div class="stat-value">{{ getTotalBlocks() }}</div>
+                  <div class="stat-label">Total de Bloqueios</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dig Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas de Defesa</h3>
+            <div class="stats-cards">
+              <div class="stat-card total">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.digs || 0 }}</div>
+                  <div class="stat-label">Defesas Bem-sucedidas</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.digAttempts || 0 }}</div>
+                  <div class="stat-label">Tentativas de Defesa</div>
+                </div>
+              </div>
+              <div class="stat-card efficiency" v-if="player.digAttempts > 0">
+                <div class="stat-content">
+                  <div class="stat-value">{{ getDigEfficiency() }}%</div>
+                  <div class="stat-label">Eficiência de Defesa</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas de Jogo</h3>
+            <div class="stats-cards">
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.matchesPlayed || 0 }}</div>
+                  <div class="stat-label">Partidas Jogadas</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.setsPlayed || 0 }}</div>
+                  <div class="stat-label">Sets Jogados</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Disciplinary Statistics -->
+          <div class="info-section">
+            <h3 class="section-title">Estatísticas Disciplinares</h3>
+            <div class="stats-cards">
+              <div class="stat-card conduct-good">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.greenCards || 0 }}</div>
+                  <div class="stat-label">Cartões Verdes</div>
+                </div>
+              </div>
+              <div class="stat-card conduct-warning">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.yellowCards || 0 }}</div>
+                  <div class="stat-label">Cartões Amarelos</div>
+                </div>
+              </div>
+              <div class="stat-card conduct-bad">
+                <div class="stat-content">
+                  <div class="stat-value">{{ player.redCards || 0 }}</div>
+                  <div class="stat-label">Cartões Vermelhos</div>
+                </div>
+              </div>
+              <div class="stat-card conduct-rating" v-if="player.matchesPlayed > 0">
+                <div class="stat-content">
+                  <div class="stat-value">{{ getConductRating() }}/100</div>
+                  <div class="stat-label">Avaliação de Conduta</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legacy Stats Section -->
           <div class="info-section stats-section">
             <h3 class="section-title">
-              <!-- <span class="section-icon">📊</span> -->
-              Estatísticas
+              Estatísticas Gerais
             </h3>
             <div class="stats-cards">
               <div class="stat-card total">
-                <!-- <div class="stat-icon">🏆</div> -->
                 <div class="stat-content">
                   <div class="stat-value">{{ player.points }}</div>
                   <div class="stat-label">Pontos Totais</div>
                 </div>
               </div>
               <div class="stat-card">
-                <!-- <div class="stat-icon">🚫</div> -->
                 <div class="stat-content">
                   <div class="stat-value">{{ player.blockPoints }}</div>
-                  <div class="stat-label">Bloqueios</div>
+                  <div class="stat-label">Pontos de Bloqueio</div>
                 </div>
               </div>
               <div class="stat-card">
-                <!-- <div class="stat-icon">⚡</div> -->
                 <div class="stat-content">
                   <div class="stat-value">{{ player.servePoints }}</div>
-                  <div class="stat-label">Saques</div>
+                  <div class="stat-label">Pontos de Saque</div>
                 </div>
               </div>
               <div class="stat-card">
-                <!-- <div class="stat-icon">💥</div> -->
                 <div class="stat-content">
                   <div class="stat-value">{{ player.spikePoints }}</div>
-                  <div class="stat-label">Ataques</div>
+                  <div class="stat-label">Pontos de Ataque</div>
                 </div>
               </div>
             </div>
@@ -148,6 +342,53 @@ const formatDate = (dateString: string | null): string => {
     month: "2-digit",
     year: "numeric",
   });
+};
+
+// Statistical calculation methods
+const getAttackEfficiency = (): number => {
+  if (!player.value || (player.value.attackAttempts || 0) === 0) return 0;
+  const kills = player.value.kills || 0;
+  const errors = player.value.attackErrors || 0;
+  const attempts = player.value.attackAttempts || 0;
+  return Math.round(((kills - errors) / attempts) * 100);
+};
+
+const getServeEfficiency = (): number => {
+  if (!player.value || (player.value.serveAttempts || 0) === 0) return 0;
+  const aces = player.value.aces || 0;
+  const errors = player.value.serveErrors || 0;
+  const attempts = player.value.serveAttempts || 0;
+  return Math.round(((aces - errors) / attempts) * 100);
+};
+
+const getDigEfficiency = (): number => {
+  if (!player.value || (player.value.digAttempts || 0) === 0) return 0;
+  const digs = player.value.digs || 0;
+  const attempts = player.value.digAttempts || 0;
+  return Math.round((digs / attempts) * 100);
+};
+
+const getTotalBlocks = (): number => {
+  if (!player.value) return 0;
+  return (player.value.soloBlocks || 0) + (player.value.assistBlocks || 0);
+};
+
+const getConductRating = (): number => {
+  if (!player.value || (player.value.matchesPlayed || 0) === 0) return 100;
+  
+  const yellowCards = player.value.yellowCards || 0;
+  const redCards = player.value.redCards || 0;
+  const greenCards = player.value.greenCards || 0;
+  
+  const totalNegativeCards = yellowCards + (redCards * 2);
+  const baseScore = 100;
+  const penaltyPerCard = 5;
+  const bonusPerGreenCard = 2;
+  
+  const penalties = totalNegativeCards * penaltyPerCard;
+  const bonuses = greenCards * bonusPerGreenCard;
+  
+  return Math.max(0, Math.min(100, baseScore - penalties + bonuses));
 };
 
 onMounted(fetchPlayer);
@@ -460,6 +701,51 @@ onMounted(fetchPlayer);
     135deg,
     rgba(255, 193, 7, 0.1),
     rgba(255, 193, 7, 0.05)
+  );
+}
+
+.stat-card.efficiency {
+  border: 2px solid #17a2b8;
+  background: linear-gradient(
+    135deg,
+    rgba(23, 162, 184, 0.1),
+    rgba(23, 162, 184, 0.05)
+  );
+}
+
+.stat-card.conduct-good {
+  border: 2px solid #28a745;
+  background: linear-gradient(
+    135deg,
+    rgba(40, 167, 69, 0.1),
+    rgba(40, 167, 69, 0.05)
+  );
+}
+
+.stat-card.conduct-warning {
+  border: 2px solid #ffc107;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.1),
+    rgba(255, 193, 7, 0.05)
+  );
+}
+
+.stat-card.conduct-bad {
+  border: 2px solid #dc3545;
+  background: linear-gradient(
+    135deg,
+    rgba(220, 53, 69, 0.1),
+    rgba(220, 53, 69, 0.05)
+  );
+}
+
+.stat-card.conduct-rating {
+  border: 2px solid #6f42c1;
+  background: linear-gradient(
+    135deg,
+    rgba(111, 66, 193, 0.1),
+    rgba(111, 66, 193, 0.05)
   );
 }
 

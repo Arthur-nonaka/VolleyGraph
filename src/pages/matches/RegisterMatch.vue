@@ -187,7 +187,6 @@ const saveMatch = async () => {
       await MatchService.createMatch(payload);
     }
 
-    alert("Partida salva com sucesso!");
     router.push("/partidas");
   } catch (error) {
     console.error("Error saving match:", error);

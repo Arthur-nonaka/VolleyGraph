@@ -121,7 +121,6 @@ const addPlayer = async () => {
     formData.append("teamId", teamId);
 
     await teamService.addPlayerToTeam(formData);
-    alert("Jogador adicionado com sucesso!");
     selectedPlayer.value = "";
     await fetchTeamData();
   } catch (error: any) {
@@ -150,7 +149,6 @@ const removePlayer = async (playerId: string) => {
       playerId: String(playerId),
       teamId: String(route.params.id),
     });
-    alert("Jogador removido com sucesso!");
     await fetchTeamData();
   } catch (error: any) {
     console.error(error);
