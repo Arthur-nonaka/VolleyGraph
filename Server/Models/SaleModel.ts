@@ -1,21 +1,39 @@
-import { IsString, IsNumber, IsOptional, Min, IsArray, ValidateNested, IsEnum } from "class-validator";
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  Min,
+  IsArray,
+  ValidateNested,
+  IsEnum,
+  IsObject,
+} from "class-validator";
 import { Type } from "class-transformer";
 import "reflect-metadata";
+
+export interface DeliveryAddress {
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
 
 export enum SaleStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",
   SHIPPED = "shipped",
   DELIVERED = "delivered",
-  CANCELLED = "cancelled"
+  CANCELLED = "cancelled",
 }
 
 export enum PaymentMethod {
-  CREDIT_CARD = "credit_card",
-  DEBIT_CARD = "debit_card",
-  PIX = "pix",
-  BANK_TRANSFER = "bank_transfer",
-  CASH = "cash"
+  CREDIT_CARD = "CREDIT_CARD",
+  DEBIT_CARD = "DEBIT_CARD",
+  PIX = "PIX",
+  CASH = "CASH",
 }
 
 export class SaleItem {
@@ -159,8 +177,9 @@ export class SaleModel {
   @IsEnum(PaymentMethod, { message: "Método de pagamento inválido." })
   private paymentMethod!: PaymentMethod;
 
-  @IsString({ message: "O endereço de entrega deve ser uma string." })
-  private deliveryAddress!: string;
+  @IsObject({ message: "O endereço de entrega deve ser um objeto válido." })
+  @ValidateNested()
+  private deliveryAddress!: DeliveryAddress;
 
   @IsString({ message: "As observações devem ser uma string." })
   @IsOptional()
@@ -176,7 +195,7 @@ export class SaleModel {
     subtotal: number,
     total: number,
     paymentMethod: PaymentMethod,
-    deliveryAddress: string,
+    deliveryAddress: DeliveryAddress,
     discount?: number,
     couponCode?: string,
     status: SaleStatus = SaleStatus.PENDING,
@@ -229,7 +248,7 @@ export class SaleModel {
     return this.paymentMethod;
   }
 
-  public getDeliveryAddress(): string {
+  public getDeliveryAddress(): DeliveryAddress {
     return this.deliveryAddress;
   }
 
@@ -293,7 +312,7 @@ export class SaleModel {
     this.updateTimestamp();
   }
 
-  public setDeliveryAddress(deliveryAddress: string): void {
+  public setDeliveryAddress(deliveryAddress: DeliveryAddress): void {
     this.deliveryAddress = deliveryAddress;
     this.updateTimestamp();
   }
@@ -366,7 +385,9 @@ export class SaleModel {
   }
 
   public canBeCancelled(): boolean {
-    return this.status === SaleStatus.PENDING || this.status === SaleStatus.CONFIRMED;
+    return (
+      this.status === SaleStatus.PENDING || this.status === SaleStatus.CONFIRMED
+    );
   }
 
   public getStatusDescription(): string {
@@ -394,8 +415,6 @@ export class SaleModel {
         return "Cartão de Débito";
       case PaymentMethod.PIX:
         return "PIX";
-      case PaymentMethod.BANK_TRANSFER:
-        return "Transferência Bancária";
       case PaymentMethod.CASH:
         return "Dinheiro";
       default:

@@ -60,35 +60,49 @@
           <p>Você ainda não fez nenhum pedido.</p>
         </div>
 
-        <div v-else>
-          <div v-for="order in orders" :key="order.id" class="order-card">
+        <div v-else-if="!loading">
+          <div v-for="order in orders" :key="order._id" class="order-card">
             <div class="order-header">
-              <span><strong>Pedido:</strong> #{{ order.id }}</span>
-              <span><strong>Data:</strong> {{ order.date }}</span>
-              <span><strong>Status:</strong> {{ order.status }}</span>
+              <span><strong>Pedido:</strong> #{{ order._id?.substring(0, 8) || 'N/A' }}</span>
+              <span><strong>Data:</strong> {{ formatDate(order.createdAt) }}</span>
+              <span><strong>Status:</strong> {{ getStatusInPortuguese(order.status) }}</span>
             </div>
 
             <div class="order-items">
               <div
                 v-for="item in order.items"
-                :key="item.id"
+                :key="item.itemId"
                 class="order-item"
               >
-                <img :src="item.image" alt="Produto" />
+                <img :src="item.image || '/volleyball.png'" alt="Produto" />
                 <div>
                   <p>
-                    <strong>{{ item.name }}</strong>
+                    <strong>{{ item.itemName }}</strong>
                   </p>
+                  <p v-if="item.selectedColor">Cor: {{ item.selectedColor }}</p>
+                  <p v-if="item.selectedSize">Tamanho: {{ item.selectedSize }}</p>
                   <p>Quantidade: {{ item.quantity }}</p>
-                  <p>Preço: R$ {{ item.price.toFixed(2) }}</p>
+                  <p>Preço: R$ {{ item.unitPrice.toFixed(2) }}</p>
                 </div>
               </div>
             </div>
 
             <div class="order-footer">
               <strong>Total: R$ {{ order.total.toFixed(2) }}</strong>
+              <div v-if="order.discount && order.discount > 0" class="discount-info">
+                <small>Desconto aplicado: {{ order.discount }}%</small>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div v-else-if="loading" style="text-align: center; padding: 20px">
+          <p>Carregando pedidos...</p>
+        </div>
+
+        <div v-else-if="error" style="text-align: center; padding: 20px; color: red">
+          <p>{{ error }}</p>
+          <button @click="loadOrders" class="retry-button">Tentar novamente</button>
         </div>
       </div>
     </div>
@@ -98,71 +112,68 @@
 <script setup lang="ts">
 import Header from "../../components/Header.vue";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import SaleService, { Sale, SaleStatus } from "../../api/SaleService";
 
 const router = useRouter();
 
-interface OrderItem {
-  id: number;
-  name: string;
-  image: string;
-  quantity: number;
-  price: number;
-}
+const orders = ref<Sale[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
 
-interface Order {
-  id: number;
-  date: string;
-  status: string;
-  items: OrderItem[];
-  total: number;
-}
+const getStatusInPortuguese = (status: SaleStatus): string => {
+  switch (status) {
+    case SaleStatus.PENDING:
+      return "Aguardando confirmação";
+    case SaleStatus.CONFIRMED:
+      return "Confirmado";
+    case SaleStatus.SHIPPED:
+      return "Enviado";
+    case SaleStatus.DELIVERED:
+      return "Entregue";
+    case SaleStatus.CANCELLED:
+      return "Cancelado";
+    default:
+      return "Status desconhecido";
+  }
+};
 
-const orders = ref<Order[]>([
-  {
-    id: 1023,
-    date: "03/06/2025",
-    status: "Entregue",
-    total: 129.9,
-    items: [
-      {
-        id: 1,
-        name: "Espada Longa",
-        image: "/espada.png",
-        quantity: 1,
-        price: 89.9,
-      },
-      {
-        id: 2,
-        name: "Poção de Vida",
-        image: "/pocao.png",
-        quantity: 2,
-        price: 20.0,
-      },
-    ],
-  },
-  {
-    id: 1022,
-    date: "28/05/2025",
-    status: "Cancelado",
-    total: 59.9,
-    items: [
-      {
-        id: 3,
-        name: "Armadura de Couro",
-        image: "/armadura.png",
-        quantity: 1,
-        price: 59.9,
-      },
-    ],
-  },
-]);
+const formatDate = (date: Date | string | undefined): string => {
+  if (!date) return "Data não disponível";
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return dateObj.toLocaleDateString("pt-BR");
+};
+
+const loadOrders = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+
+    const salesData = await SaleService.getSalesByUser(userId);
+    orders.value = salesData;
+  } catch (err) {
+    console.error("Erro ao carregar pedidos:", err);
+    error.value = "Erro ao carregar os pedidos. Tente novamente.";
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadOrders();
+});
 
 const logout = () => {
   localStorage.removeItem("token");
-    localStorage.removeItem("isAdmin");
-    localStorage.removeItem("userId");
-    router.push("/login");
+  localStorage.removeItem("isAdmin");
+  localStorage.removeItem("userId");
+  router.push("/login");
 }
 </script>
 
@@ -215,5 +226,25 @@ const logout = () => {
   margin-top: 10px;
   font-size: 1.1em;
   color: var(--vt-c-blue);
+}
+
+.discount-info {
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.retry-button {
+  padding: 10px 20px;
+  background-color: var(--vt-c-blue);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.retry-button:hover {
+  background-color: var(--vt-c-blue-dark);
 }
 </style>
