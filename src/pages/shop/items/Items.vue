@@ -26,6 +26,12 @@
         >
           Mostrar Cupons
         </router-link>
+        <router-link
+          to="/admin/vendas/relatorio"
+          style="text-decoration: none; color: black; padding: 20px 10px"
+        >
+          Relatório de Vendas
+        </router-link>
       </button>
 
       <div class="name-filter">

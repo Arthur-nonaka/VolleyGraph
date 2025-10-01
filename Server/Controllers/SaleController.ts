@@ -1,8 +1,29 @@
 import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
-import { SaleModel, SaleItem, SaleStatus, PaymentMethod } from "../Models/SaleModel";
+import {
+  SaleModel,
+  SaleItem,
+  SaleStatus,
+  PaymentMethod,
+} from "../Models/SaleModel";
 import { ResponseMessages } from "../Constants/ResponseMessages";
 import { validate } from "class-validator";
+import { config } from "dotenv";
+import path from "path";
+
+config({ path: path.resolve(__dirname, "../../.env") });
+const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
+
+// Helper function to format image URLs in sales
+const formatSaleImages = (sales: any[]) => {
+  return sales.map((sale) => ({
+    ...sale,
+    items: sale.items.map((item: any) => ({
+      ...item,
+      image: item.image ? `${SERVER_ADDRESS}/uploads/${item.image}` : null,
+    })),
+  }));
+};
 
 export const getSale = async (req: Request, res: Response) => {
   try {
@@ -25,13 +46,17 @@ export const getSale = async (req: Request, res: Response) => {
       if (endDate) filters.createdAt.$lte = new Date(endDate as string);
     }
 
-    const sales = await collection.find(filters).sort({ createdAt: -1 }).toArray();
+    const sales = await collection
+      .find(filters)
+      .sort({ createdAt: -1 })
+      .toArray();
 
-    res.status(200).json(sales);
+    const formattedSales = formatSaleImages(sales);
+    res.status(200).json(formattedSales);
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao buscar vendas", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao buscar vendas",
+      details: error.message,
     });
   }
 };
@@ -49,14 +74,15 @@ export const getSaleById = async (req: Request, res: Response) => {
     const sale = await collection.findOne({ _id: new ObjectId(id) });
 
     if (sale) {
-      res.status(200).json(sale);
+      const formattedSale = formatSaleImages([sale])[0];
+      res.status(200).json(formattedSale);
     } else {
       res.status(404).send(ResponseMessages.SALE_NOT_FOUND);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao buscar venda", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao buscar venda",
+      details: error.message,
     });
   }
 };
@@ -71,28 +97,32 @@ export const getSalesByUser = async (req: Request, res: Response) => {
 
   try {
     const collection = await req.mongoDB!.getCollection("sales");
-    const sales = await collection.find({ userId }).sort({ createdAt: -1 }).toArray();
+    const sales = await collection
+      .find({ userId })
+      .sort({ createdAt: -1 })
+      .toArray();
 
-    res.status(200).json(sales);
+    const formattedSales = formatSaleImages(sales);
+    res.status(200).json(formattedSales);
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao buscar vendas do usuário", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao buscar vendas do usuário",
+      details: error.message,
     });
   }
 };
 
 export const createSale = async (req: Request, res: Response) => {
-  const { 
-    userId, 
-    items, 
-    subtotal, 
-    total, 
-    paymentMethod, 
+  const {
+    userId,
+    items,
+    subtotal,
+    total,
+    paymentMethod,
     deliveryAddress,
     discount,
     couponCode,
-    notes 
+    notes,
   } = req.body;
 
   if (!userId || !items || !Array.isArray(items) || items.length === 0) {
@@ -101,21 +131,25 @@ export const createSale = async (req: Request, res: Response) => {
   }
 
   if (!subtotal || !total || !paymentMethod || !deliveryAddress) {
-    res.status(400).json({ error: "Dados obrigatórios: subtotal, total, paymentMethod, deliveryAddress" });
+    res.status(400).json({
+      error:
+        "Dados obrigatórios: subtotal, total, paymentMethod, deliveryAddress",
+    });
     return;
   }
 
   try {
-    const saleItems = items.map((item: any) => 
-      new SaleItem(
-        item.itemId,
-        item.itemName,
-        item.unitPrice,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )
+    const saleItems = items.map(
+      (item: any) =>
+        new SaleItem(
+          item.itemId,
+          item.itemName,
+          item.unitPrice,
+          item.quantity,
+          item.selectedColor,
+          item.selectedSize,
+          item.image
+        )
     );
 
     const sale = new SaleModel(
@@ -159,9 +193,9 @@ export const createSale = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_CREATING_SALE);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_CREATING_SALE, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_CREATING_SALE,
+      details: error.message,
     });
   }
 };
@@ -170,7 +204,9 @@ export const createSaleFromCart = async (req: Request, res: Response) => {
   const { userId, paymentMethod, deliveryAddress, notes } = req.body;
 
   if (!userId || !paymentMethod || !deliveryAddress) {
-    res.status(400).json({ error: "Dados obrigatórios: userId, paymentMethod, deliveryAddress" });
+    res.status(400).json({
+      error: "Dados obrigatórios: userId, paymentMethod, deliveryAddress",
+    });
     return;
   }
 
@@ -184,21 +220,38 @@ export const createSaleFromCart = async (req: Request, res: Response) => {
       return;
     }
 
-    // Convert cart items to sale items
-    const saleItems = cart.items.map((item: any) => 
-      new SaleItem(
-        item.itemId,
-        item.itemName,
-        item.price,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )
-    );
+    const itemsCollection = await req.mongoDB!.getCollection("items");
+    const saleItems: SaleItem[] = [];
 
-    // Calculate amounts
-    const subtotal = saleItems.reduce((total: number, item: SaleItem) => total + item.getTotalPrice(), 0);
+    for (const cartItem of cart.items) {
+      const itemDetails = await itemsCollection.findOne({
+        _id: new ObjectId(cartItem.itemId),
+      });
+
+      if (!itemDetails) {
+        res.status(400).json({
+          error: `Item não encontrado: ${cartItem.itemId}`,
+        });
+        return;
+      }
+
+      const saleItem = new SaleItem(
+        cartItem.itemId,
+        itemDetails.name,
+        itemDetails.price,
+        cartItem.quantity,
+        cartItem.selectedColor,
+        cartItem.selectedSize,
+        itemDetails.image
+      );
+
+      saleItems.push(saleItem);
+    }
+
+    const subtotal = saleItems.reduce(
+      (total: number, item: SaleItem) => total + item.getTotalPrice(),
+      0
+    );
     const discount = cart.discount || 0;
     const discountAmount = (subtotal * discount) / 100;
     const total = subtotal - discountAmount;
@@ -229,13 +282,13 @@ export const createSaleFromCart = async (req: Request, res: Response) => {
       // Clear the cart after successful sale creation
       await cartCollection.updateOne(
         { userId },
-        { 
-          $set: { 
-            items: [], 
-            couponCode: null, 
+        {
+          $set: {
+            items: [],
+            couponCode: null,
             discount: 0,
-            updatedAt: new Date()
-          } 
+            updatedAt: new Date(),
+          },
         }
       );
 
@@ -248,9 +301,9 @@ export const createSaleFromCart = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_CREATING_SALE);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_CREATING_SALE, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_CREATING_SALE,
+      details: error.message,
     });
   }
 };
@@ -280,15 +333,18 @@ export const updateSaleStatus = async (req: Request, res: Response) => {
 
     const saleModel = new SaleModel(
       existingSale.userId,
-      existingSale.items?.map((item: any) => new SaleItem(
-        item.itemId,
-        item.itemName,
-        item.unitPrice,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
+      existingSale.items?.map(
+        (item: any) =>
+          new SaleItem(
+            item.itemId,
+            item.itemName,
+            item.unitPrice,
+            item.quantity,
+            item.selectedColor,
+            item.selectedSize,
+            item.image
+          )
+      ) || [],
       existingSale.subtotal,
       existingSale.total,
       existingSale.paymentMethod,
@@ -303,7 +359,13 @@ export const updateSaleStatus = async (req: Request, res: Response) => {
 
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { status: saleModel.getStatus(), updatedAt: saleModel.getUpdatedAt(), deliveredAt: saleModel.getDeliveredAt() } }
+      {
+        $set: {
+          status: saleModel.getStatus(),
+          updatedAt: saleModel.getUpdatedAt(),
+          deliveredAt: saleModel.getDeliveredAt(),
+        },
+      }
     );
 
     if (result.modifiedCount > 0) {
@@ -331,9 +393,9 @@ export const updateSaleStatus = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_UPDATING_SALE);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_UPDATING_SALE, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_UPDATING_SALE,
+      details: error.message,
     });
   }
 };
@@ -357,15 +419,18 @@ export const cancelSale = async (req: Request, res: Response) => {
 
     const saleModel = new SaleModel(
       existingSale.userId,
-      existingSale.items?.map((item: any) => new SaleItem(
-        item.itemId,
-        item.itemName,
-        item.unitPrice,
-        item.quantity,
-        item.selectedColor,
-        item.selectedSize,
-        item.image
-      )) || [],
+      existingSale.items?.map(
+        (item: any) =>
+          new SaleItem(
+            item.itemId,
+            item.itemName,
+            item.unitPrice,
+            item.quantity,
+            item.selectedColor,
+            item.selectedSize,
+            item.image
+          )
+      ) || [],
       existingSale.subtotal,
       existingSale.total,
       existingSale.paymentMethod,
@@ -385,7 +450,12 @@ export const cancelSale = async (req: Request, res: Response) => {
 
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { status: saleModel.getStatus(), updatedAt: saleModel.getUpdatedAt() } }
+      {
+        $set: {
+          status: saleModel.getStatus(),
+          updatedAt: saleModel.getUpdatedAt(),
+        },
+      }
     );
 
     if (result.modifiedCount > 0) {
@@ -397,9 +467,9 @@ export const cancelSale = async (req: Request, res: Response) => {
       res.status(500).send(ResponseMessages.ERROR_CANCELLING_SALE);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_CANCELLING_SALE, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_CANCELLING_SALE,
+      details: error.message,
     });
   }
 };
@@ -427,9 +497,9 @@ export const updateSaleNotes = async (req: Request, res: Response) => {
       res.status(404).send(ResponseMessages.SALE_NOT_FOUND);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: ResponseMessages.ERROR_UPDATING_SALE, 
-      details: error.message 
+    res.status(500).json({
+      error: ResponseMessages.ERROR_UPDATING_SALE,
+      details: error.message,
     });
   }
 };
@@ -439,19 +509,20 @@ export const getSalesStatistics = async (req: Request, res: Response) => {
     const collection = await req.mongoDB!.getCollection("sales");
 
     const totalSales = await collection.countDocuments();
-    const totalRevenue = await collection.aggregate([
-      { $group: { _id: null, total: { $sum: "$total" } } }
-    ]).toArray();
+    const totalRevenue = await collection
+      .aggregate([{ $group: { _id: null, total: { $sum: "$total" } } }])
+      .toArray();
 
-    const salesByStatus = await collection.aggregate([
-      { $group: { _id: "$status", count: { $sum: 1 } } }
-    ]).toArray();
+    const salesByStatus = await collection
+      .aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }])
+      .toArray();
 
-    const salesByPaymentMethod = await collection.aggregate([
-      { $group: { _id: "$paymentMethod", count: { $sum: 1 } } }
-    ]).toArray();
+    const salesByPaymentMethod = await collection
+      .aggregate([{ $group: { _id: "$paymentMethod", count: { $sum: 1 } } }])
+      .toArray();
 
-    const recentSales = await collection.find()
+    const recentSales = await collection
+      .find()
       .sort({ createdAt: -1 })
       .limit(10)
       .toArray();
@@ -472,9 +543,9 @@ export const getSalesStatistics = async (req: Request, res: Response) => {
 
     res.status(200).json(statistics);
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao obter estatísticas de vendas", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao obter estatísticas de vendas",
+      details: error.message,
     });
   }
 };
@@ -498,9 +569,9 @@ export const deleteSale = async (req: Request, res: Response) => {
       res.status(404).send(ResponseMessages.SALE_NOT_FOUND);
     }
   } catch (error: any) {
-    res.status(500).json({ 
-      error: "Erro ao deletar venda", 
-      details: error.message 
+    res.status(500).json({
+      error: "Erro ao deletar venda",
+      details: error.message,
     });
   }
 };

@@ -19,6 +19,7 @@ import RegisterCupom from "@/pages/shop/RegisterCupom.vue";
 import Cupoms from "@/pages/shop/Cupoms.vue";
 import Matches from "@/pages/matches/Matches.vue";
 import RegisterMatches from "@/pages/matches/RegisterMatch.vue";
+import SalesReport from "@/pages/admin/SalesReport.vue";
 import { isAuthenticated } from "./auth";
 import { Components } from "bootstrap-vue-3";
 
@@ -42,6 +43,7 @@ const routes = [
   { path: "/loja/cupom", component: RegisterCupom },
   { path: "/loja/cupom/registrar", component: RegisterCupom },
   { path: "/loja/cupom/mostrar", component: Cupoms },
+  { path: "/admin/vendas/relatorio", component: SalesReport },
   { path: "/times", component: Teams },
   { path: "/times/:id", component: Team },
   { path: "/times/registrar", component: RegisterTeam },

@@ -106,6 +106,14 @@
       </div>
     </div>
   </transition>
+  <Checkout
+    :showCheckout="showCheckout"
+    :totalPrice="totalPrice"
+    :discount="discount"
+    :fetchCart="fetchCart"
+    @close="showCheckout = false"
+    @purchase-success="show = false"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -113,6 +121,8 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useCart } from "@/composables/useCart";
 import CupomService from "@/api/CupomService";
 import ItemService from "@/api/ItemService";
+import Checkout from "@/components/Checkout.vue";
+import SaleService, { PaymentMethod, DeliveryAddress } from "@/api/SaleService";
 
 const userId = ref(localStorage.getItem("userId") || "");
 
@@ -122,15 +132,28 @@ const discount = ref(0);
 const cupomError = ref("");
 const productDetails = ref<Record<string, any>>({});
 
+// Estados do checkout
+const showCheckout = ref(false);
+const checkoutLoading = ref(false);
+const selectedPaymentMethod = ref<PaymentMethod>();
+const notes = ref("");
+const deliveryAddress = ref<DeliveryAddress>({
+  street: "",
+  number: "",
+  complement: "",
+  neighborhood: "",
+  city: "",
+  state: "",
+  zipCode: "",
+});
+
 const {
   cart,
   loading,
   error,
   fetchCart,
-  addItem,
   removeItem: removeItemFromCart,
   updateQuantity,
-  clearCart,
 } = useCart(userId.value);
 
 interface CartItem {
@@ -141,7 +164,6 @@ interface CartItem {
   productDetails?: any;
 }
 
-// Interface para o carrinho
 interface Cart {
   items: CartItem[];
   userId: string;
@@ -149,7 +171,6 @@ interface Cart {
   updatedAt: string;
 }
 
-// Buscar detalhes dos produtos quando o carrinho mudar
 const cartItemsWithDetails = computed(() => {
   if (!cart.value || !(cart.value as Cart).items) return [];
 
@@ -159,7 +180,6 @@ const cartItemsWithDetails = computed(() => {
   }));
 });
 
-// Calcular total de itens
 const totalItems = computed(() => {
   if (!cart.value || !(cart.value as Cart).items) return 0;
   return (cart.value as Cart).items.reduce(
@@ -168,7 +188,6 @@ const totalItems = computed(() => {
   );
 });
 
-// Calcular preço total
 const totalPrice = computed(() => {
   return cartItemsWithDetails.value.reduce((sum: number, item: any) => {
     const price = item.productDetails?.price || 0;
@@ -176,7 +195,6 @@ const totalPrice = computed(() => {
   }, 0);
 });
 
-// Buscar detalhes dos produtos
 const fetchProductDetails = async () => {
   if (!cart.value || !(cart.value as Cart).items) return;
 
@@ -197,7 +215,6 @@ const fetchProductDetails = async () => {
   }
 };
 
-// Aplicar cupom
 async function applyCupom() {
   if (!cupom.value) {
     return;
@@ -219,7 +236,6 @@ async function applyCupom() {
   }
 }
 
-// Remover item do carrinho
 async function removeItem(item: CartItem) {
   try {
     await removeItemFromCart({
@@ -232,7 +248,6 @@ async function removeItem(item: CartItem) {
   }
 }
 
-// Aumentar quantidade
 async function increaseQuantity(item: CartItem) {
   try {
     await updateQuantity({
@@ -246,7 +261,6 @@ async function increaseQuantity(item: CartItem) {
   }
 }
 
-// Diminuir quantidade
 async function decreaseQuantity(item: CartItem) {
   if (item.quantity <= 1) {
     await removeItem(item);
@@ -264,23 +278,17 @@ async function decreaseQuantity(item: CartItem) {
   }
 }
 
-// Finalizar compra
 function checkout() {
-  // Implementar lógica de checkout
-  console.log("Finalizar compra");
-  // Redirecionar para página de checkout ou abrir modal
+  showCheckout.value = true;
 }
 
 function handleClick() {
   show.value = !show.value;
 }
 
-// Buscar detalhes dos produtos quando o carrinho mudar
 watch(cart, fetchProductDetails, { deep: true });
 
-// Inicializar userId (substituir pela sua lógica de autenticação)
 onMounted(() => {
-  // Exemplo: pegar userId do localStorage ou store
   const storedUserId = localStorage.getItem("userId");
   if (storedUserId) {
     userId.value = storedUserId;
@@ -534,45 +542,5 @@ onMounted(() => {
 .checkout-btn:hover {
   background: #e65100;
   transform: translateY(-2px) scale(1.03);
-}
-
-.coupon-input {
-  width: 200px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.95rem;
-}
-
-.cart-coupon {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 22px;
-  margin-top: 10px;
-}
-
-.apply-coupon-btn {
-  margin-left: 10px;
-  padding: 8px 12px;
-  background: var(--vt-c-orange, #ff9800);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-}
-.apply-coupon-btn:hover {
-  background: #e65100;
-  transform: translateY(-2px) scale(1.03);
-}
-
-.error-message {
-  color: #e53935;
-  font-size: 0.9rem;
-  padding: 0 22px;
-  display: block;
-  margin-top: -10px;
 }
 </style>

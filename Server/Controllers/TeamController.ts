@@ -20,6 +20,10 @@ export const getTeam = async (req: Request, res: Response) => {
 
     const teams = await collection.find(filters).toArray();
 
+    teams.forEach((item) => {
+      item.logo = item.logo ? `${SERVER_ADDRESS}/uploads/${item.logo}` : null;
+    });
+
     res.status(200).json(teams);
   } catch (error: any) {
     res.status(500).send(error.message);

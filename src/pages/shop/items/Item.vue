@@ -186,19 +186,26 @@
               </div>
               <button
                 class="button"
-                :disabled="(!selectedColor || !selectedSize) && !item?.quantity || cartLoading"
+                :disabled="
+                  ((!selectedColor || !selectedSize) && !item?.quantity) ||
+                  cartLoading
+                "
                 @click="handleAddToCart"
               >
                 <img class="img" src="/carrinho.png" />
                 <span style="font-weight: 700">
-                  {{ cartLoading ? 'Adicionando...' : 'Comprar' }}
+                  {{ cartLoading ? "Adicionando..." : "Comprar" }}
                 </span>
               </button>
-              
+
               <div v-if="cartError" class="error-message">
                 {{ cartError }}
               </div>
-              
+
+              <div v-if="loginWarning" class="warning-message">
+                {{ loginWarning }}
+              </div>
+
               <div v-if="successMessage" class="success-message">
                 {{ successMessage }}
               </div>
@@ -223,17 +230,16 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 const quantity = ref(1);
 const successMessage = ref("");
+const loginWarning = ref("");
 
-// Assumindo que você tem uma forma de obter o userId do usuário logado
-const userId = ref(localStorage.getItem('userId') || 'user123');
+const userId = ref(localStorage.getItem("userId"));
 
-// Usar o composable do carrinho
 const {
   cart,
   loading: cartLoading,
   error: cartError,
   addItem,
-} = useCart(userId.value);
+} = useCart(userId.value || "");
 
 const lensVisible = ref(false);
 const lensStyle = ref({});
@@ -267,24 +273,36 @@ const allVariations = computed(() => {
 // Função para adicionar ao carrinho
 const handleAddToCart = async () => {
   if (!item.value) return;
-  
+
+  // Verificar se o usuário está logado
+  if (!userId.value) {
+    loginWarning.value =
+      "Você precisa fazer login para adicionar itens ao carrinho.";
+
+    // Limpar mensagem após 5 segundos
+    setTimeout(() => {
+      loginWarning.value = "";
+    }, 5000);
+    return;
+  }
+
   try {
     successMessage.value = "";
-    
+    loginWarning.value = "";
+
     await addItem({
       itemId: item.value._id,
       quantity: quantity.value,
       selectedColor: selectedColor.value || undefined,
       selectedSize: selectedSize.value || undefined,
     });
-    
+
     successMessage.value = "Produto adicionado ao carrinho com sucesso!";
-    
+
     // Limpar mensagem após 3 segundos
     setTimeout(() => {
       successMessage.value = "";
     }, 3000);
-    
   } catch (err) {
     console.error("Erro ao adicionar ao carrinho:", err);
   }
@@ -495,6 +513,16 @@ button:disabled {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.warning-message {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
   border-radius: 4px;
   font-size: 14px;
 }
