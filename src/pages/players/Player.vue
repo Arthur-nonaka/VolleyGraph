@@ -19,12 +19,23 @@
         <!-- Header -->
         <div class="player-header">
           <div class="player-avatar">
-            <span class="avatar-initial">{{ player.name?.charAt(0).toUpperCase() }}</span>
+            <img
+              v-if="player.imageUrl"
+              :src="player.imageUrl"
+              alt="Foto do jogador"
+              class="avatar-image"
+            />
+            <span v-else class="avatar-initial">
+              {{ player.name?.charAt(0).toUpperCase() }}
+            </span>
           </div>
+
           <div class="player-basic-info">
             <h1 class="player-name">{{ player.name }}</h1>
             <div class="player-status">
-              <span :class="['status-badge', player.retired ? 'retired' : 'active']">
+              <span
+                :class="['status-badge', player.retired ? 'retired' : 'active']"
+              >
                 {{ player.retired ? "Aposentado" : "Ativo" }}
               </span>
 
@@ -142,7 +153,6 @@ const formatDate = (dateString: string | null): string => {
 onMounted(fetchPlayer);
 </script>
 
-
 <style scoped>
 .player-info-container {
   min-height: 100vh;
@@ -181,8 +191,12 @@ onMounted(fetchPlayer);
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error State */
@@ -245,11 +259,19 @@ onMounted(fetchPlayer);
   font-weight: 700;
 }
 
-.player-status{
+.player-status {
   width: auto;
   display: flex;
   flex-direction: row;
 }
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 
 .status-badge {
   display: inline-block;
@@ -274,7 +296,7 @@ onMounted(fetchPlayer);
   border: 2px solid #f1b0b7;
 }
 
-.player-position{
+.player-position {
   display: inline-block;
   padding: 0.5rem 1rem;
   border-radius: 25px;
@@ -286,7 +308,6 @@ onMounted(fetchPlayer);
   border: 2px solid #a0a0a0;
   width: auto;
   margin-right: 1rem;
-
 }
 
 /* Stats Grid */
@@ -370,12 +391,20 @@ onMounted(fetchPlayer);
 
 .position-card.primary {
   border-color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(102, 126, 234, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1),
+    rgba(102, 126, 234, 0.05)
+  );
 }
 
 .position-card.secondary {
   border-color: #764ba2;
-  background: linear-gradient(135deg, rgba(118, 75, 162, 0.1), rgba(118, 75, 162, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(118, 75, 162, 0.1),
+    rgba(118, 75, 162, 0.05)
+  );
 }
 
 .position-card:hover {
@@ -427,7 +456,11 @@ onMounted(fetchPlayer);
 
 .stat-card.total {
   border: 2px solid #ffc107;
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.1),
+    rgba(255, 193, 7, 0.05)
+  );
 }
 
 .stat-icon {
@@ -459,38 +492,38 @@ onMounted(fetchPlayer);
   .player-info-container {
     padding: 1rem 0.5rem;
   }
-  
+
   .player-content {
     padding: 1.5rem;
   }
-  
+
   .player-header {
     flex-direction: column;
     text-align: center;
     gap: 1rem;
   }
-  
+
   .player-name {
     font-size: 2rem;
   }
-  
+
   .player-avatar {
     width: 80px;
     height: 80px;
   }
-  
+
   .avatar-initial {
     font-size: 2rem;
   }
-  
+
   .stats-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .info-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .position-cards {
     grid-template-columns: 1fr;
   }
@@ -500,17 +533,17 @@ onMounted(fetchPlayer);
   .player-name {
     font-size: 1.5rem;
   }
-  
+
   .stat-card {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
   }
-  
+
   .stat-icon {
     font-size: 1.5rem;
   }
-  
+
   .stat-value {
     font-size: 1.5rem;
   }

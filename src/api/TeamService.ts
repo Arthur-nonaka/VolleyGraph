@@ -4,8 +4,9 @@ const SERVER_ADDRESS = import.meta.env.VITE_SERVER_ADDRESS;
 
 const api = axios.create({
   baseURL: `${SERVER_ADDRESS}/team`,
-  headers: { "Content-Type": "multipart/form-data" },
+  headers: { "Content-Type": "application/json" },
 });
+
 
 export const createTeam = async (TeamData: any): Promise<AxiosResponse> =>
   api.post("", TeamData);
@@ -17,7 +18,7 @@ export const deleteTeam = async (id: string) => api.delete(`/${id}`);
 export const addPlayerToTeam = async (data: any) =>
   api.post("/player", data);
 export const removePlayerFromTeam = async (data: any) =>
-  api.delete("/player", data);
+  api.delete("/player", { data });
 export const getTeamsForPlayer = async (playerId: string) =>
   api.get(`/player/${playerId}`);
 

@@ -13,15 +13,23 @@
         <p>Altura: {{ player.height }} m</p>
       </div>
     </router-link>
-    <div v-if="isAdmin" class="player-edit">
-      <router-link :to="`/jogadores/editar/${player._id}`"
-        ><button>🖊</button></router-link
-      >
+
+    <!-- Botão de remover fora do router-link -->
+    <button
+      v-if="isAdmin && showRemoveButton"
+      class="remove-btn"
+      @click="handleRemove"
+    >
+      Remover
+    </button>
+
+    <!-- Botões de editar e deletar, se aplicável -->
+    <div v-if="isAdmin && showEditAndDelete" class="player-edit">
+      <router-link :to="`/jogadores/editar/${player._id}`">
+        <button>🖊</button>
+      </router-link>
       <button class="delete" @click="handleDelete">🗑</button>
     </div>
-    <!-- <p v-if="player.subPosition">
-          Posição Secundária: {{ player.subPosition }}
-        </p> -->
   </div>
 </template>
 
@@ -30,29 +38,26 @@ import { defineProps } from "vue";
 import PlayerService from "@/api/PlayerService";
 
 const props = defineProps({
-  player: {
-    type: Object,
-    required: true,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
+  player: { type: Object, required: true },
+  isAdmin: { type: Boolean, default: false },
+  showRemoveButton: { type: Boolean, default: false },
+  showEditAndDelete: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["playerDeleted"]);
 
-const { player } = props;
-
 const handleDelete = async () => {
-  const id = player._id;
   try {
-    await PlayerService.deletePlayer(id);
-
+    await PlayerService.deletePlayer(props.player._id);
     emit("playerDeleted");
   } catch (error) {
     console.error("Error deleting player:", error);
   }
+};
+
+const handleRemove = (event: MouseEvent) => {
+  event.stopPropagation(); // garante que não navegue para o router-link
+  emit("playerDeleted", props.player._id);
 };
 </script>
 
@@ -63,7 +68,6 @@ const handleDelete = async () => {
   background-color: #f9f9f9;
   height: 300px;
   text-decoration: none;
-  /* width: 20vw; */
   color: black;
   display: flex;
   flex-direction: column;
@@ -81,6 +85,7 @@ a {
   align-items: center;
   height: 200px;
 }
+
 .player-info {
   padding: 0.4rem;
 }
@@ -92,10 +97,6 @@ a {
 
 .player-card p {
   margin: 4px 0;
-}
-
-.player-card p:last-child {
-  margin-bottom: 0;
 }
 
 .player-edit {
@@ -117,8 +118,7 @@ a {
   border-radius: 50%;
   width: 35px;
   height: 35px;
-  transition: background-color 0.3s ease, border 0.3s ease, color 0.3s ease,
-    width 0.3s ease, height 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .player-edit button:hover {
@@ -127,19 +127,33 @@ a {
   border: 2px solid black;
   width: 37px;
   height: 37px;
-  transition: background-color 0.3s ease, border 0.3s ease, color 0.3s ease,
-    width 0.3s ease, height 0.3s ease;
 }
 
 .player-edit .delete {
   background-color: var(--vt-c-red);
   color: #fff;
-  transition: background-color 0.3s ease, border 0.3s ease, color 0.3s ease,
-    width 0.3s ease, height 0.3s ease; 
 }
 
 .player-edit .delete:hover {
   background-color: var(--vt-c-red-dark);
-  color: var(--vt-c-red);
+}
+
+.remove-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  background-color: var(--vt-c-red);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.remove-btn:hover {
+  background-color: #b00000;
 }
 </style>

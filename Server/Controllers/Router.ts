@@ -71,9 +71,17 @@ import {
   getSalesStatistics,
   deleteSale,
 } from "./SaleController";
+import {
+  createMatch,
+  getMatches,
+  getMatchById,
+  updateMatch,
+  deleteMatch,
+} from "./MatchController";
 import { MongoDB } from "../Models/MongoDB";
 import path from "path";
 import { get } from "http";
+import { RequestHandler } from "express";
 
 declare global {
   namespace Express {
@@ -92,13 +100,28 @@ const PORT = 3000;
 
 app.use(mongoMiddleware);
 app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+const corsMiddleware: RequestHandler = (req, res, next) => {
+  const origin = req.headers.origin;
+  res.setHeader("Access-Control-Allow-Origin", origin || "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204); // ou res.status(204).end();
+    return; // importante para não quebrar o type
+  }
+
+  next();
+};
+
+app.use(corsMiddleware);
 
 // Routes
 app.get("/user", getUser);
@@ -130,7 +153,8 @@ app.delete("/team/:id", deleteTeam);
 app.get("/team/player/:playerId", getTeamsForPlayer);
 app.get("/player/team/:teamId", getPlayersForTeam);
 app.post("/team/player", addPlayerToTeam);
-app.delete("/team/player", removePlayerFromTeam);
+app.post("/remove-player", removePlayerFromTeam);
+app.post("/add-player", addPlayerToTeam);
 
 app.get("/cupom", getCupom);
 app.get("/cupom/:id", getCupomById);
@@ -160,6 +184,12 @@ app.put("/sale/:id/status", updateSaleStatus);
 app.put("/sale/:id/notes", updateSaleNotes);
 app.put("/sale/:id/cancel", cancelSale);
 app.delete("/sale/:id", deleteSale);
+
+app.get("/match", getMatches);
+app.get("/match/:id", getMatchById);
+app.post("/match", createMatch);
+app.put("/match/:id", updateMatch);
+app.delete("/match/:id", deleteMatch);
 
 app
   .listen(PORT, () => {

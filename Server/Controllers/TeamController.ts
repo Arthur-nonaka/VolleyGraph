@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { TeamModel } from "../Models/TeamModel";
 import { validate } from "class-validator";
+import { time } from "console";
 
 const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
 
@@ -61,11 +62,17 @@ export const getTeamById = async (req: Request, res: Response) => {
     );
 
     team.players = await playerCollection
-      .find({
-        _id: { $in: playerIds },
-      })
+      .find({ _id: { $in: playerIds } })
       .toArray();
 
+    team.players.forEach((player: any) => {
+      player.age = new Date(player.age).toISOString().split("T")[0]; // se quiser padronizar a idade
+      player.imageUrl = player.imageUrl
+        ? `${SERVER_ADDRESS}/uploads/${player.imageUrl}`
+        : null;
+    });
+
+    team.logo = team.logo ? `${SERVER_ADDRESS}/uploads/${team.logo}` : null;
     if (team) {
       res.status(201).json(team);
     } else {
@@ -157,5 +164,73 @@ export const deleteTeam = async (req: Request, res: Response) => {
     }
   } catch (error: any) {
     res.status(500).send(error.message);
+  }
+};
+
+export const addPlayerToTeam = async (req: Request, res: Response) => {
+  try {
+    const { playerId, teamId } = req.body;
+    const playerTeamCollection = await req.mongoDB!.getCollection("players_teams");
+
+    if (!ObjectId.isValid(playerId) || !ObjectId.isValid(teamId)) {
+      return res.status(400).json({ message: "IDs inválidos" });
+    }
+
+    const existingRelation = await playerTeamCollection.findOne({
+      playerId: new ObjectId(playerId),
+      teamId: new ObjectId(teamId),
+    });
+
+    if (existingRelation) {
+      return res.status(400).json({ message: "Este jogador já está no time." });
+    }
+
+    await playerTeamCollection.insertOne({
+      playerId: new ObjectId(playerId),
+      teamId: new ObjectId(teamId),
+    });
+
+    res.status(201).json({ message: "Jogador adicionado com sucesso!" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const removePlayerFromTeam = async (req: Request, res: Response) => {
+  try {
+    const { playerId, teamId } = req.body;
+    const playerTeamCollection = await req.mongoDB!.getCollection(
+      "players_teams"
+    );
+
+    // Verifica se os IDs foram enviados
+    if (!playerId || !teamId) {
+      return res
+        .status(400)
+        .json({ message: "IDs do jogador e do time são obrigatórios" });
+    }
+
+    // Valida o formato dos IDs
+    if (!ObjectId.isValid(playerId) || !ObjectId.isValid(teamId)) {
+      return res.status(400).json({ message: "IDs inválidos" });
+    }
+
+    // Remove a relação jogador-time
+    // CORREÇÃO: Use os IDs como strings, pois foi assim que foram salvos em addPlayerToTeam
+    const result = await playerTeamCollection.deleteOne({
+      playerId: playerId,
+      teamId: teamId,
+    });
+
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Jogador não encontrado no time." });
+    }
+
+    res.status(200).json({ message: "Jogador removido do time com sucesso!" });
+  } catch (error: any) {
+    console.error("Erro ao remover jogador do time:", error);
+    res.status(500).json({ message: error.message });
   }
 };

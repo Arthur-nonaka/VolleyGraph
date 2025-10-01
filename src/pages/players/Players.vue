@@ -53,6 +53,7 @@
             :is-admin="isAdmin"
             class="g-col-4"
             @player-deleted="fetchPlayers"
+            :showEditAndDelete="true"
           />
         </div>
       </div>

@@ -5,7 +5,7 @@ import { TeamModel } from "../Models/TeamModel";
 import { validate } from "class-validator";
 
 // Buscar todas as partidas
-export const getMatches = async (req: Request, res: Response) => {
+export const getMatches = async (req: Request, res: Response): Promise<void> => {
   try {
     const collection = await req.mongoDB!.getCollection("matches");
     const matches = await collection.find({}).toArray();
@@ -16,17 +16,21 @@ export const getMatches = async (req: Request, res: Response) => {
 };
 
 // Buscar partida por ID
-export const getMatchById = async (req: Request, res: Response) => {
+export const getMatchById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   if (!ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid ID format" });
+    res.status(400).json({ error: "Invalid ID format" });
+    return;
   }
 
   try {
     const collection = await req.mongoDB!.getCollection("matches");
     const match = await collection.findOne({ _id: new ObjectId(id) });
 
-    if (!match) return res.status(404).send("Match not found");
+    if (!match) {
+      res.status(404).send("Match not found");
+      return;
+    }
 
     res.status(200).json(match);
   } catch (error: any) {
@@ -35,7 +39,7 @@ export const getMatchById = async (req: Request, res: Response) => {
 };
 
 // Criar uma partida
-export const createMatch = async (req: Request, res: Response) => {
+export const createMatch = async (req: Request, res: Response): Promise<void> => {
   const { homeTeam, awayTeam, date, location } = req.body;
 
   const home = new TeamModel(
@@ -55,7 +59,8 @@ export const createMatch = async (req: Request, res: Response) => {
 
   const errors = await validate(match);
   if (errors.length > 0) {
-    return res.status(400).json(errors);
+    res.status(400).json(errors);
+    return;
   }
 
   try {
@@ -68,18 +73,22 @@ export const createMatch = async (req: Request, res: Response) => {
 };
 
 // Atualizar partida (placares ou estatísticas)
-export const updateMatch = async (req: Request, res: Response) => {
+export const updateMatch = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { homeTeamScore, awayTeamScore, playersStats } = req.body;
 
   if (!ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid ID format" });
+    res.status(400).json({ error: "Invalid ID format" });
+    return;
   }
 
   try {
     const collection = await req.mongoDB!.getCollection("matches");
     const match = await collection.findOne({ _id: new ObjectId(id) });
-    if (!match) return res.status(404).send("Match not found");
+    if (!match) {
+      res.status(404).send("Match not found");
+      return;
+    }
 
     const updateData: any = {};
     if (homeTeamScore !== undefined) updateData.homeTeamScore = homeTeamScore;
@@ -91,7 +100,20 @@ export const updateMatch = async (req: Request, res: Response) => {
     if (playersStats && Array.isArray(playersStats)) {
       const playerCollection = await req.mongoDB!.getCollection("players");
       for (const stat of playersStats) {
-        const { playerId, APass, BPass, CPass, ASet, BSet, CSet, points, blockPoints, servePoints, spikePoints } = stat;
+        const {
+          playerId,
+          APass,
+          BPass,
+          CPass,
+          ASet,
+          BSet,
+          CSet,
+          points,
+          blockPoints,
+          servePoints,
+          spikePoints,
+        } = stat;
+
         await playerCollection.updateOne(
           { _id: new ObjectId(playerId) },
           {
@@ -119,11 +141,12 @@ export const updateMatch = async (req: Request, res: Response) => {
 };
 
 // Deletar partida
-export const deleteMatch = async (req: Request, res: Response) => {
+export const deleteMatch = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid ID format" });
+    res.status(400).json({ error: "Invalid ID format" });
+    return;
   }
 
   try {

@@ -41,6 +41,7 @@ export const getPlayer = async (req: Request, res: Response) => {
 
     const players = await collection.find(filters).toArray();
 
+
     players.forEach((player) => {
       player.age = new Date(player.age).toISOString().split("T")[0];
       player.imageUrl = player.imageUrl
