@@ -17,6 +17,8 @@ import Address from "@/pages/user/Adress.vue";
 import ChangePasswod from "@/pages/user/ChangePassword.vue";
 import RegisterCupom from "@/pages/shop/RegisterCupom.vue";
 import Cupoms from "@/pages/shop/Cupoms.vue";
+import Matches from "@/pages/matches/Matches.vue";
+import RegisterMatches from "@/pages/matches/RegisterMatch.vue";
 import { isAuthenticated } from "./auth";
 import { Components } from "bootstrap-vue-3";
 
@@ -44,6 +46,8 @@ const routes = [
   { path: "/times/:id", component: Team },
   { path: "/times/registrar", component: RegisterTeam },
   { path: "/times/editar/:id", component: RegisterTeam },
+  { path: "/partidas", component: Matches },
+  { path: "/partidas/registrar", component: RegisterMatches },
   {
     path: "/login",
     component: Login,

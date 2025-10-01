@@ -4,9 +4,7 @@ const SERVER_ADDRESS = import.meta.env.VITE_SERVER_ADDRESS;
 
 const api = axios.create({
   baseURL: `${SERVER_ADDRESS}/team`,
-  headers: {
-    "Content-Type": "multipart/form-data",
-  },
+  headers: { "Content-Type": "multipart/form-data" },
 });
 
 export const createTeam = async (TeamData: any): Promise<AxiosResponse> =>

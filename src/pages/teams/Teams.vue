@@ -188,4 +188,81 @@ img {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+<style scoped>
+/* === LISTAGEM DE TIMES (compacta) === */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+tbody tr {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+}
+
+td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+td img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+td:first-child {
+  width: 60px;
+}
+
+td:nth-child(2) {
+  font-weight: 600;
+  color: #333;
+}
+
+td:nth-child(3) {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+td:last-child {
+  text-align: right;
+}
+
+.btn {
+  margin-left: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
 </style>

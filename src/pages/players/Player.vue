@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div class="player-info-container">
     <div class="player-info">
       <!-- Loading State -->
@@ -48,12 +49,12 @@
             </h3>
             <div class="info-cards">
               <div class="info-card">
-                <div class="info-label">Idade</div>
-                <div class="info-value">{{ player.age }} anos</div>
+                <div class="info-label">Data de Nascimento</div>
+                <div class="info-value">{{ formatDate(player.age) }}</div>
               </div>
               <div class="info-card">
                 <div class="info-label">Altura</div>
-                <div class="info-value">{{ player.height }} m</div>
+                <div class="info-value">{{ player.height }} Metros</div>
               </div>
             </div>
           </div>
@@ -101,46 +102,46 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+<script setup lang="ts">
+import Header from "@/components/Header.vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import PlayerService, { positionTranslations } from "@/api/PlayerService";
 
-export default defineComponent({
-  name: "PlayerInfo",
-  setup() {
-    const route = useRoute();
-    const player = ref<any>(null);
-    const loading = ref(true);
-    const error = ref<string | null>(null);
+const route = useRoute();
+const player = ref<any>(null);
+const loading = ref(true);
+const error = ref<string | null>(null);
 
-    const fetchPlayer = async () => {
-      try {
-        const id = route.params.id as string;
-        const response = await PlayerService.getPlayerById(id);
-        player.value = response.data;
-      } catch (err) {
-        error.value = "Erro ao carregar informações do jogador.";
-      } finally {
-        loading.value = false;
-      }
-    };
+const fetchPlayer = async () => {
+  try {
+    const id = route.params.id as string;
+    const response = await PlayerService.getPlayerById(id);
+    player.value = response.data;
+  } catch (err) {
+    error.value = "Erro ao carregar informações do jogador.";
+  } finally {
+    loading.value = false;
+  }
+};
 
-    const translatePosition = (position: string | null): string | null => {
-      return position ? positionTranslations[position] || position : null;
-    };
+const translatePosition = (position: string | null): string | null => {
+  return position ? positionTranslations[position] || position : null;
+};
 
-    onMounted(fetchPlayer);
+const formatDate = (dateString: string | null): string => {
+  if (!dateString) return "Não informado";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
-    return {
-      player,
-      loading,
-      error,
-      translatePosition,
-    };
-  },
-});
+onMounted(fetchPlayer);
 </script>
+
 
 <style scoped>
 .player-info-container {
@@ -245,10 +246,9 @@ export default defineComponent({
 }
 
 .player-status{
-  width: 40%;
+  width: auto;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
 }
 
 .status-badge {
@@ -259,6 +259,7 @@ export default defineComponent({
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-right: 1rem;
 }
 
 .status-badge.active {
@@ -283,6 +284,8 @@ export default defineComponent({
   letter-spacing: 0.5px;
   background: #dde0de;
   border: 2px solid #a0a0a0;
+  width: auto;
+  margin-right: 1rem;
 
 }
 
